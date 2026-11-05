@@ -54,6 +54,7 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
   return (
     <div className={cn('flex flex-col gap-4', className)}>
       <div
+        role="tablist"
         className={cn(
           'flex items-center gap-1 self-start select-none',
           isGlass
@@ -67,9 +68,12 @@ export const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
           return (
             <button
               key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
               onClick={() => handleTabClick(tab.id)}
               className={cn(
-                'relative text-xs sm:text-sm font-medium transition-colors focus-ring select-none flex items-center gap-2 cursor-pointer',
+                'relative shrink-0 whitespace-nowrap text-xs sm:text-sm font-medium transition-colors focus-ring select-none flex items-center gap-2 cursor-pointer',
                 isGlass
                   ? 'px-4 py-1.5 rounded-full'
                   : 'px-3.5 py-1.5 rounded-lg',
