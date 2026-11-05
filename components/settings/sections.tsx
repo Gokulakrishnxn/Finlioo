@@ -492,9 +492,9 @@ export function DataCard({
           <p className="text-[13px] text-muted-foreground">Permanently removes Finlio&apos;s data from this browser.</p>
         </div>
         <Button
-          variant="outline"
+          variant="destructive"
           onClick={() => setConfirmingErase(true)}
-          className="h-9 rounded-xl text-loss hover:text-loss"
+          className="h-9 rounded-xl"
         >
           <Trash2 className="size-4" />
           Erase all data
@@ -502,7 +502,7 @@ export function DataCard({
       </div>
 
       <AlertDialog open={confirmingErase} onOpenChange={setConfirmingErase}>
-        <AlertDialogContent className="gap-5 rounded-2xl p-6 data-[size=default]:max-w-[calc(100%-2rem)] data-[size=default]:sm:max-w-[440px]">
+        <AlertDialogContent className="gap-5 p-6 [--dialog-width:440px]">
           <AlertDialogHeader className="place-items-start text-left">
             <AlertDialogMedia className="size-11 rounded-full bg-danger-soft text-loss">
               <Trash2 className="size-5" />
@@ -525,7 +525,7 @@ export function DataCard({
             </Button>
           </div>
 
-          <AlertDialogFooter className="-mx-6 -mb-6 rounded-b-2xl px-6 py-4">
+          <AlertDialogFooter>
             <AlertDialogCancel className="h-10 rounded-xl px-4">Keep my data</AlertDialogCancel>
             <Button variant="destructive" onClick={erase} className="h-10 rounded-xl px-4">
               <Trash2 className="size-4" />

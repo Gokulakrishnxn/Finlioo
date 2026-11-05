@@ -59,7 +59,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           showCloseButton={false}
-          className="flex h-[min(620px,calc(100vh-2rem))] w-full max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-[760px] sm:flex-row"
+          className="flex flex-col gap-0 p-0 [--dialog-height:min(620px,calc(100vh-2rem))] [--dialog-overflow:hidden] [--dialog-width:760px] sm:flex-row"
         >
           <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-line bg-sand/60 p-3 sm:w-[210px] sm:flex-col sm:border-r sm:border-b-0">
             <div className="mb-2 hidden items-center justify-between px-2 pt-1 sm:flex">

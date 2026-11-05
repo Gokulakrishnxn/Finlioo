@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ChatProvider } from "@/components/chat/chat-context";
 import { SettingsProvider } from "@/components/settings/settings-dialog";
 import { TourProvider } from "@/components/tour/tour";
+import { MotionRoot } from "@/components/motion-root";
 import { ThemeRoot } from "@/components/theme-root";
 import { PricesProvider } from "@/lib/prices";
 import { StoreProvider } from "@/lib/store";
@@ -45,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {/* Tour wraps Settings: the Settings window can replay the tour. */}
               <TourProvider>
                 <SettingsProvider>
-                  {children}
+                  <MotionRoot>{children}</MotionRoot>
                 </SettingsProvider>
               </TourProvider>
             </ChatProvider>
