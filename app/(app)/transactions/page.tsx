@@ -15,7 +15,7 @@ import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
 import { EXPENSE_CATEGORIES } from "@/lib/types";
 
-type Session = { configured: boolean; signedIn: boolean; gmail?: boolean; email?: string };
+type Session = { configured: boolean; gmail?: boolean; email?: string };
 type Filter = "all" | "expense" | "income";
 
 const MESSAGES: Record<string, string> = {
@@ -56,7 +56,7 @@ export default function TransactionsPage() {
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then(setSession)
-      .catch(() => setSession({ configured: false, signedIn: false }));
+      .catch(() => setSession({ configured: false }));
   }, []);
 
   const lastMonth = previousMonth(month);
@@ -93,7 +93,6 @@ export default function TransactionsPage() {
   }
 
   async function disconnect() {
-    // Stops Gmail reading only; you stay signed in.
     await fetch("/api/auth/gmail", { method: "DELETE" });
     setSession((s) => (s ? { ...s, gmail: false } : s));
     setExpenses(undefined);

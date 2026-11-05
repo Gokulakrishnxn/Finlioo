@@ -102,7 +102,7 @@ export function CookieNotice() {
           <X className="size-4" strokeWidth={1.75} />
         </button>
         <p id={descriptionId} className="mt-3 text-[14px] leading-[1.6] text-[#5d5b56]">
-          Finlio saves your money data and preferences in this browser. There are no advertising or analytics trackers. Google sign-in uses a secure session cookie.
+          Finlio saves your money data and preferences in this browser. There are no advertising or analytics trackers. Connecting Gmail uses a secure session cookie.
         </p>
 
         {details && (
@@ -110,8 +110,8 @@ export function CookieNotice() {
             <StorageDetail icon={HardDrive} title="On your device">
               Holdings, balances, entries and preferences stay in browser storage until you clear them. This notice remembers that you have seen it.
             </StorageDetail>
-            <StorageDetail icon={LockKeyhole} title="Google sign-in">
-              A secure sign-in check lasts 10 minutes. The encrypted Google session cookie lasts up to 30 days and cannot be read by page scripts.
+            <StorageDetail icon={LockKeyhole} title="Gmail connection">
+              A secure connection check lasts 10 minutes. The encrypted Google session cookie lasts up to 30 days and cannot be read by page scripts.
             </StorageDetail>
             <Link href="/cookies" className={cn("inline-flex items-center gap-1 rounded-sm font-medium text-[#285e9e] underline underline-offset-3", focus)}>
               Read the storage details <ArrowUpRight className="size-3.5" aria-hidden />
