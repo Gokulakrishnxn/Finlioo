@@ -10,23 +10,23 @@ import {
   DonutChartPlot,
 } from "@/components/charts/donut-chart";
 import { SankeyChart, SankeyChartPlot, SankeyChartTooltip } from "@/components/charts/sankey-chart";
+import { DateRangePicker } from "@/components/date-range-picker";
 import { PageHeader } from "@/components/page-header";
 import { PageSkeleton } from "@/components/page-skeleton";
 import { formatMoney } from "@/lib/format";
-import { allocation, compactMoney, monthTotals } from "@/lib/networth";
+import { inRange, rangeLabel } from "@/lib/date-range";
+import { useDateRange } from "@/lib/date-range-context";
+import { allocation, compactMoney, rangeTotals, spendingByCategory } from "@/lib/networth";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 
 const CATEGORY_COLORS = ["var(--chart-loss)", "#ff9f43", "#ffbe4c", "#9553f9", "#3784f4", "#14b8a6", "#a8a29e", "#c084fc", "#94a3b8"];
 
-function previousMonth(key: string) {
-  const [y, m] = key.split("-").map(Number);
-  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
-}
-
 export default function InsightsPage() {
   const { ready, assets } = useStore();
-  const { worth, items, thisMonth, month } = useMoney();
+  const { worth, items } = useMoney();
+  const { range, previous } = useDateRange();
+  const totals = useMemo(() => rangeTotals(items, range), [items, range]);
   const [points, setPoints] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +34,7 @@ export default function InsightsPage() {
   const alloc = useMemo(() => allocation(worth.stocks, assets), [worth.stocks, assets]);
   const allocTotal = alloc.reduce((s, a) => s + a.amount, 0);
 
-  const spending = useMemo(() => {
-    const totals = new Map<string, number>();
-    for (const i of items) {
-      if (i.type === "expense" && i.date.startsWith(month)) totals.set(i.category, (totals.get(i.category) ?? 0) + i.amount);
-    }
-    return [...totals.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
-  }, [items, month]);
+  const spending = useMemo(() => spendingByCategory(items, range), [items, range]);
 
   // Charts show the biggest categories and fold the rest into one "Other" slice,
   // so small amounts don't crowd into unreadable slivers.
@@ -48,19 +42,19 @@ export default function InsightsPage() {
   const flowSpending = useMemo(() => groupSmall(spending, 4, "Other spending"), [spending]);
 
   const income = useMemo(() => {
-    const totals = new Map<string, number>();
+    const sums = new Map<string, number>();
     for (const i of items) {
-      if (i.type === "income" && i.date.startsWith(month)) totals.set(i.category, (totals.get(i.category) ?? 0) + i.amount);
+      if (i.type === "income" && inRange(i.date, range)) sums.set(i.category, (sums.get(i.category) ?? 0) + i.amount);
     }
-    return [...totals.entries()].map(([category, amount]) => ({ category, amount }));
-  }, [items, month]);
+    return [...sums.entries()].map(([category, amount]) => ({ category, amount }));
+  }, [items, range]);
 
   // Income sources → this month's money → spending categories and savings.
   const flow = useMemo(() => {
     if (!income.length || !spending.length) return null;
     const nodes = [
       ...income.map((i) => ({ id: `in:${i.category}`, label: i.category, color: "var(--chart-gain)" })),
-      { id: "month", label: "This month", color: "#3784f4" },
+      { id: "month", label: "This period", color: "#3784f4" },
       ...flowSpending.map((s, n) => ({
         id: `out:${s.category}`,
         label: s.category,
@@ -71,12 +65,12 @@ export default function InsightsPage() {
       ...income.map((i) => ({ source: `in:${i.category}`, target: "month", value: i.amount })),
       ...flowSpending.map((s) => ({ source: "month", target: `out:${s.category}`, value: s.amount })),
     ];
-    if (thisMonth.saved > 0) {
+    if (totals.saved > 0) {
       nodes.push({ id: "saved", label: "Saved", color: "var(--success)" });
-      links.push({ source: "month", target: "saved", value: thisMonth.saved });
+      links.push({ source: "month", target: "saved", value: totals.saved });
     }
     return { nodes, links };
-  }, [income, spending.length, flowSpending, thisMonth.saved]);
+  }, [income, spending.length, flowSpending, totals.saved]);
 
   async function explain() {
     setLoading(true);
@@ -89,8 +83,9 @@ export default function InsightsPage() {
           netWorth: Math.round(worth.netWorth),
           assets: Math.round(worth.assets),
           loans: Math.round(worth.loans),
-          month: thisMonth,
-          lastMonthSpent: monthTotals(items, previousMonth(month)).spent,
+          period: rangeLabel(range),
+          totals,
+          previousPeriodSpent: rangeTotals(items, previous).spent,
           spendingByCategory: spending,
           allocation: alloc.map((a) => ({
             label: a.label,
@@ -112,14 +107,14 @@ export default function InsightsPage() {
 
   return (
     <>
-      <PageHeader title="Insights" subtitle="Your money, explained in plain words." />
+      <PageHeader title="Insights" subtitle="Your money, explained in plain words." action={<DateRangePicker />} />
 
       <section className="card-surface overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-4 p-6">
           <div className="max-w-xl">
             <p className="eyebrow">Explain my money</p>
             <p className="mt-2 text-[15px] leading-relaxed text-body">
-              Finlio looks at your totals (net worth, this month, spending by category and how your money is
+              Finlio looks at your totals (net worth, this period, spending by category and how your money is
               spread) and tells you what stands out. Only totals are sent; never transactions or names.
             </p>
           </div>
@@ -168,7 +163,7 @@ export default function InsightsPage() {
         </section>
 
         <section className="card-surface p-6">
-          <p className="eyebrow mb-5">Spending this month</p>
+          <p className="eyebrow mb-5">Spending</p>
           {spending.length ? (
             <DonutChart
               segments={topSpending.map((s, n) => ({
@@ -192,17 +187,17 @@ export default function InsightsPage() {
               </div>
             </DonutChart>
           ) : (
-            <p className="text-[14px] text-body">No spends recorded this month yet.</p>
+            <p className="text-[14px] text-body">No spends recorded in this period.</p>
           )}
         </section>
       </div>
 
       <section className="card-surface mt-4 p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="eyebrow">Money flow · this month</p>
+          <p className="eyebrow">Money flow</p>
           <p className="text-[13px] text-muted-foreground">
-            In <span className="nums text-ink">{formatMoney(thisMonth.income)}</span> · Out{" "}
-            <span className="nums text-ink">{formatMoney(thisMonth.spent)}</span>
+            In <span className="nums text-ink">{formatMoney(totals.income)}</span> · Out{" "}
+            <span className="nums text-ink">{formatMoney(totals.spent)}</span>
           </p>
         </div>
         {flow ? (
@@ -220,7 +215,7 @@ export default function InsightsPage() {
           </SankeyChart>
         ) : (
           <p className="mt-4 text-[14px] text-body">
-            Add this month&apos;s income and a few expenses to see where your money flows.
+            Add income and a few expenses in this period to see where your money flows.
           </p>
         )}
       </section>

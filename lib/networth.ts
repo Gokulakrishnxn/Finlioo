@@ -1,3 +1,4 @@
+import { inRange, type DateRange } from "@/lib/date-range";
 import { totals, type Position } from "@/lib/portfolio";
 import type { Asset, Entry, ExpenseSnapshot } from "@/lib/types";
 
@@ -76,6 +77,21 @@ export function monthTotals(items: Activity[], month: string) {
   const income = inMonth.filter((i) => i.type === "income").reduce((s, i) => s + i.amount, 0);
   const spent = inMonth.filter((i) => i.type === "expense").reduce((s, i) => s + i.amount, 0);
   return { income, spent, saved: income - spent };
+}
+
+export function rangeTotals(items: Activity[], range: DateRange) {
+  const inside = items.filter((i) => inRange(i.date, range));
+  const income = inside.filter((i) => i.type === "income").reduce((s, i) => s + i.amount, 0);
+  const spent = inside.filter((i) => i.type === "expense").reduce((s, i) => s + i.amount, 0);
+  return { income, spent, saved: income - spent };
+}
+
+export function spendingByCategory(items: Activity[], range: DateRange) {
+  const totals = new Map<string, number>();
+  for (const i of items) {
+    if (i.type === "expense" && inRange(i.date, range)) totals.set(i.category, (totals.get(i.category) ?? 0) + i.amount);
+  }
+  return [...totals.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
 }
 
 // Kept here so existing imports keep working; lives in lib/format.

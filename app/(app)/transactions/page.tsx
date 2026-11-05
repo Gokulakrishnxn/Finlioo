@@ -4,12 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, LogOut, Mail, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountUp } from "@/components/count-up";
+import { DateRangePicker } from "@/components/date-range-picker";
 import { ActivityRow } from "@/components/dashboard/recent-activity";
 import { EntryDialog } from "@/components/entry-dialog";
 import { PageHeader } from "@/components/page-header";
 import { PageSkeleton } from "@/components/page-skeleton";
-import { formatMoney, formatMonth, formatTime } from "@/lib/format";
-import { compactMoney, monthTotals } from "@/lib/networth";
+import { formatMoney, formatTime } from "@/lib/format";
+import { inRange, rangeLabel } from "@/lib/date-range";
+import { useDateRange } from "@/lib/date-range-context";
+import { compactMoney, rangeTotals, spendingByCategory } from "@/lib/networth";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
@@ -27,17 +30,10 @@ const MESSAGES: Record<string, string> = {
 
 const BAR_COLORS = ["var(--chart-gain)", "#3784f4", "#ff9f43", "#9553f9", "#ffbe4c", "var(--chart-loss)", "#14b8a6", "#a8a29e", "var(--chart-muted)"];
 
-function previousMonth(key: string) {
-  const [y, m] = key.split("-").map(Number);
-  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
-}
-
-const monthName = (key: string) =>
-  formatMonth(key);
-
 export default function TransactionsPage() {
   const { ready, expenses, setExpenses, removeEntry } = useStore();
-  const { items, thisMonth, month } = useMoney();
+  const { items } = useMoney();
+  const { range, previous } = useDateRange();
   const [session, setSession] = useState<Session | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -59,18 +55,10 @@ export default function TransactionsPage() {
       .catch(() => setSession({ configured: false }));
   }, []);
 
-  const lastMonth = previousMonth(month);
-  const before = useMemo(() => monthTotals(items, lastMonth), [items, lastMonth]);
-  const byCategory = useMemo(() => {
-    const totals = new Map<string, number>();
-    for (const i of items) {
-      if (i.type === "expense" && i.date.startsWith(month)) {
-        totals.set(i.category, (totals.get(i.category) ?? 0) + i.amount);
-      }
-    }
-    return [...totals.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
-  }, [items, month]);
-  const shown = items.filter((i) => filter === "all" || i.type === filter);
+  const totals = useMemo(() => rangeTotals(items, range), [items, range]);
+  const before = useMemo(() => rangeTotals(items, previous), [items, previous]);
+  const byCategory = useMemo(() => spendingByCategory(items, range), [items, range]);
+  const shown = items.filter((i) => inRange(i.date, range) && (filter === "all" || i.type === filter));
 
   async function sync() {
     setSyncing(true);
@@ -120,37 +108,42 @@ export default function TransactionsPage() {
         }
       />
 
+      <div className="mb-4 flex justify-end">
+        <DateRangePicker />
+      </div>
+
       {notice && (
         <p className="mb-4 rounded-2xl bg-card px-5 py-3 text-[14px] text-body ring-1 ring-line">{notice}</p>
       )}
 
       <div className="grid gap-4 *:min-w-0 lg:grid-cols-12">
         <section className="card-surface p-6 lg:col-span-5">
-          <p className="eyebrow">Spent in {monthName(month)}</p>
+          <p className="eyebrow">Spent</p>
           <CountUp
-            value={thisMonth.spent}
+            value={totals.spent}
             format={formatMoney}
             className="nums mt-2 block text-[34px] leading-none font-semibold tracking-tight text-ink"
           />
           <p className="mt-3 text-[13px] text-body">
-            {monthName(lastMonth)}: <span className="nums text-ink">{formatMoney(before.spent)}</span>
+            Previous period ({rangeLabel(previous)}):{" "}
+            <span className="nums text-ink">{formatMoney(before.spent)}</span>
           </p>
           <div className="mt-5 grid grid-cols-2 gap-3 border-t border-line pt-4">
             <div>
               <p className="eyebrow">In</p>
-              <p className="nums mt-1 text-[16px] font-semibold text-success">{compactMoney(thisMonth.income)}</p>
+              <p className="nums mt-1 text-[16px] font-semibold text-success">{compactMoney(totals.income)}</p>
             </div>
             <div>
               <p className="eyebrow">Saved</p>
-              <p className={cn("nums mt-1 text-[16px] font-semibold", thisMonth.saved >= 0 ? "text-ink" : "text-loss")}>
-                {compactMoney(thisMonth.saved)}
+              <p className={cn("nums mt-1 text-[16px] font-semibold", totals.saved >= 0 ? "text-ink" : "text-loss")}>
+                {compactMoney(totals.saved)}
               </p>
             </div>
           </div>
         </section>
 
         <section className="card-surface p-6 lg:col-span-7">
-          <p className="eyebrow">By category · {monthName(month)}</p>
+          <p className="eyebrow">By category</p>
           {byCategory.length ? (
             <ul className="mt-4 flex flex-col gap-3">
               {byCategory.map(({ category, amount }) => (
@@ -172,7 +165,7 @@ export default function TransactionsPage() {
               ))}
             </ul>
           ) : (
-            <p className="mt-4 text-[14px] text-body">No spends yet this month.</p>
+            <p className="mt-4 text-[14px] text-body">No spends in this period.</p>
           )}
         </section>
       </div>
@@ -248,7 +241,7 @@ export default function TransactionsPage() {
           </ul>
         ) : (
           <p className="py-6 text-[14px] text-body">
-            Nothing here yet. Add an expense or income{session.gmail ? ", or sync your bank alerts" : ""}.
+            Nothing in this period. Choose other dates, or add an expense or income{session.gmail ? ", or sync your bank alerts" : ""}.
           </p>
         )}
       </section>
