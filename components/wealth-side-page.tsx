@@ -93,6 +93,7 @@ export function WealthSidePage({ side }: { side: Asset["side"] }) {
         key={`add-${adding}`}
         open={adding}
         side={side}
+        fixedSide
         onOpenChange={(open) => !open && setAdding(false)}
       />
       <AssetDialog
@@ -152,7 +153,7 @@ function Group({
       {items.length ? (
         <ul className="mt-2">
           {items.map((a) => (
-            <li key={a.id} className="group flex items-center gap-3 border-b border-line py-3 last:border-b-0">
+            <li key={a.id} className="group flex items-center gap-2 border-b border-line py-3 last:border-b-0 sm:gap-3">
               <BrandLogo
                 domain={merchantDomain(a.name)}
                 fallback={<IconBadge icon={assetLook(a.kind).icon} tint={assetLook(a.kind).tint} />}
@@ -161,7 +162,10 @@ function Group({
                 <p className="truncate text-[14px] font-medium text-ink">{a.name}</p>
                 <p className="text-[12px] text-muted-foreground">{KIND_LABEL[a.kind]}</p>
               </div>
-              <p className="nums text-[14px] text-ink">{formatMoney(a.amount)}</p>
+              <p className="nums shrink-0 text-[14px] text-ink">
+                <span className="sm:hidden">{compactMoney(a.amount)}</span>
+                <span className="hidden sm:inline">{formatMoney(a.amount)}</span>
+              </p>
               <button
                 onClick={() => onEdit(a)}
                 aria-label={`Edit ${a.name}`}

@@ -33,11 +33,14 @@ export function AssetDialog({
   onOpenChange,
   editing,
   side: initialSide = "asset",
+  fixedSide = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editing?: Asset;
   side?: Asset["side"];
+  /** Opened from the Assets or Liabilities page, so it adds only to that side. */
+  fixedSide?: boolean;
 }) {
   const { saveAsset } = useStore();
   const [side, setSide] = useState<Asset["side"]>(editing?.side ?? initialSide);
@@ -73,7 +76,7 @@ export function AssetDialog({
       <DialogContent className="gap-5 rounded-2xl p-7 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
-            {editing ? `Edit ${editing.name}` : "Add an asset or liability"}
+            {editing ? `Edit ${editing.name}` : fixedSide ? (side === "asset" ? "Add an asset" : "Add a liability") : "Add an asset or liability"}
           </DialogTitle>
           <DialogDescription>
             Anything you own or owe outside the stock market. Saved only in this
@@ -81,7 +84,7 @@ export function AssetDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
-          {!editing && (
+          {!editing && !fixedSide && (
             <div className="grid grid-cols-2 gap-1 rounded-xl bg-sand p-1">
               {(["asset", "loan"] as const).map((s) => (
                 <button

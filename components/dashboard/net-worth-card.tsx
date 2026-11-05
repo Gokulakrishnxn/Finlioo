@@ -193,7 +193,7 @@ export function NetWorthCard({
           <p className="nums mt-1 text-[15px] text-ink">{compactMoney(assets)}</p>
         </div>
         <div>
-          <p className="eyebrow">Loans</p>
+          <p className="eyebrow">Liabilities</p>
           <p className="nums mt-1 text-[15px] text-ink">{compactMoney(loans)}</p>
         </div>
       </div>

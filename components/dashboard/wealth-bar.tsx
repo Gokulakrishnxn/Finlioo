@@ -1,6 +1,6 @@
 import { compactMoney } from "@/lib/networth";
 
-// Assets versus loans as one split bar.
+// Assets versus liabilities as one split bar.
 export function WealthBar({ assets, loans }: { assets: number; loans: number }) {
   const total = assets + loans;
   const assetPct = total ? Math.round((assets / total) * 100) : 100;
@@ -16,7 +16,7 @@ export function WealthBar({ assets, loans }: { assets: number; loans: number }) 
           {assetPct}% assets · <span className="nums">{compactMoney(assets)}</span>
         </span>
         <span className="text-loss">
-          {100 - assetPct}% loans · <span className="nums">{compactMoney(loans)}</span>
+          {100 - assetPct}% liabilities · <span className="nums">{compactMoney(loans)}</span>
         </span>
       </div>
     </div>
