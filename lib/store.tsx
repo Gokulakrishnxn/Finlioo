@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { todayLocal } from "@/lib/format";
-import { sampleAssets, sampleEntries, sampleHoldings, sampleSnapshots } from "@/lib/sample";
-import type { Asset, Brief, Entry, ExpenseSnapshot, Holding, Profile, Snapshot } from "@/lib/types";
+import { sampleAssets, sampleEntries, sampleGoals, sampleHoldings, sampleSnapshots } from "@/lib/sample";
+import type { Asset, Brief, Entry, ExpenseSnapshot, Goal, GoalContribution, Holding, Profile, Snapshot } from "@/lib/types";
 
 const STORAGE_KEY = "finlio:v1";
 
@@ -14,6 +14,7 @@ export type StoreData = {
   assets?: Asset[];
   entries?: Entry[];
   snapshots?: Snapshot[];
+  goals?: Goal[];
   profile?: Profile;
 };
 
@@ -34,6 +35,10 @@ type Store = StoreData & {
   addEntry: (entry: Omit<Entry, "id">) => void;
   removeEntry: (id: string) => void;
   recordSnapshot: (snapshot: Snapshot) => void;
+  saveGoal: (goal: Omit<Goal, "id" | "contributions"> & { id?: string }) => void;
+  removeGoal: (id: string) => void;
+  addContribution: (goalId: string, contribution: Omit<GoalContribution, "id">) => void;
+  removeContribution: (goalId: string, contributionId: string) => void;
   setProfile: (profile: Profile) => void;
   replaceAll: (data: StoreData) => void;
   clearAll: () => void;
@@ -41,10 +46,28 @@ type Store = StoreData & {
 
 const StoreContext = createContext<Store | null>(null);
 
+// The old free-text money goal becomes a real goal that only needs a target.
+function migrate(data: StoreData): StoreData {
+  const text = data.profile?.goal?.trim();
+  if (!text) return data;
+  const profile = { ...data.profile };
+  delete profile.goal;
+  const moved: Goal = {
+    id: `goal-${Date.now()}`,
+    name: text.slice(0, 60),
+    category: "other",
+    targetAmount: 0,
+    savedAmount: 0,
+    targetDate: "",
+    contributions: [],
+  };
+  return { ...data, profile, goals: [...(data.goals ?? []), moved] };
+}
+
 function load(): StoreData {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as StoreData;
+    if (raw) return migrate(JSON.parse(raw) as StoreData);
   } catch {
     // Unreadable storage behaves like a fresh start.
   }
@@ -150,12 +173,64 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           : [...(prev.snapshots ?? []), ...sampleSnapshots(today, current).filter((s) => !realDays.has(s.date))].sort(
               (a, b) => a.date.localeCompare(b.date),
             );
-        return { ...prev, holdings, assets, entries, snapshots };
+        const goals = hasSample(prev.goals)
+          ? prev.goals!
+          : [...(prev.goals ?? []), ...sampleGoals(today).map((g) => ({ ...g, id: id() }))];
+        return { ...prev, holdings, assets, entries, snapshots, goals };
       }),
     [update],
   );
 
   // Removes every sample item and keeps everything the person added themselves.
+  const saveGoal = useCallback<Store["saveGoal"]>(
+    (goal) =>
+      update((prev) => {
+        const goals = prev.goals ?? [];
+        if (!goal.id) return { ...prev, goals: [...goals, { ...goal, id: crypto.randomUUID(), contributions: [] }] };
+        return { ...prev, goals: goals.map((g) => (g.id === goal.id ? { ...g, ...goal, id: g.id } : g)) };
+      }),
+    [update],
+  );
+
+  const removeGoal = useCallback(
+    (goalId: string) => update((prev) => ({ ...prev, goals: (prev.goals ?? []).filter((g) => g.id !== goalId) })),
+    [update],
+  );
+
+  const addContribution = useCallback<Store["addContribution"]>(
+    (goalId, contribution) =>
+      update((prev) => ({
+        ...prev,
+        goals: (prev.goals ?? []).map((g) =>
+          g.id === goalId
+            ? {
+                ...g,
+                savedAmount: g.savedAmount + contribution.amount,
+                contributions: [...g.contributions, { ...contribution, id: crypto.randomUUID() }],
+              }
+            : g,
+        ),
+      })),
+    [update],
+  );
+
+  const removeContribution = useCallback<Store["removeContribution"]>(
+    (goalId, contributionId) =>
+      update((prev) => ({
+        ...prev,
+        goals: (prev.goals ?? []).map((g) => {
+          if (g.id !== goalId) return g;
+          const removed = g.contributions.find((c) => c.id === contributionId);
+          return {
+            ...g,
+            savedAmount: Math.max(g.savedAmount - (removed?.amount ?? 0), 0),
+            contributions: g.contributions.filter((c) => c.id !== contributionId),
+          };
+        }),
+      })),
+    [update],
+  );
+
   const removeSample = useCallback(
     () =>
       update((prev) => ({
@@ -164,6 +239,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         assets: prev.assets?.filter((a) => !a.sample),
         entries: prev.entries?.filter((e) => !e.sample),
         snapshots: prev.snapshots?.filter((s) => !s.sample),
+        goals: prev.goals?.filter((g) => !g.sample),
       })),
     [update],
   );
@@ -268,6 +344,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         recordSnapshot,
         setProfile,
         replaceAll,
+        saveGoal,
+        removeGoal,
+        addContribution,
+        removeContribution,
         clearAll,
       }}
     >

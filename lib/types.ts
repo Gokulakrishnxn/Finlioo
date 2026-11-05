@@ -98,11 +98,38 @@ export type Entry = {
 
 export type Snapshot = { date: string; netWorth: number; sample?: boolean };
 
+export const GOAL_CATEGORIES = {
+  emergency: "Emergency fund",
+  home: "Home",
+  car: "Car",
+  education: "Education",
+  wedding: "Wedding",
+  retirement: "Retirement",
+  travel: "Travel",
+  other: "Something else",
+} as const;
+
+export type GoalCategory = keyof typeof GOAL_CATEGORIES;
+
+export type GoalContribution = { id: string; date: string; amount: number };
+
+// Something the person is saving towards.
+export type Goal = {
+  id: string;
+  name: string;
+  category: GoalCategory;
+  targetAmount: number;
+  savedAmount: number;
+  targetDate: string;
+  contributions: GoalContribution[];
+  sample?: boolean;
+};
+
 // Kept in this browser only; used to personalise greetings and the chat.
 export type Profile = {
   name?: string;
   city?: string;
-  goal?: string; // e.g. "Buy a home by 2030"
+  goal?: string; // older saved data only; moved into Goals when it loads
   onboardedAt?: string; // set when the welcome setup is finished
   termsVersion?: string; // the Terms version the person accepted
   tourDone?: boolean;

@@ -37,6 +37,7 @@ function snapshotOf(store: ReturnType<typeof useStore>): StoreData {
     assets: store.assets,
     entries: store.entries,
     snapshots: store.snapshots,
+    goals: store.goals,
     profile: store.profile,
   };
 }

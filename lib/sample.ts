@@ -1,4 +1,4 @@
-import type { Asset, Entry, Holding, Snapshot } from "@/lib/types";
+import type { Asset, Entry, Goal, Holding, Snapshot } from "@/lib/types";
 
 // Real NSE stocks with example buy details, clearly labelled "Sample".
 // Prices and news for them are live; only the buy date, price and quantity are made up.
@@ -137,4 +137,48 @@ export function sampleSnapshots(today: string, current: number): Snapshot[] {
     out.push({ date, netWorth: Math.round(current * drift), sample: true });
   }
   return out;
+}
+
+// Three goals in different states: under way, slightly behind, and done.
+export function sampleGoals(today: string): Omit<Goal, "id">[] {
+  const [ty, tm] = today.split("-").map(Number);
+  const dateAt = (monthsFromNow: number, day = 5) => {
+    const m0 = tm - 1 + monthsFromNow;
+    return iso(ty + Math.floor(m0 / 12), ((m0 % 12) + 12) % 12 + 1, day);
+  };
+  const monthly = (amount: number, months: number) =>
+    Array.from({ length: months }, (_, i) => ({
+      id: `sample-${amount}-${i}`,
+      amount,
+      date: dateAt(i - months),
+    }));
+  return [
+    {
+      name: "Emergency fund",
+      category: "emergency",
+      targetAmount: 300000,
+      savedAmount: 195000,
+      targetDate: dateAt(8),
+      contributions: monthly(15000, 6),
+      sample: true,
+    },
+    {
+      name: "Home down payment",
+      category: "home",
+      targetAmount: 1500000,
+      savedAmount: 420000,
+      targetDate: dateAt(24),
+      contributions: monthly(20000, 6),
+      sample: true,
+    },
+    {
+      name: "Goa holiday",
+      category: "travel",
+      targetAmount: 60000,
+      savedAmount: 60000,
+      targetDate: dateAt(2),
+      contributions: monthly(10000, 6),
+      sample: true,
+    },
+  ];
 }

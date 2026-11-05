@@ -47,7 +47,6 @@ export function ProfileCard({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
-  const [goal, setGoal] = useState(initial?.goal ?? "");
   const [saved, setSaved] = useState(false);
   const initialLetter = (name.trim()[0] ?? "F").toUpperCase();
 
@@ -56,7 +55,6 @@ export function ProfileCard({
     onSave({
       name: name.trim() || undefined,
       city: city.trim() || undefined,
-      goal: goal.trim() || undefined,
     });
     setSaved(true);
   }
@@ -99,22 +97,7 @@ export function ProfileCard({
             />
           </Field>
         </div>
-        <Field id="profile-goal" label="A money goal (optional)">
-          <Input
-            id="profile-goal"
-            value={goal}
-            placeholder="e.g. Save for a home by 2030"
-            onChange={(e) => {
-              setGoal(e.target.value);
-              setSaved(false);
-            }}
-            className="h-11 rounded-xl"
-          />
-        </Field>
-        <p className="text-[12px] text-muted-foreground">
-          Your name personalises the greeting. Your goal helps Finlio chat explain your numbers in context; it
-          never turns into advice.
-        </p>
+        <p className="text-[12px] text-muted-foreground">Your name personalises the greeting.</p>
         <div className="flex items-center gap-3">
           <Button type="submit" className="h-10 rounded-xl px-5">
             Save profile

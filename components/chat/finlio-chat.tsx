@@ -145,7 +145,7 @@ function CopyButton({ text }: { text: string }) {
 
 export function FinlioChat() {
   const { open, setOpen } = useChatUI();
-  const { ready, profile, assets = [] } = useStore();
+  const { ready, profile, assets = [], goals = [] } = useStore();
   const { worth, items, thisMonth, month, positions } = useMoney();
   const demo = useDemoMode();
   const { brief } = useTodaysBrief(positions);
@@ -179,12 +179,21 @@ export function FinlioChat() {
         dayChangePct: p.dayChangePct,
         gainPct: p.gainPct,
       })),
-      profile: profile ? { name: profile.name, goal: profile.goal } : undefined,
+      profile: {
+        name: profile?.name,
+        goal: goals.length
+          ? goals
+              .slice(0, 4)
+              .map((g) => `${g.name} (${g.targetAmount ? Math.round((g.savedAmount / g.targetAmount) * 100) : 0}% saved)`)
+              .join(", ")
+              .slice(0, 200)
+          : undefined,
+      },
       brief: todays
         ? [...todays.changed, ...todays.comingUp, ...todays.attention].map((b) => `${b.symbol ?? ""} ${b.text}`.trim())
         : [],
     };
-  }, [ready, worth, assets, items, month, thisMonth, positions, todays, profile]);
+  }, [ready, worth, assets, items, month, thisMonth, positions, todays, profile, goals]);
 
   // Shown in the header so people can see exactly what the chat is working from.
   const knows = [
