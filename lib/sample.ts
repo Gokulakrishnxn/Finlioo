@@ -91,11 +91,11 @@ export const sampleAssets = () => IN_ASSETS;
 const iso = (y: number, m: number, d: number) =>
   `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-// Income and spends for this month (up to today) and the two before it.
+// Income and spends for this month (up to today) and the thirteen before it.
 export function sampleEntries(today: string): Omit<Entry, "id">[] {
   const [ty, tm] = today.split("-").map(Number);
   const out: Omit<Entry, "id">[] = [];
-  for (let back = 0; back < 3; back++) {
+  for (let back = 0; back < 14; back++) {
     const m0 = tm - 1 - back;
     const y = ty + Math.floor(m0 / 12);
     const m = ((m0 % 12) + 12) % 12 + 1;
