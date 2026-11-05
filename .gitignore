@@ -38,3 +38,9 @@ npm-debug.log*
 next-env.d.ts
 .vercel
 .pnpm-debug.log*
+
+# Installed reference and agent tooling, not app code
+/transitions/
+/.agents/
+/.claude/skills
+/skills-lock.json
