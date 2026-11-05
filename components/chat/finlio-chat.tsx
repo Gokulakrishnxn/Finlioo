@@ -22,7 +22,6 @@ import { ThinkingShimmer } from "@/components/agents/loading-states/thinking-shi
 import { useChatUI } from "@/components/chat/chat-context";
 import { answer, QUESTIONS, useDemoMode, useTodaysBrief } from "@/lib/demo-data";
 import { todayLocal } from "@/lib/format";
-import { activeLocale } from "@/lib/locale";
 import { allocation } from "@/lib/networth";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
@@ -149,7 +148,7 @@ export function FinlioChat() {
   const { ready, profile, assets = [] } = useStore();
   const { worth, items, thisMonth, month, positions } = useMoney();
   const demo = useDemoMode();
-  const { brief } = useTodaysBrief(positions, activeLocale().country);
+  const { brief } = useTodaysBrief(positions);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -233,7 +232,6 @@ export function FinlioChat() {
         body: JSON.stringify({
           messages: history.map(({ role, content }) => ({ role, content })),
           context,
-          country: activeLocale().country,
         }),
         signal: abort.current.signal,
       });

@@ -1,9 +1,7 @@
 import { activeLocale } from "@/lib/locale";
 import type { Snapshot } from "@/lib/types";
 
-// Quarters follow the person's country:
-// India: financial year April–March (Q1 Apr–Jun … Q4 Jan–Mar), labelled "FY27" for Apr 2026–Mar 2027.
-// US: calendar quarters (Q1 Jan–Mar … Q4 Oct–Dec), labelled "2026".
+// Indian financial year April–March (Q1 Apr–Jun … Q4 Jan–Mar), labelled "FY27" for Apr 2026–Mar 2027.
 export function fiscalQuarter(iso: string, startMonth = activeLocale().fyStartMonth) {
   const [y, m] = iso.split("-").map(Number);
   const offset = (m - startMonth + 12) % 12; // months since the year began

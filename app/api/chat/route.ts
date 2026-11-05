@@ -1,4 +1,4 @@
-import { moneyStyle } from "@/lib/ai-locale";
+import { MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -11,7 +11,6 @@ const ChatRequestSchema = z.object({
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(4000) }))
     .min(1)
     .max(30),
-  country: z.enum(["IN", "US"]).default("IN"),
   context: z.object({
     today: z.string(),
     netWorth: z.number(),
@@ -37,8 +36,8 @@ const ChatRequestSchema = z.object({
   }),
 });
 
-const system = (country: "IN" | "US") => `You are Finlio, a calm, friendly assistant inside a personal-finance app for people in India and the United States.
-You explain the person's own money in plain English, in short paragraphs or a few "- " bullets. This person lives in ${moneyStyle(country)}
+const SYSTEM = `You are Finlio, a calm, friendly assistant inside a personal-finance app for people in India.
+You explain the person's own money in plain English, in short paragraphs or a few "- " bullets. This person lives in ${MONEY_STYLE}
 
 Use their first name occasionally if given. If they shared a money goal, you may relate numbers to it, but never tell them what to do to reach it.
 
@@ -55,7 +54,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return Response.json({ error: "Chat isn't set up yet (no Gemini key)." }, { status: 503 });
 
-  const { messages, context, country } = parsed.data;
+  const { messages, context } = parsed.data;
   const ai = new GoogleGenAI({ apiKey });
 
   try {
@@ -66,7 +65,7 @@ export async function POST(request: Request) {
         parts: [{ text: m.content }],
       })),
       config: {
-        systemInstruction: `${system(country)}\n\nTheir money right now:\n${JSON.stringify(context)}`,
+        systemInstruction: `${SYSTEM}\n\nTheir money right now:\n${JSON.stringify(context)}`,
       },
     });
 

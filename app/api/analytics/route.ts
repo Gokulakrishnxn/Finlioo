@@ -1,4 +1,4 @@
-import { moneyStyle } from "@/lib/ai-locale";
+import { MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -6,7 +6,6 @@ const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 // Totals only: no transactions, merchants, account names or stock quantities.
 const AnalyticsRequestSchema = z.object({
-  country: z.enum(["IN", "US"]).default("IN"),
   netWorth: z.number(),
   assets: z.number(),
   loans: z.number(),
@@ -16,7 +15,7 @@ const AnalyticsRequestSchema = z.object({
   allocation: z.array(z.object({ label: z.string().max(40), percent: z.number() })).max(10),
 });
 
-const system = (country: "IN" | "US") => `You are Finlio, a calm friend who explains someone's money to them in plain English. They live in ${moneyStyle(country)}
+const SYSTEM = `You are Finlio, a calm friend who explains someone's money to them in plain English. They live in ${MONEY_STYLE}
 
 Write 4 to 6 short bullet points, each one sentence, starting with "- ".
 - Describe what the numbers show: where most money goes, how this month compares with last month, how much was saved, how the money is spread, how loans compare with assets.
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
     const response = await ai.models.generateContent({
       model: MODEL,
       contents: JSON.stringify(parsed.data),
-      config: { systemInstruction: system(parsed.data.country) },
+      config: { systemInstruction: SYSTEM },
     });
     const points = (response.text ?? "")
       .split("\n")

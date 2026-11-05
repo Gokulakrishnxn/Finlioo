@@ -1,6 +1,6 @@
 import { activeLocale } from "@/lib/locale";
 
-// Money and dates in the person's country style (₹1,24,000 in India, $124,000 in the US).
+// Money and dates in Indian style, like ₹1,24,000.
 
 const moneyFormats = new Map<string, Intl.NumberFormat>();
 
@@ -20,7 +20,7 @@ export const formatMoney = (value: number) => moneyFormat().format(value);
 export const formatSignedMoney = (value: number) =>
   `${value >= 0 ? "+" : "−"}${moneyFormat().format(Math.abs(value))}`;
 
-// Short amounts: ₹3.46L / ₹1.2Cr in India, $34.6K / $1.2M in the US.
+// Short amounts: ₹3.46L, ₹1.2Cr.
 export function compactMoney(value: number) {
   const { symbol, compactUnits } = activeLocale();
   const abs = Math.abs(value);
@@ -34,7 +34,7 @@ export function compactMoney(value: number) {
 export const formatPct = (value: number) =>
   `${value >= 0 ? "+" : "−"}${Math.abs(value).toFixed(2)}%`;
 
-// Times and dates use the person's own device time zone and country style.
+// Times and dates use the person's own device time zone, in Indian date style.
 export const formatTime = (iso: string) =>
   new Date(iso).toLocaleTimeString(activeLocale().language, { hour: "numeric", minute: "2-digit" });
 

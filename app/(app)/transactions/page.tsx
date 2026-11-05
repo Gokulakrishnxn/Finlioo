@@ -10,7 +10,6 @@ import { PageHeader } from "@/components/page-header";
 import { PageSkeleton } from "@/components/page-skeleton";
 import { formatMoney, formatMonth, formatTime } from "@/lib/format";
 import { compactMoney, monthTotals } from "@/lib/networth";
-import { activeLocale } from "@/lib/locale";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
@@ -80,8 +79,6 @@ export default function TransactionsPage() {
     try {
       const res = await fetch("/api/expenses/sync", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country: activeLocale().country }),
       });
       const body = await res.json();
       if (res.status === 401) setSession((s) => (s ? { ...s, gmail: false } : s));

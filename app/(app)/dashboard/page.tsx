@@ -28,7 +28,7 @@ function greeting() {
 }
 
 function todayLabel() {
-  // The person's own device time, in their country's date style.
+  // The person's own device time, in Indian date style.
   return new Date().toLocaleDateString(activeLocale().language, {
     weekday: "long",
     day: "numeric",
@@ -94,14 +94,10 @@ export default function DashboardPage() {
                   <button onClick={() => openAdd("stock")} className="text-ink underline">
                     Add one
                   </button>{" "}
-                  {activeLocale().country === "IN" && (
-                    <>
-                      or{" "}
-                      <button onClick={() => openAdd("import")} className="text-ink underline">
-                        import from Zerodha
-                      </button>
-                    </>
-                  )}
+                  or{" "}
+                  <button onClick={() => openAdd("import")} className="text-ink underline">
+                    import from Zerodha
+                  </button>
                   .
                 </p>
               )}

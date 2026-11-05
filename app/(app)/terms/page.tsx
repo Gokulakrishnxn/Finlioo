@@ -10,8 +10,8 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          Finlio (&ldquo;Finlio&rdquo;, &ldquo;we&rdquo;) is a personal-finance app for people in India and the
-          United States. It shows the stocks, accounts, income and spending you add, and uses AI to explain
+          Finlio (&ldquo;Finlio&rdquo;, &ldquo;we&rdquo;) is a personal-finance app for people in India.
+          It shows the stocks, accounts, income and spending you add, and uses AI to explain
           in plain words what changed and why.
         </p>
         <p>
@@ -78,7 +78,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
         <p>Finlio relies on services run by other companies, each under its own terms:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Google Gemini and Google Search, for the daily brief, analytics, chat and reading bank alerts.</li>
-          <li>Upstox (India) and Finnhub (United States), for stock prices and search.</li>
+          <li>Upstox, for NSE stock prices, and NSE, for the list of stocks.</li>
           <li>Gmail, read-only and only if you choose to connect it, for bank and card alerts.</li>
           <li>icon.horse and Google&apos;s favicon service, for company logos (can be turned off).</li>
         </ul>
@@ -116,7 +116,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
         Finlio is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo;, without warranties of any kind, to
         the extent the law allows. We are not liable for losses or decisions made from information shown in
         Finlio, or for data lost from your browser. Nothing in these Terms limits rights you have that cannot be
-        limited under the law where you live, including consumer protection laws in India and in your US state.
+        limited under the law, including consumer protection laws in India.
       </p>
     ),
   },

@@ -65,8 +65,7 @@ export function HoldingDialog({
       setSearching(true);
       setSearchError(null);
       try {
-        const market = activeLocale().country;
-        const res = await fetch(`/api/instruments?q=${encodeURIComponent(q)}&market=${market}`, {
+        const res = await fetch(`/api/instruments?q=${encodeURIComponent(q)}`, {
           signal: controller.signal,
         });
         const body = await res.json();
@@ -185,7 +184,7 @@ export function HoldingDialog({
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={activeLocale().country === "US" ? "e.g. AAPL or Apple" : "e.g. TCS or Infosys"}
+                placeholder="e.g. TCS or Infosys"
                 className="h-11 rounded-xl pl-9 text-[15px]"
                 aria-label={`Search ${activeLocale().market} stocks`}
               />

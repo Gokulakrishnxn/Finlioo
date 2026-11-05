@@ -5,7 +5,6 @@ import { ArrowDownLeft, ArrowUpRight, FileUp, Landmark, LineChart, type LucideIc
 import { AssetDialog } from "@/components/asset-dialog";
 import { EntryDialog } from "@/components/entry-dialog";
 import { HoldingDialog } from "@/components/holding-dialog";
-import { activeLocale } from "@/lib/locale";
 import { ImportDialog } from "@/components/import-dialog";
 
 export type QuickAddKind = "expense" | "income" | "asset" | "stock" | "import";
@@ -38,12 +37,11 @@ export function useQuickAdd() {
 
 export function QuickAddTiles({ onAdd }: { onAdd: (kind: QuickAddKind) => void }) {
   // Zerodha CSV import is for Indian portfolios only.
-  const tiles = TILES.filter((t) => t.kind !== "import" || activeLocale().country === "IN");
   return (
     <section data-tour="quickadd">
       <p className="eyebrow mb-3">Quick add</p>
-      <div className={`grid grid-cols-3 gap-2 ${tiles.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
-        {tiles.map(({ kind, label, icon: Icon, tint }) => (
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+        {TILES.map(({ kind, label, icon: Icon, tint }) => (
           <button
             key={kind}
             onClick={() => onAdd(kind)}

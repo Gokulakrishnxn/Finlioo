@@ -19,8 +19,8 @@ export function netWorth(positions: Position[], assets: Asset[] = []) {
 }
 
 const GROUPS: { label: string; kinds: string[]; color: string }[] = [
-  { label: "Cash & deposits", kinds: ["bank", "checking", "savings", "fd", "cd", "brokerage"], color: "#3784f4" },
-  { label: "Retirement", kinds: ["epf", "ppf", "nps", "401k", "ira", "hsa"], color: "#9553f9" },
+  { label: "Cash & deposits", kinds: ["bank", "fd"], color: "#3784f4" },
+  { label: "Retirement", kinds: ["epf", "ppf", "nps"], color: "#9553f9" },
   { label: "Gold", kinds: ["gold"], color: "#ffbe4c" },
   { label: "Crypto", kinds: ["crypto"], color: "#14b8a6" },
   { label: "Property", kinds: ["property"], color: "#ff9f43" },

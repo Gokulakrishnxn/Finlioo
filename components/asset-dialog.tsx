@@ -13,23 +13,18 @@ import {
 import { Field, Select } from "@/components/form";
 import { Input } from "@/components/ui/input";
 import { useStore } from "@/lib/store";
-import { activeLocale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 import {
   ASSET_KINDS,
-  KINDS_BY_COUNTRY,
   LOAN_KINDS,
   type Asset,
 } from "@/lib/types";
 
-// The account types offered in the person's country (an existing item keeps its own type).
+// The account types for this side of the balance sheet. A saved item with an older
+// type keeps it, so editing never loses information.
 function kindsFor(side: Asset["side"], keep?: string): Record<string, string> {
-  const all: Record<string, string> =
-    side === "asset" ? ASSET_KINDS : LOAN_KINDS;
-  const list: string[] = KINDS_BY_COUNTRY[activeLocale().country][side];
-  const keys =
-    keep && !list.includes(keep) && keep in all ? [keep, ...list] : list;
-  return Object.fromEntries(keys.map((k) => [k, all[k]]));
+  const all: Record<string, string> = side === "asset" ? ASSET_KINDS : LOAN_KINDS;
+  return keep && !(keep in all) ? { [keep]: keep, ...all } : all;
 }
 
 // Mount with a `key` per asset so editing starts from its values.
@@ -121,13 +116,7 @@ export function AssetDialog({
               id="asset-name"
               value={name}
               placeholder={
-                activeLocale().country === "US"
-                  ? side === "asset"
-                    ? "e.g. Chase checking"
-                    : "e.g. Wells Fargo mortgage"
-                  : side === "asset"
-                    ? "e.g. HDFC savings"
-                    : "e.g. SBI home loan"
+                side === "asset" ? "e.g. HDFC savings" : "e.g. SBI home loan"
               }
               onChange={(e) => setName(e.target.value)}
               className="h-11 rounded-xl"
@@ -137,8 +126,8 @@ export function AssetDialog({
             id="asset-amount"
             label={
               side === "asset"
-                ? `Worth today (${activeLocale().symbol})`
-                : `Still owed (${activeLocale().symbol})`
+                ? "Worth today (₹)"
+                : "Still owed (₹)"
             }
           >
             <Input
