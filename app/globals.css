@@ -1,0 +1,268 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:where(.dark, .dark *):not(:where(.marketing-theme, .marketing-theme *)));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Semantic Finlio colours, shared by both appearances. */
+  --color-cream: var(--background);
+  --color-sand: var(--secondary);
+  --color-line: var(--border);
+  --color-ink: var(--foreground);
+  --color-body: var(--body);
+  --color-gain: var(--gain);
+  --color-loss: var(--destructive);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-purple: var(--purple);
+  --color-purple-soft: var(--purple-soft);
+  --color-pink: var(--pink);
+  --color-pink-soft: var(--pink-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-neutral: var(--neutral);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-overlay: var(--overlay);
+}
+
+:root,
+.marketing-theme {
+  color-scheme: light;
+  --background: #fbfaf9;
+  --foreground: #343433;
+  --card: #ffffff;
+  --card-foreground: #343433;
+  --popover: #ffffff;
+  --popover-foreground: #343433;
+  --primary: #222222;
+  --primary-foreground: #fbfaf9;
+  --secondary: #f6f4ef;
+  --secondary-foreground: #343433;
+  --muted: #f6f4ef;
+  --muted-foreground: #716f6b;
+  --accent: #f6f4ef;
+  --accent-foreground: #343433;
+  --destructive: #c53030;
+  --border: #ecebe7;
+  --input: #8c8980;
+  --ring: #21803d;
+  --radius: 0.75rem;
+  --body: #474645;
+  --gain: #34c759;
+  --success: #21743b;
+  --success-soft: #eef8f1;
+  --danger-soft: #ffecec;
+  --info: #1d5fb8;
+  --info-soft: #e6f1ff;
+  --warning: #a6470b;
+  --warning-soft: #fff1e6;
+  --purple: #6a3bc0;
+  --purple-soft: #f3ecff;
+  --pink: #a3245e;
+  --pink-soft: #fdeaf3;
+  --gold: #806010;
+  --gold-soft: #fff7e0;
+  --neutral: #57534e;
+  --neutral-soft: #f1f0ec;
+  --overlay: rgb(18 18 18 / 24%);
+  --card-shadow: 0 1px 2px rgb(18 18 18 / 3%);
+  --chart-income: #2a78d6;
+  --chart-spend: #eb6834;
+  --chart-gain: #21803d;
+  --chart-loss: #c53030;
+  --chart-muted: #aaa79e;
+  --chart-ink: #57534e;
+  --chart-gain-soft: #cfeed8;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #181818;
+  --foreground: #f2f2f2;
+  --card: #222222;
+  --card-foreground: #f2f2f2;
+  --popover: #292929;
+  --popover-foreground: #f2f2f2;
+  --primary: #f2f2f2;
+  --primary-foreground: #181818;
+  --secondary: #111111;
+  --secondary-foreground: #f2f2f2;
+  --muted: #303030;
+  --muted-foreground: #adadad;
+  --accent: #353535;
+  --accent-foreground: #f2f2f2;
+  --destructive: #ff8c8c;
+  --border: #3b3b3b;
+  --input: #757575;
+  --ring: #72db91;
+  --body: #cfcfcf;
+  --gain: #49d474;
+  --success: #83dda0;
+  --success-soft: #2b2b2b;
+  --danger-soft: #422b2b;
+  --info: #96c0ff;
+  --info-soft: #25364a;
+  --warning: #ffb47b;
+  --warning-soft: #413125;
+  --purple: #c8acff;
+  --purple-soft: #352c49;
+  --pink: #f5a3ca;
+  --pink-soft: #452c39;
+  --gold: #e9c96b;
+  --gold-soft: #3c3523;
+  --neutral: #cacaca;
+  --neutral-soft: #343434;
+  --overlay: rgb(0 0 0 / 60%);
+  --card-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+  --chart-income: #3f87e0;
+  --chart-spend: #e8622c;
+  --chart-gain: #72db91;
+  --chart-loss: #ff8c8c;
+  --chart-muted: #898989;
+  --chart-ink: #cfcfcf;
+  --chart-gain-soft: #3b7650;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  select option {
+    background: var(--popover);
+    color: var(--foreground);
+  }
+  ::selection {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+}
+
+@utility card-surface {
+  @apply rounded-2xl border border-line bg-card;
+  box-shadow: var(--card-shadow);
+}
+
+/* Small uppercase section label, e.g. "NET WORTH · ₹ INR". */
+@utility eyebrow {
+  @apply text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase;
+}
+
+@utility nums {
+  font-family: var(--font-geist-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Landing page ------------------------------------------------------------ */
+
+/* The hero settles in once on load. */
+@keyframes land-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+    filter: blur(4px);
+  }
+}
+
+@utility land-rise {
+  animation: land-rise 0.7s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes land-float {
+  50% {
+    translate: 0 -6px;
+  }
+}
+
+@utility land-float {
+  animation: land-float 6s ease-in-out infinite;
+}
+
+/* Story words start dim and sharpen as they scroll into view. Only the `from`
+   state is declared, so without scroll timelines the text is simply shown. */
+@keyframes land-word {
+  from {
+    opacity: 0.22;
+  }
+}
+
+@keyframes land-reveal {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .land-word {
+      animation: land-word linear both;
+      animation-timeline: view();
+      animation-range: entry 60% cover 45%;
+    }
+
+    .land-reveal {
+      animation: land-reveal both cubic-bezier(0.32, 0.72, 0, 1);
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .land-rise,
+  .land-float {
+    animation: none;
+  }
+}
+
+/* Demo mode (lib/demo-mode.ts): hide set-up notices, sample labels and the
+   Next.js dev badge while recording. */
+html[data-demo] [data-demo-hide],
+html[data-demo] nextjs-portal {
+  display: none !important;
+}
