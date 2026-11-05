@@ -295,6 +295,80 @@
   }
 }
 
+/* transitions.dev: success check, for a goal the moment it's reached. */
+.t-success-check {
+  display: inline-block;
+  transform-origin: center;
+  opacity: 0;
+  will-change: transform, opacity, filter;
+}
+.t-success-check svg {
+  display: block;
+  overflow: visible;
+}
+.t-success-check svg path {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+}
+.t-success-check[data-state="in"] {
+  animation:
+    t-check-fade 500ms var(--ease-standard) forwards,
+    t-check-rotate 500ms var(--ease-standard) forwards,
+    t-check-blur 500ms var(--ease-standard) forwards,
+    t-check-bob 500ms cubic-bezier(0.34, 1.35, 0.64, 1) forwards;
+}
+.t-success-check[data-state="in"] svg path {
+  animation: t-check-draw 500ms var(--ease-standard) 80ms forwards;
+}
+@keyframes t-check-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes t-check-rotate {
+  from { transform: rotate(80deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes t-check-blur {
+  from { filter: blur(10px); }
+  to { filter: blur(0); }
+}
+@keyframes t-check-bob {
+  from { translate: 0 12px; }
+  to { translate: 0 0; }
+}
+@keyframes t-check-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* transitions.dev: error state shake, for a form field that needs attention. */
+.t-input {
+  will-change: transform;
+}
+.t-input.is-shaking {
+  animation: t-input-shake 280ms linear;
+}
+@keyframes t-input-shake {
+  0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1); }
+  28.57% { transform: translateX(6px); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  57.14% { transform: translateX(-6px); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  78.57% { transform: translateX(2px); animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1); }
+  100% { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-success-check {
+    animation: none !important;
+    opacity: 1;
+  }
+  .t-success-check svg path {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+  .t-input {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 /* Settings → Compact tables. */
 html[data-density="compact"] main :is(li, tr > *) {
   padding-block: 0.4rem;
