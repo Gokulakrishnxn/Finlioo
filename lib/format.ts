@@ -1,31 +1,43 @@
 import { activeLocale } from "@/lib/locale";
+import { getPreferences } from "@/lib/preferences";
 
 // Money and dates in Indian style, like ₹1,24,000.
+
+const MASK = "₹ ••••";
 
 const moneyFormats = new Map<string, Intl.NumberFormat>();
 
 function moneyFormat() {
-  const { language, currency } = activeLocale();
-  const key = `${language}-${currency}`;
-  let f = moneyFormats.get(key);
+  const { currency } = activeLocale();
+  const language = getPreferences().numberFormat === "indian" ? "en-IN" : "en-US";
+  let f = moneyFormats.get(language);
   if (!f) {
     f = new Intl.NumberFormat(language, { style: "currency", currency, maximumFractionDigits: 2 });
-    moneyFormats.set(key, f);
+    moneyFormats.set(language, f);
   }
   return f;
 }
 
-export const formatMoney = (value: number) => moneyFormat().format(value);
+export const formatMoney = (value: number) => (getPreferences().hideAmounts ? MASK : moneyFormat().format(value));
 
 export const formatSignedMoney = (value: number) =>
-  `${value >= 0 ? "+" : "−"}${moneyFormat().format(Math.abs(value))}`;
+  getPreferences().hideAmounts ? MASK : `${value >= 0 ? "+" : "−"}${moneyFormat().format(Math.abs(value))}`;
 
-// Short amounts: ₹3.46L, ₹1.2Cr.
+const INTERNATIONAL_UNITS: [number, string][] = [
+  [1e9, "B"],
+  [1e6, "M"],
+  [1e3, "K"],
+];
+
+// Short amounts: ₹3.46L and ₹1.2Cr, or ₹346K and ₹12M in international format.
 export function compactMoney(value: number) {
+  const { hideAmounts, numberFormat } = getPreferences();
+  if (hideAmounts) return MASK;
   const { symbol, compactUnits } = activeLocale();
+  const units = numberFormat === "indian" ? compactUnits : INTERNATIONAL_UNITS;
   const abs = Math.abs(value);
   const sign = value < 0 ? "−" : "";
-  for (const [size, unit] of compactUnits) {
+  for (const [size, unit] of units) {
     if (abs >= size) return `${sign}${symbol}${(abs / size).toFixed(size >= 1e5 ? 2 : 1)}${unit}`;
   }
   return `${sign}${symbol}${abs.toFixed(0)}`;
