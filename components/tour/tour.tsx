@@ -35,7 +35,7 @@ const STEPS: Step[] = [
   {
     target: "profile",
     title: "Your profile and settings",
-    body: "Change your name, switch light or dark mode, see what stays private, or export a backup.",
+    body: "Change your name, switch light or dark mode, hide amounts, or export a backup.",
   },
 ];
 

@@ -41,7 +41,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     title: "3. Information can be wrong or late",
     body: (
       <p>
-        Prices, news summaries, bank-alert readings and AI explanations come from third parties and from AI
+        Prices, bank-alert readings and AI explanations come from third parties and from AI
         models. They can be delayed, incomplete or wrong. Always check important numbers with your broker, bank
         or the original source before relying on them. Stock prices may be delayed and market holidays are not
         shown.
@@ -53,13 +53,11 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          You sign in with your Google account, which gives Finlio only your name, email and photo. Finlio has no
-          database: what you enter is stored in your own browser on your device. Clearing your browser data, or choosing <em>Sign out</em>, deletes it, and we cannot
-          recover it. Use <em>Settings → Data controls → Export backup</em> to keep a copy.
+          Finlio currently has no database: what you enter is stored in your own browser on your device. Clearing your
+          browser data, or choosing <em>Settings → Data controls → Erase all data</em>, deletes it, and we cannot recover it. Use <em>Settings → Data controls → Export backup</em> to keep a copy.
         </p>
         <p id="your-data">
-          To work, Finlio sends limited information to other services. Exactly what is sent (also shown in{" "}
-          <em>Settings → Privacy</em>):
+          To work, Finlio sends limited information to other services. Exactly what is sent:
         </p>
         <ul className="space-y-1.5">
           {SHARING.map((s) => (
@@ -77,7 +75,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
       <>
         <p>Finlio relies on services run by other companies, each under its own terms:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Google Gemini and Google Search, for the daily brief, analytics, chat and reading bank alerts.</li>
+          <li>Google Gemini and Google Search, for insights, chat and reading bank alerts.</li>
           <li>Upstox, for NSE stock prices, and NSE, for the list of stocks.</li>
           <li>Gmail, read-only and only if you choose to connect it, for bank and card alerts.</li>
           <li>icon.horse and Google&apos;s favicon service, for company logos (can be turned off).</li>

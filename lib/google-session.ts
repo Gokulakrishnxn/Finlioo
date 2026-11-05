@@ -8,7 +8,6 @@ import { cookies } from "next/headers";
 
 export const SESSION_COOKIE = "finlio_google";
 // Lets a copy without Google keys (e.g. a judge's clone) still open the app.
-export const LOCAL_COOKIE = "finlio_local";
 const STATE_COOKIE = "finlio_oauth_state";
 const BASIC_SCOPES = ["openid", "email", "profile"];
 const GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
@@ -155,7 +154,6 @@ export async function completeSignIn(origin: string, code: string, state: string
     picture: profile.picture,
   };
   store.set(SESSION_COOKIE, encrypt(session, key), { ...cookieOptions, maxAge: 60 * 60 * 24 * 30 });
-  store.delete(LOCAL_COOKIE);
   return { next: pending.next, gmail: pending.gmail };
 }
 
@@ -212,23 +210,9 @@ async function revoke(session: GoogleSession) {
   }).catch(() => undefined);
 }
 
-// Stops Gmail reading but keeps the person signed in.
+// Stops Gmail reading and forgets the Google session.
 export async function disconnectGmail() {
-  const { key } = config();
   const session = await readSession();
-  if (!session) return;
-  await revoke(session);
-  const next: GoogleSession = { ...session, gmail: false, accessToken: "", refreshToken: undefined, expiresAt: 0 };
-  (await cookies()).set(SESSION_COOKIE, encrypt(next, key), { ...cookieOptions, maxAge: 60 * 60 * 24 * 30 });
-}
-
-// Local mode, only when this copy has no Google keys.
-export async function startLocalSession() {
-  if (isGoogleConfigured()) return false;
-  (await cookies()).set(LOCAL_COOKIE, "1", { ...cookieOptions, maxAge: 60 * 60 * 24 * 30 });
-  return true;
-}
-
-export async function hasLocalSession() {
-  return !isGoogleConfigured() && (await cookies()).get(LOCAL_COOKIE)?.value === "1";
+  if (session) await revoke(session);
+  (await cookies()).delete(SESSION_COOKIE);
 }

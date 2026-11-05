@@ -295,6 +295,11 @@
   }
 }
 
+/* Settings → Compact tables. */
+html[data-density="compact"] main :is(li, tr > *) {
+  padding-block: 0.4rem;
+}
+
 /* Demo mode (lib/demo-mode.ts): hide set-up notices, sample labels and the
    Next.js dev badge while recording. */
 html[data-demo] [data-demo-hide],

@@ -1,21 +1,19 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState } from "react";
-import { Database, Link2, Lock, Settings2, UserRound, X, type LucideIcon } from "lucide-react";
+import { Database, Link2, Settings2, UserRound, X, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { PrivacyPanel } from "@/components/settings/privacy-panel";
 import { Accounts, DataCard, Preferences, ProfileCard } from "@/components/settings/sections";
 import { useStore, type StoreData } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-export type SettingsTab = "general" | "profile" | "accounts" | "data" | "privacy";
+export type SettingsTab = "general" | "profile" | "accounts" | "data";
 
 const TABS: { id: SettingsTab; label: string; icon: LucideIcon }[] = [
   { id: "general", label: "General", icon: Settings2 },
   { id: "profile", label: "Profile", icon: UserRound },
   { id: "accounts", label: "Connected apps", icon: Link2 },
   { id: "data", label: "Data controls", icon: Database },
-  { id: "privacy", label: "Privacy", icon: Lock },
 ];
 
 type SettingsUI = {
@@ -102,6 +100,5 @@ function TabBody({ tab }: { tab: SettingsTab }) {
   if (tab === "profile")
     return <ProfileCard key={store.profile?.name ?? "new"} initial={store.profile} onSave={store.setProfile} />;
   if (tab === "accounts") return <Accounts />;
-  if (tab === "privacy") return <PrivacyPanel />;
   return <DataCard data={snapshotOf(store)} onRestore={store.replaceAll} onErase={store.clearAll} />;
 }

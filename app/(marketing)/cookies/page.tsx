@@ -11,18 +11,18 @@ export const metadata: Metadata = {
 const COOKIES = [
   {
     name: "finlio_oauth_state",
-    purpose: "Checks that a Google sign-in response belongs to the sign-in you started.",
-    duration: "10 minutes; removed when sign-in completes",
+    purpose: "Checks that a Google response belongs to the Gmail connection you started.",
+    duration: "10 minutes; removed when the connection completes",
   },
   {
     name: "finlio_google",
-    purpose: "Keeps you signed in with Google, plus the tokens for Gmail if you connect it. Its contents are encrypted and hidden from page scripts.",
-    duration: "Up to 30 days; removed when you sign out",
+    purpose: "Keeps your Gmail connection, including its tokens, if you connect it. Its contents are encrypted and hidden from page scripts.",
+    duration: "Up to 30 days; removed when you disconnect",
   },
 ];
 
 const LOCAL_STORAGE = [
-  { name: "finlio:v1", detail: "Your holdings, assets, loans, income, expenses, brief, history and profile." },
+  { name: "finlio:v1", detail: "Your holdings, assets, loans, income, expenses, history and profile." },
   { name: "Interface preferences", detail: "Your theme, sidebar and company-logo choices." },
   { name: "finlio:cookie-notice", detail: "The version of this notice you acknowledged and when you saw it." },
 ];
@@ -52,10 +52,10 @@ export default function CookiesPage() {
 
         <section aria-labelledby="cookies-heading" className="mt-12 border-t border-[#ecebe7] pt-8">
           <h2 id="cookies-heading" className="flex items-center gap-2.5 text-[22px] font-medium tracking-tight">
-            <ShieldCheck className="size-5 text-[#716f6b]" strokeWidth={1.75} aria-hidden /> Google sign-in cookies
+            <ShieldCheck className="size-5 text-[#716f6b]" strokeWidth={1.75} aria-hidden /> Google connection cookies
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            These are set when you sign in with Google. Both use SameSite=Lax, are hidden from page scripts (httpOnly), and are sent over HTTPS in production.
+            These are set only if you connect Gmail. Both use SameSite=Lax, are hidden from page scripts (httpOnly), and are sent over HTTPS in production.
           </p>
           <dl className="mt-5 divide-y divide-[#e8e5df] overflow-hidden rounded-2xl border border-[#e8e5df] bg-[#fbfaf9]">
             {COOKIES.map((item) => (
@@ -66,7 +66,7 @@ export default function CookiesPage() {
               </div>
             ))}
           </dl>
-          <p className="mt-4 text-[14px] leading-relaxed text-[#68655f]">Signing out removes the session cookie and revokes Finlio&apos;s access in your Google account. Disconnecting Gmail revokes only the Gmail access.</p>
+          <p className="mt-4 text-[14px] leading-relaxed text-[#68655f]">Disconnecting Gmail removes the session cookie and revokes Finlio&apos;s access in your Google account.</p>
         </section>
 
         <section aria-labelledby="storage-heading" className="mt-10 border-t border-[#ecebe7] pt-8">
@@ -74,7 +74,7 @@ export default function CookiesPage() {
             <HardDrive className="size-5 text-[#716f6b]" strokeWidth={1.75} aria-hidden /> Saved on this device
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            Local storage is separate from cookies. It stays in this browser until you clear it; it is not automatically attached to web requests. Finlio has no database or server copy of your portfolio, even though you sign in with Google.
+            Local storage is separate from cookies. It stays in this browser until you clear it; it is not automatically attached to web requests. Finlio currently has no database or server copy of your portfolio.
           </p>
           <dl className="mt-5 space-y-4 rounded-2xl bg-[#f6f4ef] p-5">
             {LOCAL_STORAGE.map((item) => (
@@ -85,14 +85,14 @@ export default function CookiesPage() {
             ))}
           </dl>
           <p className="mt-4 text-[14px] leading-relaxed text-[#68655f]">
-            Some features send the information they need to outside services. For example, prices use stock identifiers, chat uses totals and your question, and Gmail expense extraction uses alert text. The app&apos;s Privacy settings list the services and data involved.
+            Some features send the information they need to outside services. For example, prices use stock identifiers, chat uses totals and your question, and Gmail expense extraction uses alert text. The Terms list the services and data involved.
           </p>
         </section>
 
         <section aria-labelledby="signin-heading" className="mt-10 border-t border-[#ecebe7] pt-8">
-          <h2 id="signin-heading" className="text-[22px] font-medium tracking-tight">About signing in</h2>
+          <h2 id="signin-heading" className="text-[22px] font-medium tracking-tight">About connecting Google</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            Finlio uses Google sign-in only: no Finlio password is created or stored. Google shares your name, email and photo. Read-only Gmail access is asked for separately, only if you connect Transactions.
+            Finlio has no account or password. Google is used only if you connect Gmail, which gives Finlio your name and email and read-only access to bank, card and payment alerts.
           </p>
         </section>
 
@@ -102,7 +102,7 @@ export default function CookiesPage() {
             Export a backup from Settings before clearing browser storage if you want to keep your data. The app&apos;s Clear all data control removes your financial data; browser site settings can also remove cookies and saved preferences.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            If your browser blocks storage, Finlio can keep some choices for the current page session, but they may not survive a reload. Signing in needs its session cookies to work.
+            If your browser blocks storage, Finlio can keep some choices for the current page session, but they may not survive a reload. Connecting Gmail needs its session cookies to work.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-[14px]">
             <CookiePreferencesButton className={linkClass} />

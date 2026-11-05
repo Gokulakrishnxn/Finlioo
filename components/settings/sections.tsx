@@ -3,7 +3,7 @@
 // The sections of the Settings window (opened from the profile menu).
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Download, ImageIcon, LogOut, Mail, Monitor, Moon, PanelLeftClose, Sun, Trash2, Upload, UserRound } from "lucide-react";
+import { Download, EyeOff, House, ImageIcon, IndianRupee, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -16,24 +16,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field } from "@/components/form";
+import { Field, Select } from "@/components/form";
 import { useSettings } from "@/components/settings/settings-dialog";
 import { useTour } from "@/components/tour/tour";
 import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
 import type { StoreData } from "@/lib/store";
+import { LANDING_PAGES, setPreferences, usePreferences, type LandingPage } from "@/lib/preferences";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
 import { cn } from "@/lib/utils";
 
-type Session = {
-  configured: boolean;
-  signedIn: boolean;
-  local?: boolean;
-  gmail?: boolean;
-  email?: string;
-  name?: string;
-  picture?: string;
-};
+type Session = { configured: boolean; gmail?: boolean; email?: string };
 
 function Card({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
@@ -160,6 +153,7 @@ export function Preferences() {
   const { theme, setTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [logos, setLogos] = useState(true);
+  const prefs = usePreferences();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -201,6 +195,65 @@ export function Preferences() {
         </div>
       </fieldset>
       <ul className="mt-5 divide-y divide-line border-t border-line pt-5">
+        <Row
+          icon={<IndianRupee className="size-4" />}
+          title="Number format"
+          body={prefs.numberFormat === "indian" ? "Lakh and crore, like ₹12,50,000 and ₹12.50L." : "Thousand and million, like ₹1,250,000 and ₹1.25M."}
+          control={
+            <Segmented
+              label="Number format"
+              value={prefs.numberFormat}
+              options={[
+                { value: "indian", label: "Lakh" },
+                { value: "international", label: "Million" },
+              ]}
+              onChange={(numberFormat) => setPreferences({ numberFormat })}
+            />
+          }
+        />
+        <Row
+          icon={<EyeOff className="size-4" />}
+          title="Hide amounts"
+          body="Replace every balance with dots, for when people can see your screen."
+          control={
+            <Toggle
+              label="Hide amounts"
+              on={prefs.hideAmounts}
+              onChange={(hideAmounts) => setPreferences({ hideAmounts })}
+            />
+          }
+        />
+        <Row
+          icon={<Rows3 className="size-4" />}
+          title="Compact tables"
+          body="Fit more rows on screen in lists and tables."
+          control={
+            <Toggle
+              label="Compact tables"
+              on={prefs.density === "compact"}
+              onChange={(on) => setPreferences({ density: on ? "compact" : "comfortable" })}
+            />
+          }
+        />
+        <Row
+          icon={<House className="size-4" />}
+          title="Opening page"
+          body="The page Finlio opens on."
+          control={
+            <Select
+              aria-label="Opening page"
+              value={prefs.landing}
+              onChange={(e) => setPreferences({ landing: e.target.value as LandingPage })}
+              className="h-9 w-[9.5rem] rounded-lg text-[13px]"
+            >
+              {LANDING_PAGES.map((page) => (
+                <option key={page.value} value={page.value}>
+                  {page.label}
+                </option>
+              ))}
+            </Select>
+          }
+        />
         <Row
           icon={<ImageIcon className="size-4" />}
           title="Show company logos"
@@ -271,6 +324,37 @@ export function Preferences() {
   );
 }
 
+function Segmented<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}) {
+  return (
+    <div role="group" aria-label={label} className="flex shrink-0 gap-0.5 rounded-lg bg-sand p-0.5">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
+          className={cn(
+            "rounded-md px-2.5 py-1 text-[12px] text-body transition-colors",
+            value === option.value && "bg-card font-medium text-ink shadow-sm",
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Row({
   icon,
   title,
@@ -303,7 +387,7 @@ export function Accounts() {
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then(setSession)
-      .catch(() => setSession({ configured: false, signedIn: false }));
+      .catch(() => setSession({ configured: false }));
   }, []);
 
   // Stops Gmail reading.
@@ -315,33 +399,13 @@ export function Accounts() {
   return (
     <Card title="Connected accounts">
       <div className="flex items-center gap-3">
-        {session?.picture ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={session.picture} alt="" referrerPolicy="no-referrer" className="size-10 rounded-xl object-cover" />
-        ) : (
-          <span className="flex size-10 items-center justify-center rounded-xl bg-sand">
-            <UserRound className="size-4 text-ink" />
-          </span>
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-medium text-ink">Google account</p>
-          <p className="truncate text-[13px] text-muted-foreground">
-            {!session ? "Checking…" : session.local ? "Not signed in (this device only)" : (session.email ?? "Signed in")}
-          </p>
-        </div>
-        {session?.signedIn && !session.local && (
-          <span className="rounded-full bg-success-soft px-2.5 py-1 text-[12px] font-medium text-success">Signed in</span>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-center gap-3 border-t border-line pt-4">
         <span className="flex size-10 items-center justify-center rounded-xl bg-sand">
           <Mail className="size-4 text-ink" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-medium text-ink">Gmail, read-only</p>
           <p className="truncate text-[13px] text-muted-foreground">
-            {!session ? "Checking…" : session.gmail ? "Connected" : session.configured ? "Not connected" : "Not set up on this copy"}
+            {!session ? "Checking…" : session.gmail ? (session.email ?? "Connected") : session.configured ? "Not connected" : "Not available yet"}
           </p>
         </div>
         {session?.gmail ? (
@@ -365,7 +429,7 @@ export function Accounts() {
         <Link href="/transactions" className="text-ink underline">
           Transactions
         </Link>
-        . Disconnecting revokes Finlio&apos;s Gmail access in your Google account; you stay signed in.
+        . Disconnecting removes Finlio&apos;s access in your Google account.
       </p>
     </Card>
   );
