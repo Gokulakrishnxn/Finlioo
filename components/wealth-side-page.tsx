@@ -16,6 +16,7 @@ import { compactMoney } from "@/lib/networth";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { ASSET_KINDS, LOAN_KINDS, type Asset } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 const KIND_LABEL: Record<string, string> = { ...ASSET_KINDS, ...LOAN_KINDS };
 
@@ -51,38 +52,38 @@ export function WealthSidePage({ side }: { side: Asset["side"] }) {
   return (
     <>
       <PageHeader
-        title={copy.title}
-        subtitle={copy.subtitle}
+        title={t(copy.title)}
+        subtitle={t(copy.subtitle)}
         action={
           <Button onClick={() => setAdding(true)} className="h-10 rounded-xl px-4">
             <Plus className="size-4" />
-            {copy.addLabel}
+            {t(copy.addLabel)}
           </Button>
         }
       />
 
       <div className="grid gap-4 *:min-w-0 md:grid-cols-2">
         {side === "asset" ? (
-          <Summary label="You own" value={worth.assets} note={`incl. ${compactMoney(worth.stocks)} in stocks`} strong />
+          <Summary label={t("You own")} value={worth.assets} note={t("incl. {amount} in stocks", { amount: compactMoney(worth.stocks) })} strong />
         ) : (
-          <Summary label="You owe" value={worth.loans} strong />
+          <Summary label={t("You owe")} value={worth.loans} strong />
         )}
-        <Summary label="Net worth" value={worth.netWorth} strong />
+        <Summary label={t("Net worth")} value={worth.netWorth} strong />
       </div>
 
       <section className="card-surface mt-4 p-6">
-        <p className="eyebrow mb-4">Split</p>
+        <p className="eyebrow mb-4">{t("Split")}</p>
         <WealthBar assets={worth.assets} loans={worth.loans} />
       </section>
 
       <div className="mt-4">
         <Group
-          title={copy.title}
+          title={t(copy.title)}
           tone={side}
           items={items}
           total={items.reduce((s, a) => s + a.amount, 0)}
-          empty={copy.empty}
-          addLink={copy.addLink}
+          empty={t(copy.empty)}
+          addLink={t(copy.addLink)}
           onAdd={() => setAdding(true)}
           onEdit={setEditing}
           onRemove={removeAsset}
@@ -109,7 +110,7 @@ export function WealthSidePage({ side }: { side: Asset["side"] }) {
 function Summary({ label, value, note, strong }: { label: string; value: number; note?: string; strong?: boolean }) {
   return (
     <section className="card-surface p-6">
-      <p className="eyebrow">{label}</p>
+      <p className="eyebrow">{t(label)}</p>
       <CountUp
         value={value}
         format={formatMoney}
@@ -160,7 +161,7 @@ function Group({
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[14px] font-medium text-ink">{a.name}</p>
-                <p className="text-[12px] text-muted-foreground">{KIND_LABEL[a.kind]}</p>
+                <p className="text-[12px] text-muted-foreground">{t(KIND_LABEL[a.kind])}</p>
               </div>
               <p className="nums shrink-0 text-[14px] text-ink">
                 <span className="sm:hidden">{compactMoney(a.amount)}</span>
@@ -168,14 +169,14 @@ function Group({
               </p>
               <button
                 onClick={() => onEdit(a)}
-                aria-label={`Edit ${a.name}`}
+                aria-label={t("Edit {name}", { name: a.name })}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-sand hover:text-ink"
               >
                 <Pencil className="size-3.5" />
               </button>
               <button
                 onClick={() => onRemove(a.id)}
-                aria-label={`Delete ${a.name}`}
+                aria-label={t("Delete {name}", { name: a.name })}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-sand hover:text-loss"
               >
                 <Trash2 className="size-3.5" />

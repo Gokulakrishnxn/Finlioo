@@ -14,6 +14,7 @@ import { Welcome } from "@/components/welcome";
 import { useStore } from "@/lib/store";
 import { activeLocale } from "@/lib/locale";
 import { usePositions } from "@/lib/use-positions";
+import { t } from "@/lib/i18n";
 
 export default function HoldingsPage() {
   const { holdings, ready } = useStore();
@@ -26,21 +27,21 @@ export default function HoldingsPage() {
   return (
     <>
       <PageHeader
-        title="Holdings"
+        title={t("Holdings")}
         subtitle={
           holdings.length
-            ? `${holdings.length} ${holdings.length === 1 ? "stock" : "stocks"} · ${activeLocale().market}`
-            : "The stocks you own, live."
+            ? `${holdings.length === 1 ? t("1 stock") : t("{count} stocks", { count: holdings.length })} · ${activeLocale().market}`
+            : t("The stocks you own, live.")
         }
         action={
           <>
             <Button variant="outline" onClick={() => setImporting(true)} className="h-10 rounded-xl px-4">
               <FileUp className="size-4" />
-              Import from Zerodha
+              {t("Import from Zerodha")}
             </Button>
             <Button onClick={openAdd} className="h-10 rounded-xl px-4">
               <Plus className="size-4" />
-              Add stock
+              {t("Add stock")}
             </Button>
           </>
         }
@@ -54,9 +55,9 @@ export default function HoldingsPage() {
           <PortfolioSummary positions={positions} />
           <section className="card-surface px-6 py-2">
             <div className="flex items-center gap-4 border-b border-line py-3">
-              <span className="eyebrow flex-1">Stock</span>
-              <span className="eyebrow hidden w-28 text-right lg:block lg:w-32">Price · today</span>
-              <span className="eyebrow w-32 text-right lg:w-40">Value · since bought</span>
+              <span className="eyebrow flex-1">{t("Stock")}</span>
+              <span className="eyebrow hidden w-28 text-right lg:block lg:w-32">{t("Price · today")}</span>
+              <span className="eyebrow w-32 text-right lg:w-40">{t("Value · since bought")}</span>
               <span className="w-4" />
             </div>
             <HoldingsList positions={positions} onSelect={select} />

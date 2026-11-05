@@ -27,6 +27,7 @@ import { totals as portfolioTotals } from "@/lib/portfolio";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -63,19 +64,11 @@ export default function AnalyticsPage() {
   if (!hasAnything) {
     return (
       <>
-        <PageHeader title="Analytics" subtitle="Your money, measured over time." />
+        <PageHeader title={t("Analytics")} subtitle={t("Your money, measured over time.")} />
         <section className="card-surface p-8">
-          <p className="text-[16px] font-semibold tracking-tight text-ink">Nothing to measure yet</p>
+          <p className="text-[16px] font-semibold tracking-tight text-ink">{t("Nothing to measure yet")}</p>
           <p className="mt-2 text-[14px] leading-relaxed text-body">
-            Add income and expenses on{" "}
-            <Link href="/transactions" className="text-ink underline">
-              Transactions
-            </Link>{" "}
-            or stocks on{" "}
-            <Link href="/holdings" className="text-ink underline">
-              Holdings
-            </Link>{" "}
-            and your trends will appear here.
+            {t("Add income and expenses on Transactions, or stocks on Holdings, and your trends will appear here.")}
           </p>
         </section>
       </>
@@ -94,7 +87,7 @@ export default function AnalyticsPage() {
     .filter((p): p is { key: string; label: string; x: number; y: number } => p.y !== null);
   const cashFlowTable = (
     <DataTable
-      head={["Period", "Income", "Spending", "Saved"]}
+      head={[t("Period"), t("Income"), t("Spending"), t("Saved")]}
       rows={cashFlow.map((c) => ({
         key: c.key,
         cells: [c.label, formatMoney(c.income), formatMoney(c.spent), formatMoney(c.saved)],
@@ -114,51 +107,51 @@ export default function AnalyticsPage() {
     />
   ) : (
     <EmptyChart>
-      Not enough net worth history in this period. Finlio records a point each day you open the dashboard.
+      {t("Not enough net worth history in this period. Finlio records a point each day you open the dashboard.")}
     </EmptyChart>
   );
   const cashFlowChart = cashFlow.some((c) => c.income > 0 || c.spent > 0) ? (
     <CashFlowBars points={cashFlow} />
   ) : (
-    <EmptyChart>No income or spending in this period. Choose other dates above.</EmptyChart>
+    <EmptyChart>{t("No income or spending in this period. Choose other dates above.")}</EmptyChart>
   );
-  const unfinishedNote = unfinished ? " * The latest period isn't finished yet." : "";
+  const unfinishedNote = unfinished ? ` * ${t("The latest period isn't finished yet.")}` : "";
 
   return (
     <>
-      <PageHeader title="Analytics" subtitle="Your money, measured over time." action={<DateRangePicker />} />
+      <PageHeader title={t("Analytics")} subtitle={t("Your money, measured over time.")} action={<DateRangePicker />} />
 
       <div className="grid grid-cols-2 gap-3 *:min-w-0 md:gap-4 lg:grid-cols-5">
-        <Kpi label="Income" value={compactMoney(current.income)} current={current.income} before={before.income} tone="good-up" />
-        <Kpi label="Spending" value={compactMoney(current.spent)} current={current.spent} before={before.spent} tone="bad-up" />
-        <Kpi label="Saved" value={compactMoney(current.saved)} current={current.saved} before={before.saved} tone="good-up" />
+        <Kpi label={t("Income")} value={compactMoney(current.income)} current={current.income} before={before.income} tone="good-up" />
+        <Kpi label={t("Spending")} value={compactMoney(current.spent)} current={current.spent} before={before.spent} tone="bad-up" />
+        <Kpi label={t("Saved")} value={compactMoney(current.saved)} current={current.saved} before={before.saved} tone="good-up" />
         <Kpi
-          label="Savings rate"
+          label={t("Savings rate")}
           value={rate === null ? "—" : `${Math.round(rate)}%`}
           note={
             rate !== null && rateBefore !== null
-              ? `Was ${Math.round(rateBefore)}%`
-              : "Of income kept"
+              ? t("Was {pct}%", { pct: Math.round(rateBefore) })
+              : t("Of income kept")
           }
         />
         <Kpi
-          label="Net worth today"
+          label={t("Net worth today")}
           value={compactMoney(worth.netWorth)}
           note={
             worthChange === null
               ? worth.stocksLive
-                ? "At current prices"
-                : "Stocks at what you paid"
-              : `${worthChange >= 0 ? "+" : "−"}${compactMoney(Math.abs(worthChange))} this period`
+                ? t("At current prices")
+                : t("Stocks at what you paid")
+              : t("{amount} this period", { amount: `${worthChange >= 0 ? "+" : "−"}${compactMoney(Math.abs(worthChange))}` })
           }
           className="col-span-2 lg:col-span-1"
         />
       </div>
 
-      <p className="mt-3 text-[12px] text-muted-foreground">Changes compare with {previousName}.</p>
+      <p className="mt-3 text-[12px] text-muted-foreground">{t("Changes compare with {period}.", { period: previousName })}</p>
 
       <AnimatedTabs
-        tabs={TABS}
+        tabs={TABS.map((tab) => ({ ...tab, label: t(tab.label) }))}
         activeTab={tab}
         onChange={setTab}
         renderContent={false}
@@ -166,35 +159,35 @@ export default function AnalyticsPage() {
         tabsContainerClassName="max-w-full overflow-x-auto [scrollbar-width:none]"
       />
 
-      <div role="tabpanel" aria-label={TABS.find((t) => t.id === tab)?.label} className="mt-4 flex flex-col gap-4">
+      <div role="tabpanel" aria-label={t(TABS.find((item) => item.id === tab)?.label ?? "")} className="mt-4 flex flex-col gap-4">
         {tab === "overview" && (
           <>
             <ChartCard
-              title="Income and spending"
-              subtitle={`How money came in and went out.${unfinishedNote}`}
+              title={t("Income and spending")}
+              subtitle={`${t("How money came in and went out.")}${unfinishedNote}`}
               legend={CASH_FLOW_LEGEND}
               chart={cashFlowChart}
               table={cashFlowTable}
             />
             <div className="grid gap-4 *:min-w-0 lg:grid-cols-2">
-              <ChartCard title="Net worth" subtitle="What you own minus what you owe." chart={worthChart} />
+              <ChartCard title={t("Net worth")} subtitle={t("What you own minus what you owe.")} chart={worthChart} />
               <ChartCard
-                title="Where it went"
-                subtitle="Your biggest spending categories."
+                title={t("Where it went")}
+                subtitle={t("Your biggest spending categories.")}
                 chart={
                   categories.length ? (
                     <RankedBars
                       color="var(--chart-spend)"
                       rows={categories.slice(0, 5).map((c) => ({
                         key: c.category,
-                        label: c.category,
+                        label: t(c.category),
                         value: compactMoney(c.amount),
                         share: c.share,
                         href: `/transactions?category=${encodeURIComponent(c.category)}`,
                       }))}
                     />
                   ) : (
-                    <EmptyChart>No spending in this period.</EmptyChart>
+                    <EmptyChart>{t("No spending in this period.")}</EmptyChart>
                   )
                 }
               />
@@ -205,15 +198,15 @@ export default function AnalyticsPage() {
         {tab === "cash-flow" && (
           <>
             <ChartCard
-              title="Income and spending"
-              subtitle={`Grouped to suit the length of the period.${unfinishedNote}`}
+              title={t("Income and spending")}
+              subtitle={`${t("Grouped to suit the length of the period.")}${unfinishedNote}`}
               legend={CASH_FLOW_LEGEND}
               chart={cashFlowChart}
               table={cashFlowTable}
             />
             <ChartCard
-              title="Savings rate"
-              subtitle="The share of income you kept in each period."
+              title={t("Savings rate")}
+              subtitle={t("The share of income you kept in each period.")}
               chart={
                 rateSeries.length > 1 ? (
                   <LineChart
@@ -224,13 +217,13 @@ export default function AnalyticsPage() {
                     zeroBased
                   />
                 ) : (
-                  <EmptyChart>This needs income in at least two periods. Try a longer date range.</EmptyChart>
+                  <EmptyChart>{t("This needs income in at least two periods. Try a longer date range.")}</EmptyChart>
                 )
               }
               table={
                 rateSeries.length ? (
                   <DataTable
-                    head={["Period", "Savings rate"]}
+                    head={[t("Period"), t("Savings rate")]}
                     rows={rateSeries.map((p) => ({ key: p.key, cells: [p.label, `${Math.round(p.y)}%`] }))}
                   />
                 ) : undefined
@@ -243,13 +236,13 @@ export default function AnalyticsPage() {
           <div className="grid gap-4 *:min-w-0 lg:grid-cols-12">
             <ChartCard
               className="lg:col-span-7"
-              title="By category"
-              subtitle={`Compared with ${previousName}. Select a category to see its transactions.`}
+              title={t("By category")}
+              subtitle={t("Compared with {period}. Select a category to see its transactions.", { period: previousName })}
               chart={
                 categories.length ? (
                   <div className="overflow-x-auto">
                     <DataTable
-                      head={["Category", "Spent", "Share", "Change"]}
+                      head={[t("Category"), t("Spent"), t("Share"), t("Change")]}
                       rows={categories.map((c) => ({
                         key: c.category,
                         cells: [
@@ -258,7 +251,7 @@ export default function AnalyticsPage() {
                             href={`/transactions?category=${encodeURIComponent(c.category)}`}
                             className="hover:underline"
                           >
-                            {c.category}
+                            {t(c.category)}
                           </Link>,
                           compactMoney(c.amount),
                           `${Math.round(c.share)}%`,
@@ -268,14 +261,14 @@ export default function AnalyticsPage() {
                     />
                   </div>
                 ) : (
-                  <EmptyChart>No spending in this period.</EmptyChart>
+                  <EmptyChart>{t("No spending in this period.")}</EmptyChart>
                 )
               }
             />
             <ChartCard
               className="lg:col-span-5"
-              title="Top merchants"
-              subtitle="Where most of your money went."
+              title={t("Top merchants")}
+              subtitle={t("Where most of your money went.")}
               chart={
                 merchants.length ? (
                   <RankedBars
@@ -289,7 +282,7 @@ export default function AnalyticsPage() {
                     }))}
                   />
                 ) : (
-                  <EmptyChart>No spending in this period.</EmptyChart>
+                  <EmptyChart>{t("No spending in this period.")}</EmptyChart>
                 )
               }
             />
@@ -299,41 +292,41 @@ export default function AnalyticsPage() {
         {tab === "portfolio" && (
           <>
             <div className="grid grid-cols-2 gap-3 *:min-w-0 md:gap-4 lg:grid-cols-4">
-              <Kpi label="Stocks" value={compactMoney(worth.stocks)} note={worth.stocksLive ? "At current prices" : "At what you paid"} />
+              <Kpi label={t("Stocks")} value={compactMoney(worth.stocks)} note={worth.stocksLive ? t("At current prices") : t("At what you paid")} />
               <Kpi
-                label="Stock gain"
+                label={t("Stock gain")}
                 value={portfolio.complete ? compactMoney(portfolio.gain) : "—"}
-                note={portfolio.complete ? `${portfolio.gainPct.toFixed(1)}% on what you paid` : "Needs live prices"}
+                note={portfolio.complete ? t("{pct}% on what you paid", { pct: portfolio.gainPct.toFixed(1) }) : t("Needs live prices")}
               />
-              <Kpi label="Liabilities" value={compactMoney(worth.loans)} note="Everything you owe" />
+              <Kpi label={t("Liabilities")} value={compactMoney(worth.loans)} note={t("Everything you owe")} />
               <Kpi
-                label="Debt to assets"
+                label={t("Debt to assets")}
                 value={debtRatio === null ? "—" : `${Math.round(debtRatio)}%`}
-                note={debtRatio === null ? "Add assets to see this" : "Share of assets owed"}
+                note={debtRatio === null ? t("Add assets to see this") : t("Share of assets owed")}
               />
             </div>
             <div className="grid gap-4 *:min-w-0 lg:grid-cols-2">
               <ChartCard
-                title="Where your money sits"
-                subtitle="Your assets, by type."
+                title={t("Where your money sits")}
+                subtitle={t("Your assets, by type.")}
                 chart={
                   spread.length ? (
                     <RankedBars
                       rows={spread.map((a) => ({
                         key: a.label,
-                        label: a.label,
+                        label: t(a.label),
                         value: compactMoney(a.amount),
                         share: worth.assets ? (a.amount / worth.assets) * 100 : 0,
                       }))}
                     />
                   ) : (
-                    <EmptyChart>Add stocks or assets to see how your money is spread.</EmptyChart>
+                    <EmptyChart>{t("Add stocks or assets to see how your money is spread.")}</EmptyChart>
                   )
                 }
               />
               <ChartCard
-                title="Portfolio by stock"
-                subtitle={worth.stocksLive ? "At current prices." : "At what you paid, until live prices are set up."}
+                title={t("Portfolio by stock")}
+                subtitle={worth.stocksLive ? t("At current prices.") : t("At what you paid, until live prices are set up.")}
                 chart={
                   stocks.length ? (
                     <RankedBars
@@ -345,7 +338,7 @@ export default function AnalyticsPage() {
                       }))}
                     />
                   ) : (
-                    <EmptyChart>Add a stock on Holdings to see how your portfolio is spread.</EmptyChart>
+                    <EmptyChart>{t("Add a stock on Holdings to see how your portfolio is spread.")}</EmptyChart>
                   )
                 }
               />
@@ -390,7 +383,7 @@ function Kpi({
         </p>
       ) : (
         <p className="mt-2 truncate text-[12px] text-muted-foreground">
-          {note ?? (current !== undefined && before ? "No change" : "No earlier data")}
+          {note ?? (current !== undefined && before ? t("No change") : t("No earlier data"))}
         </p>
       )}
     </SpotlightCard>
@@ -399,7 +392,7 @@ function Kpi({
 
 // More spending is the unfavourable direction; the arrow and sign carry it without colour alone.
 function SpendChange({ change }: { change: number }) {
-  if (Math.round(change) === 0) return <span className="text-muted-foreground">No change</span>;
+  if (Math.round(change) === 0) return <span className="text-muted-foreground">{t("No change")}</span>;
   const up = change > 0;
   const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (

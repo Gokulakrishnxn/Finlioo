@@ -7,6 +7,7 @@ import { InitialBadge } from "@/components/initial-badge";
 import { stockDomain } from "@/lib/brands";
 import { formatMoney } from "@/lib/format";
 import type { Position } from "@/lib/portfolio";
+import { t } from "@/lib/i18n";
 
 export function HoldingsList({
   positions,
@@ -29,12 +30,12 @@ export function HoldingsList({
                 {p.holding.symbol}
                 {p.holding.sample && (
                   <span data-demo-hide className="rounded-full bg-sand px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-line">
-                    Sample
+                    {t("Sample")}
                   </span>
                 )}
               </p>
               <p className="truncate text-[13px] text-muted-foreground">
-                {p.holding.quantity} {p.holding.quantity === 1 ? "share" : "shares"} ·{" "}
+                {p.holding.quantity === 1 ? t("1 share") : t("{count} shares", { count: p.holding.quantity })} ·{" "}
                 {p.holding.name}
               </p>
             </div>
@@ -51,7 +52,7 @@ export function HoldingsList({
               {p.value !== undefined ? (
                 <Change amount={p.gain} pct={p.gainPct} className="text-[12px]" />
               ) : (
-                <p className="text-[12px] text-muted-foreground">invested</p>
+                <p className="text-[12px] text-muted-foreground">{t("invested")}</p>
               )}
             </div>
             <ChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-ink" />

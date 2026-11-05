@@ -17,6 +17,7 @@ import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { formatMonth } from "@/lib/format";
 import { activeLocale } from "@/lib/locale";
+import { t } from "@/lib/i18n";
 
 function greeting() {
   const hour = Number(
@@ -50,7 +51,7 @@ export default function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={profile?.name ? `${greeting()}, ${profile.name.split(" ")[0]}` : greeting()}
+        title={profile?.name ? `${t(greeting())}, ${profile.name.split(" ")[0]}` : t(greeting())}
         subtitle={todayLabel()}
       />
 
@@ -83,49 +84,49 @@ export default function DashboardPage() {
           <div className="grid gap-4 *:min-w-0 lg:grid-cols-12">
             <section className="card-surface px-6 pt-5 pb-2 lg:col-span-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="eyebrow">Your stocks</p>
+                <p className="eyebrow">{t("Your stocks")}</p>
                 <PriceStatus />
               </div>
               {holdings.length ? (
                 <HoldingsList positions={positions.slice(0, 6)} onSelect={select} />
               ) : (
                 <p className="py-5 text-[14px] text-body">
-                  No stocks yet.{" "}
+                  {t("No stocks yet.")}{" "}
                   <button onClick={() => openAdd("stock")} className="text-ink underline">
-                    Add one
+                    {t("Add one")}
                   </button>{" "}
-                  or{" "}
+                  {t("or")}{" "}
                   <button onClick={() => openAdd("import")} className="text-ink underline">
-                    import from Zerodha
+                    {t("import from Zerodha")}
                   </button>
                   .
                 </p>
               )}
               {holdings.length > 6 && (
                 <Link href="/holdings" className="block py-3 text-[13px] text-success hover:underline">
-                  See all {holdings.length} stocks →
+                  {t("See all {count} stocks →", { count: holdings.length })}
                 </Link>
               )}
             </section>
 
             <section className="card-surface p-6 lg:col-span-5">
               <div className="flex items-center justify-between">
-                <p className="eyebrow">Wealth</p>
+                <p className="eyebrow">{t("Wealth")}</p>
                 <Link href="/assets" className="text-[12px] text-success hover:underline">
-                  Assets →
+                  {t("Assets →")}
                 </Link>
               </div>
               <div className="mt-5">
                 <WealthBar assets={worth.assets} loans={worth.loans} />
               </div>
               <p className="mt-5 text-[13px] leading-relaxed text-body">
-                Add your bank balance, deposits, gold, EPF and liabilities to see your full net worth.
+                {t("Add your bank balance, deposits, gold, EPF and liabilities to see your full net worth.")}
               </p>
               <button
                 onClick={() => openAdd("asset")}
                 className="mt-3 text-[13px] font-medium text-ink underline underline-offset-2"
               >
-                Add an asset or liability
+                {t("Add an asset or liability")}
               </button>
             </section>
           </div>

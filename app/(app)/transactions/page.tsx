@@ -17,6 +17,7 @@ import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
 import { EXPENSE_CATEGORIES } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 type Session = { configured: boolean; gmail?: boolean; email?: string };
 type Filter = "all" | "expense" | "income";
@@ -104,17 +105,17 @@ export default function TransactionsPage() {
   return (
     <>
       <PageHeader
-        title="Transactions"
-        subtitle="Where your money came from and where it went."
+        title={t("Transactions")}
+        subtitle={t("Where your money came from and where it went.")}
         action={
           <>
             <Button variant="outline" onClick={() => setAdding("income")} className="h-10 rounded-xl px-4">
               <Plus className="size-4" />
-              Income
+              {t("Income")}
             </Button>
             <Button onClick={() => setAdding("expense")} className="h-10 rounded-xl px-4">
               <Plus className="size-4" />
-              Expense
+              {t("Expense")}
             </Button>
           </>
         }
@@ -130,23 +131,23 @@ export default function TransactionsPage() {
 
       <div className="grid gap-4 *:min-w-0 lg:grid-cols-12">
         <section className="card-surface p-6 lg:col-span-5">
-          <p className="eyebrow">Spent</p>
+          <p className="eyebrow">{t("Spent")}</p>
           <CountUp
             value={totals.spent}
             format={formatMoney}
             className="nums mt-2 block text-[34px] leading-none font-semibold tracking-tight text-ink"
           />
           <p className="mt-3 text-[13px] text-body">
-            Previous period ({rangeLabel(previous)}):{" "}
+            {t("Previous period ({period}):", { period: rangeLabel(previous) })}{" "}
             <span className="nums text-ink">{formatMoney(before.spent)}</span>
           </p>
           <div className="mt-5 grid grid-cols-2 gap-3 border-t border-line pt-4">
             <div>
-              <p className="eyebrow">In</p>
+              <p className="eyebrow">{t("In")}</p>
               <p className="nums mt-1 text-[16px] font-semibold text-success">{compactMoney(totals.income)}</p>
             </div>
             <div>
-              <p className="eyebrow">Saved</p>
+              <p className="eyebrow">{t("Saved")}</p>
               <p className={cn("nums mt-1 text-[16px] font-semibold", totals.saved >= 0 ? "text-ink" : "text-loss")}>
                 {compactMoney(totals.saved)}
               </p>
@@ -155,7 +156,7 @@ export default function TransactionsPage() {
         </section>
 
         <section className="card-surface p-6 lg:col-span-7">
-          <p className="eyebrow">By category</p>
+          <p className="eyebrow">{t("By category")}</p>
           {byCategory.length ? (
             <ul className="mt-4 flex flex-col gap-3">
               {byCategory.map(({ category, amount }) => (
@@ -177,7 +178,7 @@ export default function TransactionsPage() {
               ))}
             </ul>
           ) : (
-            <p className="mt-4 text-[14px] text-body">No spends in this period.</p>
+            <p className="mt-4 text-[14px] text-body">{t("No spends in this period.")}</p>
           )}
         </section>
       </div>
@@ -190,20 +191,20 @@ export default function TransactionsPage() {
                 <Mail className="size-4 text-ink" />
               </span>
               <span>
-                Gmail · <span className="font-medium text-ink">{session.email}</span>
+                {t("Gmail ·")} <span className="font-medium text-ink">{session.email}</span>
                 {expenses?.syncedAt && (
-                  <span className="text-muted-foreground"> · Synced {formatTime(expenses.syncedAt)}</span>
+                  <span className="text-muted-foreground"> · {t("Synced {time}", { time: formatTime(expenses.syncedAt) })}</span>
                 )}
               </span>
             </div>
             <div className="flex gap-2">
               <Button onClick={sync} disabled={syncing} className="h-9 rounded-xl px-4">
                 {syncing ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-                {syncing ? "Reading your alerts…" : expenses ? "Sync again" : "Sync bank alerts"}
+                {syncing ? t("Reading your alerts…") : expenses ? t("Sync again") : t("Sync bank alerts")}
               </Button>
               <Button variant="ghost" onClick={disconnect} className="h-9 rounded-xl text-muted-foreground">
                 <LogOut className="size-4" />
-                Disconnect
+                {t("Disconnect")}
               </Button>
             </div>
           </section>
@@ -214,7 +215,7 @@ export default function TransactionsPage() {
       <section className="card-surface mt-4 px-6 pt-5 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="eyebrow">Transactions</p>
+            <p className="eyebrow">{t("Transactions")}</p>
             {match && (
               <button
                 type="button"
@@ -226,7 +227,7 @@ export default function TransactionsPage() {
               >
                 {match.value}
                 <X className="size-3" aria-hidden />
-                <span className="sr-only">Clear this filter</span>
+                <span className="sr-only">{t("Clear this filter")}</span>
               </button>
             )}
           </div>
@@ -240,7 +241,7 @@ export default function TransactionsPage() {
                   filter === f && "bg-card font-medium text-ink shadow-sm",
                 )}
               >
-                {f === "all" ? "All" : f === "expense" ? "Spends" : "Income"}
+                {f === "all" ? t("All") : f === "expense" ? t("Spends") : t("Income")}
               </button>
             ))}
           </div>
@@ -269,7 +270,7 @@ export default function TransactionsPage() {
           </ul>
         ) : (
           <p className="py-6 text-[14px] text-body">
-            Nothing in this period. Choose other dates, or add an expense or income{session.gmail ? ", or sync your bank alerts" : ""}.
+            {session.gmail ? t("Nothing in this period. Choose other dates, add an expense or income, or sync your bank alerts.") : t("Nothing in this period. Choose other dates, or add an expense or income.")}
           </p>
         )}
       </section>

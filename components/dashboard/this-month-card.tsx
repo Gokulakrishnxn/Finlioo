@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { compactMoney } from "@/lib/networth";
+import { t } from "@/lib/i18n";
 
 export function ThisMonthCard({
   monthLabel,
@@ -15,22 +16,22 @@ export function ThisMonthCard({
   return (
     <section className="card-surface p-6">
       <div className="flex items-center justify-between">
-        <p className="eyebrow">This month</p>
+        <p className="eyebrow">{t("This month")}</p>
         <span className="rounded-md bg-sand px-2 py-0.5 text-[11px] font-medium text-body uppercase ring-1 ring-line">
           {monthLabel}
         </span>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-3">
-        <Stat label="In" value={compactMoney(income)} className="text-success" />
-        <Stat label="Out" value={compactMoney(spent)} className="text-loss" />
-        <Stat label="Saved" value={compactMoney(saved)} className={saved >= 0 ? "text-ink" : "text-loss"} />
+        <Stat label={t("In")} value={compactMoney(income)} className="text-success" />
+        <Stat label={t("Out")} value={compactMoney(spent)} className="text-loss" />
+        <Stat label={t("Saved")} value={compactMoney(saved)} className={saved >= 0 ? "text-ink" : "text-loss"} />
       </div>
       <div className="mt-4 flex justify-between border-t border-line pt-3 text-[12px]">
         <Link href="/transactions" className="text-success hover:underline">
-          See transactions →
+          {t("See transactions →")}
         </Link>
         <Link href="/insights" className="text-success hover:underline">
-          Insights →
+          {t("Insights →")}
         </Link>
       </div>
     </section>

@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 // A short guided tour of the dashboard. Each step points at an element marked
 // with data-tour="…"; steps whose element isn't on screen are skipped.
@@ -184,18 +185,18 @@ function TourOverlay({
       >
         <div className="flex items-start justify-between gap-3">
           <p className="eyebrow">
-            Step {index + 1} of {total}
+            {t("Step {step} of {total}", { step: index + 1, total })}
           </p>
           <button
             onClick={onSkip}
-            aria-label="Close tour"
+            aria-label={t("Close tour")}
             className="-mt-1 -mr-1 rounded-lg p-1 text-muted-foreground hover:bg-sand hover:text-ink"
           >
             <X className="size-4" />
           </button>
         </div>
-        <h2 className="mt-1.5 text-[17px] font-semibold tracking-tight">{step.title}</h2>
-        <p className="mt-1.5 text-[14px] leading-relaxed text-body">{step.body}</p>
+        <h2 className="mt-1.5 text-[17px] font-semibold tracking-tight">{t(step.title)}</h2>
+        <p className="mt-1.5 text-[14px] leading-relaxed text-body">{t(step.body)}</p>
         <div className="mt-4 flex items-center justify-between gap-3">
           <div className="flex gap-1.5" aria-hidden>
             {Array.from({ length: total }, (_, i) => (
@@ -208,11 +209,11 @@ function TourOverlay({
           <div className="flex gap-2">
             {index > 0 && (
               <Button variant="ghost" onClick={onBack} className="h-9 rounded-xl px-3">
-                Back
+                {t("Back")}
               </Button>
             )}
             <Button onClick={onNext} className="h-9 rounded-xl px-4" autoFocus>
-              {index === total - 1 ? "Done" : "Next"}
+              {index === total - 1 ? t("Done") : t("Next")}
             </Button>
           </div>
         </div>

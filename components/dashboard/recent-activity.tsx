@@ -4,14 +4,15 @@ import { merchantDomain } from "@/lib/brands";
 import { categoryLook } from "@/lib/category-icons";
 import { formatDate } from "@/lib/format";
 import { compactMoney, type Activity } from "@/lib/networth";
+import { t } from "@/lib/i18n";
 
 export function RecentActivity({ items, limit = 5 }: { items: Activity[]; limit?: number }) {
   return (
     <section className="card-surface p-6">
       <div className="flex items-center justify-between">
-        <p className="eyebrow">Recent activity</p>
+        <p className="eyebrow">{t("Recent activity")}</p>
         <Link href="/transactions" className="text-[12px] text-success hover:underline">
-          All →
+          {t("All →")}
         </Link>
       </div>
       {items.length ? (
@@ -22,11 +23,7 @@ export function RecentActivity({ items, limit = 5 }: { items: Activity[]; limit?
         </ul>
       ) : (
         <p className="mt-4 text-[14px] leading-relaxed text-body">
-          Nothing yet. Add an expense or income on{" "}
-          <Link href="/transactions" className="text-ink underline">
-            Transactions
-          </Link>
-          .
+          {t("Nothing yet. Add an expense or income on Transactions.")}
         </p>
       )}
     </section>
@@ -45,7 +42,7 @@ export function ActivityRow({ item, action }: { item: Activity; action?: React.R
       <div className="min-w-0 flex-1">
         <p className="truncate text-[14px] font-medium text-ink">{item.title}</p>
         <p className="text-[12px] text-muted-foreground">
-          {item.category} · {formatDate(item.date)}
+          {t(item.category)} · {formatDate(item.date)}
           {item.source === "gmail" && " · Gmail"}
         </p>
       </div>

@@ -24,8 +24,9 @@ import {
   type YearKind,
 } from "@/lib/date-range";
 import { useDateRange } from "@/lib/date-range-context";
-import { activeLocale } from "@/lib/locale";
+import { uiLocale } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 const MODES: { value: RangeMode; label: string }[] = [
   { value: "date", label: "Date to date" },
@@ -51,7 +52,7 @@ function monthOptions(today: string, earliest: string) {
 }
 
 const monthName = (key: string) =>
-  toLocalDate(monthStart(key)).toLocaleDateString(activeLocale().language, { month: "long", year: "numeric" });
+  toLocalDate(monthStart(key)).toLocaleDateString(uiLocale(), { month: "long", year: "numeric" });
 
 export function DateRangePicker({ className }: { className?: string }) {
   const { range, preset, today, earliest, choosePreset, chooseRange } = useDateRange();
@@ -91,11 +92,11 @@ export function DateRangePicker({ className }: { className?: string }) {
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
         render={
-          <Button variant="outline" aria-label={`Date range: ${rangeLabel(range)}`} className={cn("h-10 rounded-xl px-3", className)} />
+          <Button variant="outline" aria-label={t("Date range: {range}", { range: rangeLabel(range) })} className={cn("h-10 rounded-xl px-3", className)} />
         }
       >
         <CalendarDays className="size-4 text-muted-foreground" aria-hidden />
-        <span className="text-[13px] font-medium whitespace-nowrap text-ink">{presetLabel ?? rangeLabel(range)}</span>
+        <span className="text-[13px] font-medium whitespace-nowrap text-ink">{presetLabel ? t(presetLabel) : rangeLabel(range)}</span>
         {presetLabel && (
           <span className="hidden text-[12px] whitespace-nowrap text-muted-foreground sm:inline">{rangeLabel(range)}</span>
         )}
@@ -122,7 +123,7 @@ export function DateRangePicker({ className }: { className?: string }) {
                   preset === p.id && "bg-success-soft font-medium text-success hover:bg-success-soft dark:bg-muted dark:text-ink",
                 )}
               >
-                {p.label}
+                {t(p.label)}
               </button>
             </li>
           ))}
@@ -131,12 +132,12 @@ export function DateRangePicker({ className }: { className?: string }) {
         <div className="flex min-w-0 flex-1 flex-col gap-3 p-3">
           <Select value={mode} onValueChange={(next) => setMode(next as RangeMode)}>
             <SelectTrigger>
-              <SelectValue placeholder="Choose how to pick dates" />
+              <SelectValue placeholder={t("Choose how to pick dates")} />
             </SelectTrigger>
             <SelectContent>
               {MODES.map((m) => (
                 <SelectItem key={m.value} value={m.value}>
-                  {m.label}
+                  {t(m.label)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -166,9 +167,9 @@ export function DateRangePicker({ className }: { className?: string }) {
 
           {mode === "month" && (
             <div className="grid grid-cols-2 gap-2">
-              <PairField label="From">
+              <PairField label={t("From")}>
                 <NativeSelect
-                  aria-label="From month"
+                  aria-label={t("From month")}
                   value={monthKey(draft.from)}
                   onChange={(e) => setDraft({ ...draft, from: monthStart(e.target.value) })}
                   className="h-10 text-[13px]"
@@ -180,9 +181,9 @@ export function DateRangePicker({ className }: { className?: string }) {
                   ))}
                 </NativeSelect>
               </PairField>
-              <PairField label="To">
+              <PairField label={t("To")}>
                 <NativeSelect
-                  aria-label="To month"
+                  aria-label={t("To month")}
                   value={monthKey(draft.to)}
                   onChange={(e) => {
                     const end = monthEnd(e.target.value);
@@ -202,7 +203,7 @@ export function DateRangePicker({ className }: { className?: string }) {
 
           {mode === "year" && (
             <div className="flex flex-col gap-2">
-              <div role="group" aria-label="Year type" className="flex gap-0.5 self-start rounded-lg bg-sand p-0.5">
+              <div role="group" aria-label={t("Year type")} className="flex gap-0.5 self-start rounded-lg bg-sand p-0.5">
                 {(
                   [
                     { value: "fy", label: "Financial year" },
@@ -224,14 +225,14 @@ export function DateRangePicker({ className }: { className?: string }) {
                       yearKind === option.value && "bg-card font-medium text-ink shadow-sm",
                     )}
                   >
-                    {option.label}
+                    {t(option.label)}
                   </button>
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <PairField label="From">
+                <PairField label={t("From")}>
                   <NativeSelect
-                    aria-label="From year"
+                    aria-label={t("From year")}
                     value={draftFromYear}
                     onChange={(e) => setDraft({ ...draft, from: yearRange(Number(e.target.value)).from })}
                     className="h-10 text-[13px]"
@@ -243,9 +244,9 @@ export function DateRangePicker({ className }: { className?: string }) {
                     ))}
                   </NativeSelect>
                 </PairField>
-                <PairField label="To">
+                <PairField label={t("To")}>
                   <NativeSelect
-                    aria-label="To year"
+                    aria-label={t("To year")}
                     value={draftToYear}
                     onChange={(e) => {
                       const end = yearRange(Number(e.target.value)).to;
@@ -266,7 +267,7 @@ export function DateRangePicker({ className }: { className?: string }) {
 
           {problem && (
             <p role="alert" className="text-[12px] text-loss">
-              {problem === "order" ? "The end date is before the start date." : "That period is in the future."}
+              {problem === "order" ? t("The end date is before the start date.") : t("That period is in the future.")}
             </p>
           )}
 
@@ -280,7 +281,7 @@ export function DateRangePicker({ className }: { className?: string }) {
               }}
               className="h-9 rounded-xl px-4"
             >
-              Apply
+              {t("Apply")}
             </Button>
           </div>
         </div>

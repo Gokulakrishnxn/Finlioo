@@ -19,6 +19,7 @@ import {
   LOAN_KINDS,
   type Asset,
 } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 // The account types for this side of the balance sheet. A saved item with an older
 // type keeps it, so editing never loses information.
@@ -59,7 +60,7 @@ export function AssetDialog({
 
   function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!(Number(amount) > 0)) return setError("Enter an amount above zero.");
+    if (!(Number(amount) > 0)) return setError(t("Enter an amount above zero."));
     const label = (kinds as Record<string, string>)[kind];
     saveAsset({
       id: editing?.id,
@@ -76,11 +77,10 @@ export function AssetDialog({
       <DialogContent className="gap-5 rounded-2xl p-7 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
-            {editing ? `Edit ${editing.name}` : fixedSide ? (side === "asset" ? "Add an asset" : "Add a liability") : "Add an asset or liability"}
+            {editing ? t("Edit {name}", { name: editing.name }) : fixedSide ? (side === "asset" ? t("Add an asset") : t("Add a liability")) : t("Add an asset or liability")}
           </DialogTitle>
           <DialogDescription>
-            Anything you own or owe outside the stock market. Saved only in this
-            browser.
+            {t("Anything you own or owe outside the stock market. Saved only in this browser.")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
@@ -96,12 +96,12 @@ export function AssetDialog({
                     side === s && "bg-card font-medium text-ink shadow-sm",
                   )}
                 >
-                  {s === "asset" ? "I own it" : "I owe it"}
+                  {s === "asset" ? t("I own it") : t("I owe it")}
                 </button>
               ))}
             </div>
           )}
-          <Field id="asset-kind" label="Type">
+          <Field id="asset-kind" label={t("Type")}>
             <Select
               id="asset-kind"
               value={kind}
@@ -114,12 +114,12 @@ export function AssetDialog({
               ))}
             </Select>
           </Field>
-          <Field id="asset-name" label="Name (optional)">
+          <Field id="asset-name" label={t("Name (optional)")}>
             <Input
               id="asset-name"
               value={name}
               placeholder={
-                side === "asset" ? "e.g. HDFC savings" : "e.g. SBI home loan"
+                side === "asset" ? t("e.g. HDFC savings") : t("e.g. SBI home loan")
               }
               onChange={(e) => setName(e.target.value)}
               className="h-11 rounded-xl"
@@ -129,8 +129,8 @@ export function AssetDialog({
             id="asset-amount"
             label={
               side === "asset"
-                ? "Worth today (₹)"
-                : "Still owed (₹)"
+                ? t("Worth today (₹)")
+                : t("Still owed (₹)")
             }
           >
             <Input
@@ -150,10 +150,10 @@ export function AssetDialog({
               className="h-11 w-full rounded-xl text-[15px]"
             >
               {editing
-                ? "Save changes"
+                ? t("Save changes")
                 : side === "asset"
-                  ? "Add asset"
-                  : "Add liability"}
+                  ? t("Add asset")
+                  : t("Add liability")}
             </Button>
           </DialogFooter>
         </form>

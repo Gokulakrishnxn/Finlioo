@@ -22,9 +22,11 @@ import {
 } from "lucide-react";
 import { useChatUI } from "@/components/chat/chat-context";
 import { useSettings } from "@/components/settings/settings-dialog";
+import { usePreferences } from "@/lib/preferences";
 import { useStore } from "@/lib/store";
 import { COLLAPSE_KEY, SIDEBAR_EVENT } from "@/lib/ui-prefs";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
@@ -80,6 +82,7 @@ function Brand() {
 
 
 export function Sidebar() {
+  usePreferences();
   const pathname = usePathname();
   const { profile } = useStore();
   const { open: chatOpen } = useChatUI();
@@ -148,8 +151,8 @@ export function Sidebar() {
         )}
         <button
           onClick={toggle}
-          aria-label={collapsed ? "Open sidebar" : "Close sidebar"}
-          title={collapsed ? "Open sidebar" : "Close sidebar"}
+          aria-label={collapsed ? t("Open sidebar") : t("Close sidebar")}
+          title={collapsed ? t("Open sidebar") : t("Close sidebar")}
           className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-sand hover:text-ink"
         >
           {collapsed ? <PanelLeftOpen className="size-[18px]" /> : <PanelLeftClose className="size-[18px]" />}
@@ -162,7 +165,7 @@ export function Sidebar() {
             {collapsed ? (
               <div className="mx-auto mb-2 h-px w-6 bg-line" />
             ) : (
-              <p className="eyebrow px-3 pb-2">{section.title}</p>
+              <p className="eyebrow px-3 pb-2">{t(section.title)}</p>
             )}
             <ul className="flex flex-col gap-0.5">
               {section.items.map(({ href, label, icon: Icon }) => {
@@ -171,8 +174,8 @@ export function Sidebar() {
                   <li key={href}>
                     <Link
                       href={href}
-                      title={collapsed ? label : undefined}
-                      aria-label={collapsed ? label : undefined}
+                      title={collapsed ? t(label) : undefined}
+                      aria-label={collapsed ? t(label) : undefined}
                       className={cn(
                         "relative flex items-center gap-3 rounded-xl py-2 text-[14px] text-body transition-colors hover:bg-sand",
                         collapsed ? "justify-center px-0" : "px-3",
@@ -183,7 +186,7 @@ export function Sidebar() {
                         <span className="absolute top-2 bottom-2 -left-3 w-[3px] rounded-r-full bg-gain" />
                       )}
                       <Icon className="size-[18px] shrink-0" strokeWidth={1.75} />
-                      {!collapsed && label}
+                      {!collapsed && t(label)}
                     </Link>
                   </li>
                 );
@@ -246,22 +249,22 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
           <div className="flex items-center gap-3 px-2.5 py-2.5">
             <Avatar name={name} className="size-9" />
             <div className="min-w-0">
-              <p className="truncate text-[14px] font-semibold text-ink">{name?.trim() || "Finlio user"}</p>
-              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || "Data stays in this browser"}</p>
+              <p className="truncate text-[14px] font-semibold text-ink">{name?.trim() || t("Finlio user")}</p>
+              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || t("Data stays in this browser")}</p>
             </div>
           </div>
           <div className="my-1 h-px bg-line" />
           <button role="menuitem" className={item} onClick={pick(() => openSettings("profile"))}>
             <UserRound className="size-4" strokeWidth={1.75} />
-            Profile
+            {t("Profile")}
           </button>
           <button role="menuitem" className={item} onClick={pick(() => openSettings("general"))}>
             <Settings2 className="size-4" strokeWidth={1.75} />
-            Settings
+            {t("Settings")}
           </button>
           <button role="menuitem" className={item} onClick={pick(() => setChatOpen(true))}>
             <MessageCircle className="size-4" strokeWidth={1.75} />
-            <span className="flex-1">Finlio chat</span>
+            <span className="flex-1">{t("Finlio chat")}</span>
             <kbd className="text-[11px] text-muted-foreground">⌘L</kbd>
           </button>
                   </div>
@@ -271,7 +274,7 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
         aria-haspopup="menu"
         data-tour="profile"
         aria-expanded={menu}
-        title={collapsed ? "Profile and settings" : undefined}
+        title={collapsed ? t("Profile and settings") : undefined}
         className={cn(
           "flex w-full items-center gap-3 rounded-xl text-left transition-colors hover:bg-sand",
           collapsed ? "w-auto p-1" : "px-2 py-2",
@@ -281,8 +284,8 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
         <Avatar name={name} />
         {!collapsed && (
           <span className="min-w-0">
-            <span className="block truncate text-[13px] font-medium text-ink">{name?.trim() || "Add your name"}</span>
-            <span className="block text-[11px] text-muted-foreground">Profile & settings</span>
+            <span className="block truncate text-[13px] font-medium text-ink">{name?.trim() || t("Add your name")}</span>
+            <span className="block text-[11px] text-muted-foreground">{t("Profile & settings")}</span>
           </span>
         )}
       </button>
@@ -292,6 +295,7 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
 
 // Small screens: logo on top, every section as an icon link.
 export function MobileNav() {
+  usePreferences();
   const pathname = usePathname();
   const { profile } = useStore();
   const { openSettings } = useSettings();
@@ -302,19 +306,19 @@ export function MobileNav() {
         <Brand />
         <button
           onClick={() => openSettings("general")}
-          aria-label="Profile and settings"
+          aria-label={t("Profile and settings")}
           data-tour="profile"
           className="rounded-full"
         >
           <Avatar name={profile?.name} className="size-8" />
         </button>
       </div>
-      <nav data-tour="nav" aria-label="Main navigation" className="mt-3 flex justify-between gap-1">
+      <nav data-tour="nav" aria-label={t("Main navigation")} className="mt-3 flex justify-between gap-1">
         {ALL.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            aria-label={label}
+            aria-label={t(label)}
             className={cn(
               "flex h-9 flex-1 items-center justify-center rounded-xl text-body transition-colors hover:bg-muted",
               isActive(pathname, href) && "bg-success-soft text-success dark:bg-muted dark:text-ink",

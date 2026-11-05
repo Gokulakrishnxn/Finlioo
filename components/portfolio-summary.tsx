@@ -6,23 +6,24 @@ import { PriceStatus } from "@/components/price-status";
 import { formatMoney } from "@/lib/format";
 import { activeLocale } from "@/lib/locale";
 import { totals, type Position } from "@/lib/portfolio";
+import { t } from "@/lib/i18n";
 
 export function PortfolioSummary({ positions }: { positions: Position[] }) {
-  const t = totals(positions);
+  const sum = totals(positions);
 
   return (
     <section className="card-surface p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-        <h2 className="text-[15px] font-medium text-ink">Your portfolio</h2>
+        <h2 className="text-[15px] font-medium text-ink">{t("Your portfolio")}</h2>
         <PriceStatus />
       </div>
 
       <div className="mt-5 flex flex-wrap items-end gap-x-12 gap-y-5">
         <div>
-          <p className="text-[13px] text-muted-foreground">Worth now</p>
-          {t.complete ? (
+          <p className="text-[13px] text-muted-foreground">{t("Worth now")}</p>
+          {sum.complete ? (
             <CountUp
-              value={t.value}
+              value={sum.value}
               format={formatMoney}
               className="nums mt-1 block text-[36px] leading-none font-semibold tracking-tight text-ink"
             />
@@ -32,11 +33,11 @@ export function PortfolioSummary({ positions }: { positions: Position[] }) {
             </p>
           )}
         </div>
-        <Stat label="Today" amount={t.complete ? t.dayChange : undefined} pct={t.complete ? t.dayChangePct : undefined} />
-        <Stat label="Since you bought" amount={t.complete ? t.gain : undefined} pct={t.complete ? t.gainPct : undefined} />
+        <Stat label={t("Today")} amount={sum.complete ? sum.dayChange : undefined} pct={sum.complete ? sum.dayChangePct : undefined} />
+        <Stat label={t("Since you bought")} amount={sum.complete ? sum.gain : undefined} pct={sum.complete ? sum.gainPct : undefined} />
         <div>
-          <p className="text-[13px] text-muted-foreground">You put in</p>
-          <p className="nums mt-1 text-[17px] text-ink">{formatMoney(t.invested)}</p>
+          <p className="text-[13px] text-muted-foreground">{t("You put in")}</p>
+          <p className="nums mt-1 text-[17px] text-ink">{formatMoney(sum.invested)}</p>
         </div>
       </div>
     </section>

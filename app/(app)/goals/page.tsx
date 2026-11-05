@@ -28,6 +28,7 @@ import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import type { Goal, GoalCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 const STATUS: Record<GoalStatus, { label: string; icon: typeof Target; className: string }> = {
   achieved: { label: "Achieved", icon: TrendingUp, className: "bg-success-soft text-success" },
@@ -67,7 +68,7 @@ export default function GoalsPage() {
   const addButton = (
     <MagneticButton glow={false} strength={0.15} onClick={() => setEditing({})} className="h-10 rounded-xl px-4">
       <Plus className="size-4" />
-      New goal
+      {t("New goal")}
     </MagneticButton>
   );
 
@@ -75,15 +76,14 @@ export default function GoalsPage() {
 
   return (
     <>
-      <PageHeader title="Goals" subtitle="What you're saving towards, and how it's going." action={addButton} />
+      <PageHeader title={t("Goals")} subtitle={t("What you're saving towards, and how it's going.")} action={addButton} />
 
       {goals.length === 0 ? (
         <section className="card-surface p-6 md:p-8">
           <div className="max-w-xl">
-            <h2 className="text-[20px] font-semibold tracking-tight text-ink">Set your first goal</h2>
+            <h2 className="text-[20px] font-semibold tracking-tight text-ink">{t("Set your first goal")}</h2>
             <p className="mt-2 text-[14px] leading-relaxed text-body">
-              Give your savings a purpose. Pick one below or create your own, and Finlio will show how much it needs
-              each month and whether you&apos;re on pace.
+              {t("Give your savings a purpose. Pick one below or create your own, and Finlio will show how much it needs each month and whether you're on pace.")}
             </p>
           </div>
           <ul className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -100,8 +100,8 @@ export default function GoalsPage() {
                       <Icon className="size-4" strokeWidth={1.75} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-[14px] font-medium text-ink">{template.name}</span>
-                      <span className="block truncate text-[12px] text-muted-foreground">{template.hint}</span>
+                      <span className="block truncate text-[14px] font-medium text-ink">{t(template.name)}</span>
+                      <span className="block truncate text-[12px] text-muted-foreground">{t(template.hint)}</span>
                     </span>
                   </button>
                 </li>
@@ -112,29 +112,29 @@ export default function GoalsPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 *:min-w-0 md:gap-4 lg:grid-cols-4">
-            <SummaryCard label="Saved so far" value={compactMoney(summary.saved)} note={`${overall}% of ${compactMoney(summary.target)}`} />
+            <SummaryCard label={t("Saved so far")} value={compactMoney(summary.saved)} note={t("{pct}% of {amount}", { pct: overall, amount: compactMoney(summary.target) })} />
             <SummaryCard
-              label="On track"
-              value={`${summary.onTrack + summary.achieved} of ${goals.length}`}
-              note={summary.achieved ? `${summary.achieved} achieved` : "Goals on pace"}
+              label={t("On track")}
+              value={t("{count} of {total}", { count: summary.onTrack + summary.achieved, total: goals.length })}
+              note={summary.achieved ? t("{count} achieved", { count: summary.achieved }) : t("Goals on pace")}
             />
             <SummaryCard
-              label="Needed each month"
+              label={t("Needed each month")}
               value={compactMoney(summary.neededMonthly)}
-              note={`To finish ${summary.open === 1 ? "your open goal" : `${summary.open} open goals`} on time`}
+              note={summary.open === 1 ? t("To finish your open goal on time") : t("To finish {count} open goals on time", { count: summary.open })}
             />
             <SummaryCard
-              label="You save each month"
+              label={t("You save each month")}
               value={recentSavings === null ? "—" : compactMoney(recentSavings)}
-              note={recentSavings === null ? "Add income and spending" : "Average of the last 3 months"}
+              note={recentSavings === null ? t("Add income and spending") : t("Average of the last 3 months")}
             />
           </div>
 
           {recentSavings !== null && summary.neededMonthly > 0 && (
             <p className="mt-3 text-[13px] text-body">
               {recentSavings >= summary.neededMonthly
-                ? "Your recent savings cover what your goals need each month."
-                : `Your goals need ${compactMoney(summary.neededMonthly - recentSavings)} a month more than you've recently been saving.`}
+                ? t("Your recent savings cover what your goals need each month.")
+                : t("Your goals need {amount} a month more than you've recently been saving.", { amount: compactMoney(summary.neededMonthly - recentSavings) })}
             </p>
           )}
 
@@ -153,7 +153,7 @@ export default function GoalsPage() {
           </ul>
 
           <p className="mt-4 text-[12px] text-muted-foreground">
-            Finlio shows what your numbers mean. It doesn&apos;t recommend where to invest.
+            {t("Finlio shows what your numbers mean. It doesn't recommend where to invest.")}
           </p>
         </>
       )}
@@ -182,11 +182,11 @@ export default function GoalsPage() {
       <AlertDialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg font-semibold tracking-tight">Delete {deleting?.name}?</AlertDialogTitle>
-            <AlertDialogDescription>This removes the goal and its history. Your other money isn&apos;t affected.</AlertDialogDescription>
+            <AlertDialogTitle className="text-lg font-semibold tracking-tight">{t("Delete {name}?", { name: deleting?.name ?? "" })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("This removes the goal and its history. Your other money isn't affected.")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="h-10 rounded-xl">Keep it</AlertDialogCancel>
+            <AlertDialogCancel className="h-10 rounded-xl">{t("Keep it")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               className="h-10 rounded-xl"
@@ -195,7 +195,7 @@ export default function GoalsPage() {
                 setDeleting(null);
               }}
             >
-              Delete
+              {t("Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -246,18 +246,18 @@ function GoalCard({
           </div>
           <p className="nums mt-1.5 text-[18px] leading-tight font-semibold tracking-tight text-ink">
             {compactMoney(goal.savedAmount)}
-            <span className="ml-1 text-[13px] font-normal text-muted-foreground">of {compactMoney(goal.targetAmount)}</span>
+            <span className="ml-1 text-[13px] font-normal text-muted-foreground">{t("of {amount}", { amount: compactMoney(goal.targetAmount) })}</span>
           </p>
           <span className={cn("mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", status.className)}>
             <StatusIcon className="size-3" aria-hidden />
-            {status.label}
+            {t(status.label)}
           </span>
         </div>
         <div className="flex shrink-0 gap-0.5">
           <button
             type="button"
             onClick={onEdit}
-            aria-label={`Edit ${goal.name}`}
+            aria-label={t("Edit {name}", { name: goal.name })}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-sand hover:text-ink"
           >
             <Pencil className="size-3.5" />
@@ -265,7 +265,7 @@ function GoalCard({
           <button
             type="button"
             onClick={onDelete}
-            aria-label={`Delete ${goal.name}`}
+            aria-label={t("Delete {name}", { name: goal.name })}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-sand hover:text-loss"
           >
             <Trash2 className="size-3.5" />
@@ -274,21 +274,21 @@ function GoalCard({
       </div>
 
       <dl className="grid grid-cols-3 gap-3 border-t border-line pt-3 text-[12px]">
-        <Detail label="Target date" value={goal.targetDate ? formatDate(goal.targetDate) : "—"} />
+        <Detail label={t("Target date")} value={goal.targetDate ? formatDate(goal.targetDate) : "—"} />
         <Detail
-          label={achieved ? "Left to save" : "Needs a month"}
+          label={achieved ? t("Left to save") : t("Needs a month")}
           value={achieved ? compactMoney(0) : progress.status === "overdue" ? "—" : compactMoney(progress.neededMonthly)}
         />
         <Detail
-          label="At this pace"
-          value={achieved ? "Done" : progress.projected ? formatDate(progress.projected) : "No recent savings"}
+          label={t("At this pace")}
+          value={achieved ? t("Done") : progress.projected ? formatDate(progress.projected) : t("No recent savings")}
         />
       </dl>
 
       {!achieved && (
         <Button variant="outline" onClick={onAdd} className="h-9 w-full rounded-xl">
           <Plus className="size-4" />
-          Add money
+          {t("Add money")}
         </Button>
       )}
     </li>
@@ -310,7 +310,7 @@ function ProgressRing({ pct, achieved, celebrate }: { pct: number; achieved: boo
   return (
     <div
       role="img"
-      aria-label={`${Math.round(pct)}% saved`}
+      aria-label={t("{pct}% saved", { pct: Math.round(pct) })}
       className="relative flex size-16 shrink-0 items-center justify-center"
     >
       <svg viewBox="0 0 64 64" className="size-full -rotate-90" aria-hidden>
@@ -330,11 +330,11 @@ function ProgressRing({ pct, achieved, celebrate }: { pct: number; achieved: boo
       </svg>
       {achieved ? (
         <span
-          className={cn("t-success-check absolute text-success", !celebrate && "opacity-100")}
+          className={cn("absolute text-success", celebrate && "t-success-check")}
           data-state={celebrate ? "in" : undefined}
         >
           <svg viewBox="0 0 24 24" fill="none" className="size-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12.5l4.5 4.5L19 7.5" style={celebrate ? undefined : { strokeDashoffset: 0 }} />
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>
         </span>
       ) : (

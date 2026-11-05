@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 // A titled chart with a Chart / Table switch, so every number can also be read as text.
 export function ChartCard({
@@ -29,10 +30,10 @@ export function ChartCard({
           {subtitle && <p className="mt-0.5 text-[13px] text-muted-foreground">{subtitle}</p>}
         </div>
         {table && (
-          <div role="group" aria-label={`${title} view`} className="flex gap-0.5 rounded-lg bg-sand p-0.5">
+          <div role="group" aria-label={title} className="flex gap-0.5 rounded-lg bg-sand p-0.5">
             {(["chart", "table"] as const).map((option) => (
               <button
-                key={option}
+                key={option === "chart" ? t("Chart") : t("Table")}
                 type="button"
                 aria-pressed={view === option}
                 onClick={() => setView(option)}
@@ -41,7 +42,7 @@ export function ChartCard({
                   view === option && "bg-card font-medium text-ink shadow-sm",
                 )}
               >
-                {option}
+                {option === "chart" ? t("Chart") : t("Table")}
               </button>
             ))}
           </div>
@@ -55,7 +56,7 @@ export function ChartCard({
               {legend.map((item) => (
                 <li key={item.label} className="flex items-center gap-1.5">
                   <span className="size-2.5 rounded-[3px]" style={{ background: item.color }} />
-                  {item.label}
+                  {t(item.label)}
                 </li>
               ))}
             </ul>

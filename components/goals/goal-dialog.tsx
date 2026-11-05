@@ -10,6 +10,7 @@ import { todayLocal } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { GOAL_CATEGORIES, type Goal, type GoalCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 // Mount with a `key` per goal so the form starts fresh.
 export function GoalDialog({
@@ -25,7 +26,7 @@ export function GoalDialog({
 }) {
   const { saveGoal } = useStore();
   const preset = GOAL_TEMPLATES.find((t) => t.category === template);
-  const [name, setName] = useState(goal?.name ?? preset?.name ?? "");
+  const [name, setName] = useState(goal?.name ?? (preset ? t(preset.name) : ""));
   const [category, setCategory] = useState<GoalCategory>(goal?.category ?? template ?? "other");
   const [target, setTarget] = useState(goal?.targetAmount ? String(goal.targetAmount) : "");
   const [saved, setSaved] = useState(goal ? String(goal.savedAmount) : "");
@@ -38,11 +39,11 @@ export function GoalDialog({
 
   function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return fail("name", "Give your goal a name.");
-    if (!(Number(target) > 0)) return fail("target", "Enter a target above zero.");
-    if (saved !== "" && !(Number(saved) >= 0)) return fail("saved", "Enter zero or more.");
-    if (!date) return fail("date", "Pick a target date.");
-    if (!goal && date <= todayLocal()) return fail("date", "Pick a date in the future.");
+    if (!name.trim()) return fail("name", t("Give your goal a name."));
+    if (!(Number(target) > 0)) return fail("target", t("Enter a target above zero."));
+    if (saved !== "" && !(Number(saved) >= 0)) return fail("saved", t("Enter zero or more."));
+    if (!date) return fail("date", t("Pick a target date."));
+    if (!goal && date <= todayLocal()) return fail("date", t("Pick a date in the future."));
     saveGoal({
       id: goal?.id,
       name: name.trim(),
@@ -62,35 +63,35 @@ export function GoalDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-5 p-6 [--dialog-width:30rem]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold tracking-tight">{goal ? "Edit goal" : "New goal"}</DialogTitle>
-          <DialogDescription>What are you saving towards, how much, and by when?</DialogDescription>
+          <DialogTitle className="text-lg font-semibold tracking-tight">{goal ? t("Edit goal") : t("New goal")}</DialogTitle>
+          <DialogDescription>{t("What are you saving towards, how much, and by when?")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
           <div key={shakeKey("name")} className={shakeClass("name")}>
-            <Field id="goal-name" label="Name">
+            <Field id="goal-name" label={t("Name")}>
               <Input
                 id="goal-name"
                 value={name}
-                placeholder="e.g. Emergency fund"
+                placeholder={t("e.g. Emergency fund")}
                 aria-invalid={problem?.field === "name"}
                 onChange={(e) => setName(e.target.value)}
                 className="h-11 rounded-xl"
               />
             </Field>
           </div>
-          <Field id="goal-category" label="Type">
+          <Field id="goal-category" label={t("Type")}>
             <Select id="goal-category" value={category} onChange={(e) => setCategory(e.target.value as GoalCategory)}>
               {Object.entries(GOAL_CATEGORIES).map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </Select>
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">
             <div key={shakeKey("target")} className={shakeClass("target")}>
-              <Field id="goal-target" label="Target (₹)">
+              <Field id="goal-target" label={t("Target (₹)")}>
                 <Input
                   id="goal-target"
                   type="number"
@@ -104,7 +105,7 @@ export function GoalDialog({
               </Field>
             </div>
             <div key={shakeKey("saved")} className={shakeClass("saved")}>
-              <Field id="goal-saved" label="Saved so far (₹)">
+              <Field id="goal-saved" label={t("Saved so far (₹)")}>
                 <Input
                   id="goal-saved"
                   type="number"
@@ -120,7 +121,7 @@ export function GoalDialog({
             </div>
           </div>
           <div key={shakeKey("date")} className={shakeClass("date")}>
-            <Field id="goal-date" label="Target date">
+            <Field id="goal-date" label={t("Target date")}>
               <Input
                 id="goal-date"
                 type="date"
@@ -132,11 +133,11 @@ export function GoalDialog({
             </Field>
           </div>
           <p role={problem ? "alert" : undefined} className={cn("min-h-5 text-[13px] text-loss", !problem && "invisible")}>
-            {problem?.message ?? "No problems"}
+            {problem?.message ?? ""}
           </p>
           <DialogFooter>
             <Button type="submit" className="h-11 w-full rounded-xl text-[15px]">
-              {goal ? "Save changes" : "Create goal"}
+              {goal ? t("Save changes") : t("Create goal")}
             </Button>
           </DialogFooter>
         </form>

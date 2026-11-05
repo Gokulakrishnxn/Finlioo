@@ -6,6 +6,7 @@ import { AssetDialog } from "@/components/asset-dialog";
 import { EntryDialog } from "@/components/entry-dialog";
 import { HoldingDialog } from "@/components/holding-dialog";
 import { ImportDialog } from "@/components/import-dialog";
+import { t } from "@/lib/i18n";
 
 export type QuickAddKind = "expense" | "income" | "asset" | "stock" | "import";
 
@@ -39,7 +40,7 @@ export function QuickAddTiles({ onAdd }: { onAdd: (kind: QuickAddKind) => void }
   // Zerodha CSV import is for Indian portfolios only.
   return (
     <section data-tour="quickadd">
-      <p className="eyebrow mb-3">Quick add</p>
+      <p className="eyebrow mb-3">{t("Quick add")}</p>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
         {TILES.map(({ kind, label, icon: Icon, tint }) => (
           <button
@@ -50,7 +51,7 @@ export function QuickAddTiles({ onAdd }: { onAdd: (kind: QuickAddKind) => void }
             <span className={`flex size-9 items-center justify-center rounded-full ${tint}`}>
               <Icon className="size-4" />
             </span>
-            <span className="text-[13px] font-medium text-ink">{label}</span>
+            <span className="text-[13px] font-medium text-ink">{t(label)}</span>
           </button>
         ))}
       </div>

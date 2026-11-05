@@ -3,7 +3,7 @@
 // The sections of the Settings window (opened from the profile menu).
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarRange, Download, EyeOff, House, ImageIcon, IndianRupee, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
+import { CalendarRange, Download, EyeOff, House, ImageIcon, IndianRupee, Languages, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -23,9 +23,10 @@ import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
 import type { StoreData } from "@/lib/store";
 import { PRESETS, type PresetId } from "@/lib/date-range";
-import { LANDING_PAGES, setPreferences, usePreferences, type LandingPage } from "@/lib/preferences";
+import { LANDING_PAGES, LANGUAGES, setPreferences, usePreferences, type LandingPage, type Language } from "@/lib/preferences";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 type Session = { configured: boolean; gmail?: boolean; email?: string };
 
@@ -60,7 +61,7 @@ export function ProfileCard({
   }
 
   return (
-    <Card title="Profile">
+    <Card title={t("Profile")}>
       <div className="mb-5 flex items-center gap-4">
         <span className="flex size-14 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#7ee29a,#34c759_55%,#1f7a3a)] text-[22px] font-semibold text-[#102b18]">
           {initialLetter}
@@ -72,11 +73,11 @@ export function ProfileCard({
       </div>
       <form onSubmit={save} className="flex flex-col gap-4" noValidate>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field id="profile-name" label="Name">
+          <Field id="profile-name" label={t("Name")}>
             <Input
               id="profile-name"
               value={name}
-              placeholder="e.g. Gokulakrishnan"
+              placeholder={t("e.g. Gokulakrishnan")}
               onChange={(e) => {
                 setName(e.target.value);
                 setSaved(false);
@@ -84,11 +85,11 @@ export function ProfileCard({
               className="h-11 rounded-xl"
             />
           </Field>
-          <Field id="profile-city" label="City (optional)">
+          <Field id="profile-city" label={t("City (optional)")}>
             <Input
               id="profile-city"
               value={city}
-              placeholder="e.g. Chennai"
+              placeholder={t("e.g. Chennai")}
               onChange={(e) => {
                 setCity(e.target.value);
                 setSaved(false);
@@ -97,12 +98,12 @@ export function ProfileCard({
             />
           </Field>
         </div>
-        <p className="text-[12px] text-muted-foreground">Your name personalises the greeting.</p>
+        <p className="text-[12px] text-muted-foreground">{t("Your name personalises the greeting.")}</p>
         <div className="flex items-center gap-3">
           <Button type="submit" className="h-10 rounded-xl px-5">
-            Save profile
+            {t("Save profile")}
           </Button>
-          {saved && <span className="text-[13px] text-success">Saved</span>}
+          {saved && <span className="text-[13px] text-success">{t("Saved")}</span>}
         </div>
       </form>
     </Card>
@@ -150,15 +151,15 @@ export function Preferences() {
   }, []);
 
   return (
-    <Card title="Preferences">
+    <Card title={t("Preferences")}>
       <fieldset>
-        <legend className="text-[14px] font-medium text-ink">Appearance</legend>
-        <p className="mt-1 text-[13px] text-muted-foreground">Choose a theme, or match your device.</p>
+        <legend className="text-[14px] font-medium text-ink">{t("Appearance")}</legend>
+        <p className="mt-1 text-[13px] text-muted-foreground">{t("Choose a theme, or match your device.")}</p>
         <div className="mt-3 grid grid-cols-3 gap-2">
           {([
-            { value: "light", label: "Light", icon: Sun },
-            { value: "dark", label: "Dark", icon: Moon },
-            { value: "system", label: "System", icon: Monitor },
+            { value: "light", label: t("Light"), icon: Sun },
+            { value: "dark", label: t("Dark"), icon: Moon },
+            { value: "system", label: t("System"), icon: Monitor },
           ] as const).map(({ value, label, icon: Icon }) => (
             <label
               key={value}
@@ -180,16 +181,35 @@ export function Preferences() {
       </fieldset>
       <ul className="mt-5 divide-y divide-line border-t border-line pt-5">
         <Row
+          icon={<Languages className="size-4" />}
+          title={t("Language")}
+          body={t("Choose the language for Finlio. Terms stay in English.")}
+          control={
+            <Select
+              aria-label={t("Language")}
+              value={prefs.language}
+              onChange={(e) => setPreferences({ language: e.target.value as Language })}
+              className="h-9 w-[9.5rem] rounded-lg text-[13px]"
+            >
+              {LANGUAGES.map((language) => (
+                <option key={language.value} value={language.value}>
+                  {language.label}
+                </option>
+              ))}
+            </Select>
+          }
+        />
+        <Row
           icon={<IndianRupee className="size-4" />}
-          title="Number format"
-          body={prefs.numberFormat === "indian" ? "Lakh and crore, like ₹12,50,000 and ₹12.50L." : "Thousand and million, like ₹1,250,000 and ₹1.25M."}
+          title={t("Number format")}
+          body={prefs.numberFormat === "indian" ? t("Lakh and crore, like ₹12,50,000 and ₹12.50L.") : t("Thousand and million, like ₹1,250,000 and ₹1.25M.")}
           control={
             <Segmented
-              label="Number format"
+              label={t("Number format")}
               value={prefs.numberFormat}
               options={[
-                { value: "indian", label: "Lakh" },
-                { value: "international", label: "Million" },
+                { value: "indian", label: t("Lakh") },
+                { value: "international", label: t("Million") },
               ]}
               onChange={(numberFormat) => setPreferences({ numberFormat })}
             />
@@ -197,11 +217,11 @@ export function Preferences() {
         />
         <Row
           icon={<EyeOff className="size-4" />}
-          title="Hide amounts"
-          body="Replace every balance with dots, for when people can see your screen."
+          title={t("Hide amounts")}
+          body={t("Replace every balance with dots, for when people can see your screen.")}
           control={
             <Toggle
-              label="Hide amounts"
+              label={t("Hide amounts")}
               on={prefs.hideAmounts}
               onChange={(hideAmounts) => setPreferences({ hideAmounts })}
             />
@@ -209,11 +229,11 @@ export function Preferences() {
         />
         <Row
           icon={<Rows3 className="size-4" />}
-          title="Compact tables"
-          body="Fit more rows on screen in lists and tables."
+          title={t("Compact tables")}
+          body={t("Fit more rows on screen in lists and tables.")}
           control={
             <Toggle
-              label="Compact tables"
+              label={t("Compact tables")}
               on={prefs.density === "compact"}
               onChange={(on) => setPreferences({ density: on ? "compact" : "comfortable" })}
             />
@@ -221,18 +241,18 @@ export function Preferences() {
         />
         <Row
           icon={<CalendarRange className="size-4" />}
-          title="Default date range"
-          body="The period Analytics, Transactions and Insights start on."
+          title={t("Default date range")}
+          body={t("The period Analytics, Transactions and Insights start on.")}
           control={
             <Select
-              aria-label="Default date range"
+              aria-label={t("Default date range")}
               value={prefs.defaultRange}
               onChange={(e) => setPreferences({ defaultRange: e.target.value as PresetId })}
               className="h-9 w-[9.5rem] rounded-lg text-[13px]"
             >
               {PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id}>
-                  {preset.label}
+                  {t(preset.label)}
                 </option>
               ))}
             </Select>
@@ -240,18 +260,18 @@ export function Preferences() {
         />
         <Row
           icon={<House className="size-4" />}
-          title="Opening page"
-          body="The page Finlio opens on."
+          title={t("Opening page")}
+          body={t("The page Finlio opens on.")}
           control={
             <Select
-              aria-label="Opening page"
+              aria-label={t("Opening page")}
               value={prefs.landing}
               onChange={(e) => setPreferences({ landing: e.target.value as LandingPage })}
               className="h-9 w-[9.5rem] rounded-lg text-[13px]"
             >
               {LANDING_PAGES.map((page) => (
                 <option key={page.value} value={page.value}>
-                  {page.label}
+                  {t(page.label)}
                 </option>
               ))}
             </Select>
@@ -259,11 +279,11 @@ export function Preferences() {
         />
         <Row
           icon={<ImageIcon className="size-4" />}
-          title="Show company logos"
-          body="Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks."
+          title={t("Show company logos")}
+          body={t("Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks.")}
           control={
             <Toggle
-              label="Show company logos"
+              label={t("Show company logos")}
               on={logos}
               onChange={(on) => {
                 setLogosOn(on);
@@ -274,11 +294,11 @@ export function Preferences() {
         />
         <Row
           icon={<PanelLeftClose className="size-4" />}
-          title="Compact sidebar"
-          body="Show only icons in the sidebar. You can also use the button next to the logo."
+          title={t("Compact sidebar")}
+          body={t("Show only icons in the sidebar. You can also use the button next to the logo.")}
           control={
             <Toggle
-              label="Compact sidebar"
+              label={t("Compact sidebar")}
               on={collapsed}
               onChange={(on) => {
                 try {
@@ -293,13 +313,13 @@ export function Preferences() {
           }
         />
         <Row
-          title="Keyboard"
-          body="Open or close Finlio chat from anywhere."
+          title={t("Keyboard")}
+          body={t("Open or close Finlio chat from anywhere.")}
           control={<kbd className="rounded-md bg-sand px-2 py-1 text-[12px] text-body ring-1 ring-line">⌘ L</kbd>}
         />
         <Row
-          title="Tour"
-          body="A quick five-step walk through the dashboard."
+          title={t("Tour")}
+          body={t("A quick five-step walk through the dashboard.")}
           control={
             <Button
               variant="outline"
@@ -309,16 +329,16 @@ export function Preferences() {
               }}
               className="h-8 rounded-lg px-3 text-[13px]"
             >
-              Replay tour
+              {t("Replay tour")}
             </Button>
           }
         />
         <Row
-          title="Terms & Conditions"
-          body="Finlio explains your money; it doesn't give financial advice."
+          title={t("Terms & Conditions")}
+          body={t("Finlio explains your money; it doesn't give financial advice.")}
           control={
             <Link href="/terms" target="_blank" className="text-[13px] font-medium whitespace-nowrap text-ink underline">
-              Read terms
+              {t("Read terms")}
             </Link>
           }
         />
@@ -400,21 +420,21 @@ export function Accounts() {
   }
 
   return (
-    <Card title="Connected accounts">
+    <Card title={t("Connected accounts")}>
       <div className="flex items-center gap-3">
         <span className="flex size-10 items-center justify-center rounded-xl bg-sand">
           <Mail className="size-4 text-ink" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-medium text-ink">Gmail, read-only</p>
+          <p className="text-[14px] font-medium text-ink">{t("Gmail, read-only")}</p>
           <p className="truncate text-[13px] text-muted-foreground">
-            {!session ? "Checking…" : session.gmail ? (session.email ?? "Connected") : session.configured ? "Not connected" : "Not available yet"}
+            {!session ? t("Checking…") : session.gmail ? (session.email ?? t("Connected")) : session.configured ? t("Not connected") : t("Not available yet")}
           </p>
         </div>
         {session?.gmail ? (
           <Button variant="outline" onClick={disconnectGmail} className="h-9 rounded-xl">
             <LogOut className="size-4" />
-            Disconnect
+            {t("Disconnect")}
           </Button>
         ) : (
           session?.configured && (
@@ -422,17 +442,13 @@ export function Accounts() {
               href="/api/auth/google?gmail=1"
               className="inline-flex h-9 items-center rounded-xl px-3 text-[14px] font-medium text-ink ring-1 ring-line hover:bg-sand"
             >
-              Connect
+              {t("Connect")}
             </a>
           )
         )}
       </div>
       <p className="mt-4 text-[12px] leading-relaxed text-muted-foreground">
-        Gmail is used only to read bank and UPI alerts for{" "}
-        <Link href="/transactions" className="text-ink underline">
-          Transactions
-        </Link>
-        . Disconnecting removes Finlio&apos;s access in your Google account.
+        {t("Gmail is used only to read bank and UPI alerts for Transactions. Disconnecting removes Finlio's access in your Google account.")}
       </p>
     </Card>
   );
@@ -476,7 +492,7 @@ export function DataCard({
     a.download = `finlio-backup-${todayLocal()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    setMessage("Backup downloaded.");
+    setMessage(t("Backup downloaded."));
   }
 
   async function restore(file: File) {
@@ -486,25 +502,25 @@ export function DataCard({
         throw new Error("not a Finlio backup");
       }
       onRestore(parsed.data as StoreData);
-      setMessage("Backup restored.");
+      setMessage(t("Backup restored."));
     } catch {
-      setMessage("That file isn't a Finlio backup.");
+      setMessage(t("That file isn't a Finlio backup."));
     }
   }
 
   return (
-    <Card title="Your data">
+    <Card title={t("Your data")}>
       <p className="text-[14px] leading-relaxed text-body">
-        Everything lives in this browser. Download a backup to move Finlio to another browser or keep a copy.
+        {t("Everything lives in this browser. Download a backup to move Finlio to another browser or keep a copy.")}
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button variant="outline" onClick={exportData} className="h-10 rounded-xl">
           <Download className="size-4" />
-          Export backup
+          {t("Export backup")}
         </Button>
         <Button variant="outline" onClick={() => fileRef.current?.click()} className="h-10 rounded-xl">
           <Upload className="size-4" />
-          Restore backup
+          {t("Restore backup")}
         </Button>
         <input
           ref={fileRef}
@@ -516,13 +532,13 @@ export function DataCard({
       </div>
       {message && <p className="mt-3 text-[13px] text-body">{message}</p>}
       <p className="mt-4 border-t border-line pt-4 text-[13px] text-muted-foreground">
-        Restoring replaces what&apos;s here now.
+        {t("Restoring replaces what's here now.")}
       </p>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4">
         <div>
-          <p className="text-[14px] font-medium text-ink">Erase all data</p>
-          <p className="text-[13px] text-muted-foreground">Permanently removes Finlio&apos;s data from this browser.</p>
+          <p className="text-[14px] font-medium text-ink">{t("Erase all data")}</p>
+          <p className="text-[13px] text-muted-foreground">{t("Permanently removes Finlio's data from this browser.")}</p>
         </div>
         <Button
           variant="destructive"
@@ -530,7 +546,7 @@ export function DataCard({
           className="h-9 rounded-xl"
         >
           <Trash2 className="size-4" />
-          Erase all data
+          {t("Erase all data")}
         </Button>
       </div>
 
@@ -540,29 +556,28 @@ export function DataCard({
             <AlertDialogMedia className="size-11 rounded-full bg-danger-soft text-loss">
               <Trash2 className="size-5" />
             </AlertDialogMedia>
-            <AlertDialogTitle className="text-[18px] font-semibold tracking-tight">Erase all data?</AlertDialogTitle>
+            <AlertDialogTitle className="text-[18px] font-semibold tracking-tight">{t("Erase all data?")}</AlertDialogTitle>
             <AlertDialogDescription className="text-[14px] leading-relaxed">
-              This erases your stocks, assets, loans, income, spending, history and profile from this browser, and
-              disconnects Gmail if it&apos;s connected. Finlio keeps no other copy, so this can&apos;t be undone.
+              {t("This erases your stocks, assets, loans, income, spending, history and profile from this browser, and disconnects Gmail if it's connected. Finlio keeps no other copy, so this can't be undone.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="flex flex-col gap-3 rounded-xl bg-sand p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-[14px] font-medium text-ink">Keep a copy first</p>
-              <p className="text-[13px] text-muted-foreground">Bring it back later with Restore backup.</p>
+              <p className="text-[14px] font-medium text-ink">{t("Keep a copy first")}</p>
+              <p className="text-[13px] text-muted-foreground">{t("Bring it back later with Restore backup.")}</p>
             </div>
             <Button variant="outline" onClick={exportData} className="h-9 shrink-0 rounded-xl bg-card">
               <Download className="size-4" />
-              Export backup
+              {t("Export backup")}
             </Button>
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel className="h-10 rounded-xl px-4">Keep my data</AlertDialogCancel>
+            <AlertDialogCancel className="h-10 rounded-xl px-4">{t("Keep my data")}</AlertDialogCancel>
             <Button variant="destructive" onClick={erase} className="h-10 rounded-xl px-4">
               <Trash2 className="size-4" />
-              Erase everything
+              {t("Erase everything")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

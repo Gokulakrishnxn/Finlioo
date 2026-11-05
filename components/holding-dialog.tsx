@@ -20,15 +20,16 @@ import { useStore, type NewHolding } from "@/lib/store";
 import { todayLocal } from "@/lib/format";
 import { activeLocale } from "@/lib/locale";
 import type { Holding, Instrument } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 type Errors = Partial<Record<"buyDate" | "buyPrice" | "quantity", string>>;
 
 function validate(buyDate: string, buyPrice: string, quantity: string): Errors {
   const errors: Errors = {};
-  if (!buyDate) errors.buyDate = "Add the date you bought it.";
-  else if (buyDate > todayLocal()) errors.buyDate = "The buy date can't be in the future.";
-  if (!(Number(buyPrice) > 0)) errors.buyPrice = "Enter the price you paid per share.";
-  if (!(Number(quantity) > 0)) errors.quantity = "Enter how many shares you own.";
+  if (!buyDate) errors.buyDate = t("Add the date you bought it.");
+  else if (buyDate > todayLocal()) errors.buyDate = t("The buy date can't be in the future.");
+  if (!(Number(buyPrice) > 0)) errors.buyPrice = t("Enter the price you paid per share.");
+  if (!(Number(quantity) > 0)) errors.quantity = t("Enter how many shares you own.");
   return errors;
 }
 
@@ -73,7 +74,7 @@ export function HoldingDialog({
         setResults(body.results);
       } catch (err) {
         if (!controller.signal.aborted) {
-          setSearchError(err instanceof Error ? err.message : "Search failed.");
+          setSearchError(err instanceof Error ? err.message : t("Search failed."));
         }
       } finally {
         if (!controller.signal.aborted) setSearching(false);
@@ -136,16 +137,15 @@ export function HoldingDialog({
         <DialogContent className="gap-5 rounded-3xl p-7 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold tracking-tight">
-              You already own {existing.symbol}
+              {t("You already own {symbol}", { symbol: existing.symbol })}
             </DialogTitle>
             <DialogDescription>
-              Add these {extra.quantity} shares to your {existing.quantity}? Finlio will keep one
-              holding with the average price you paid.
+              {t("Add these {extra} shares to your {owned}? Finlio will keep one holding with the average price you paid.", { extra: extra.quantity, owned: existing.quantity })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-1 gap-2">
             <Button variant="outline" className="h-11 flex-1 rounded-xl" onClick={() => handleOpenChange(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               className="h-11 flex-1 rounded-xl"
@@ -154,7 +154,7 @@ export function HoldingDialog({
                 handleOpenChange(false);
               }}
             >
-              Add to {existing.symbol}
+              {t("Add to {symbol}", { symbol: existing.symbol })}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -167,11 +167,11 @@ export function HoldingDialog({
       <DialogContent className="gap-5 rounded-3xl p-7 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
-            {editing ? `Edit ${editing.symbol}` : picked ? "Your position" : "Add a stock you own"}
+            {editing ? `Edit ${editing.symbol}` : picked ? t("Your position") : t("Add a stock you own")}
           </DialogTitle>
           <DialogDescription>
             {picked
-              ? "Finlio uses this to work out your gain or loss. It stays in this browser."
+              ? t("Finlio uses this to work out your gain or loss. It stays in this browser.")
               : `Search ${activeLocale().market} by company name or symbol.`}
           </DialogDescription>
         </DialogHeader>
@@ -184,7 +184,7 @@ export function HoldingDialog({
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. TCS or Infosys"
+                placeholder={t("e.g. TCS or Infosys")}
                 className="h-11 rounded-xl pl-9 text-[15px]"
                 aria-label={`Search ${activeLocale().market} stocks`}
               />
@@ -217,7 +217,7 @@ export function HoldingDialog({
               ))}
               {query.trim() && !searching && !searchError && results.length === 0 && (
                 <li className="px-2 py-3 text-sm text-muted-foreground">
-                  No NSE stock matches “{query.trim()}”.
+                  {t("No NSE stock matches “{query}”.", { query: query.trim() })}
                 </li>
               )}
             </ul>
@@ -238,11 +238,11 @@ export function HoldingDialog({
                 </span>
               </span>
               {!editing && (
-                <ArrowLeft className="size-4 text-muted-foreground" aria-label="Change stock" />
+                <ArrowLeft className="size-4 text-muted-foreground" aria-label={t("Change stock")} />
               )}
             </button>
 
-            <Field id="buyDate" label="Buy date" error={errors.buyDate}>
+            <Field id="buyDate" label={t("Buy date")} error={errors.buyDate}>
               <Input
                 id="buyDate"
                 type="date"
@@ -253,7 +253,7 @@ export function HoldingDialog({
               />
             </Field>
             <div className="grid grid-cols-2 gap-3">
-              <Field id="buyPrice" label={`Buy price per share (${activeLocale().symbol})`} error={errors.buyPrice}>
+              <Field id="buyPrice" label={t("Buy price per share (₹)")} error={errors.buyPrice}>
                 <Input
                   id="buyPrice"
                   type="number"
@@ -265,7 +265,7 @@ export function HoldingDialog({
                   className="nums h-11 rounded-xl"
                 />
               </Field>
-              <Field id="quantity" label="Quantity" error={errors.quantity}>
+              <Field id="quantity" label={t("Quantity")} error={errors.quantity}>
                 <Input
                   id="quantity"
                   type="number"
@@ -281,7 +281,7 @@ export function HoldingDialog({
 
             <DialogFooter className="mt-1">
               <Button type="submit" className="h-11 w-full rounded-xl text-[15px]">
-                {editing ? "Save changes" : `Save ${picked.symbol}`}
+                {editing ? t("Save changes") : `Save ${picked.symbol}`}
               </Button>
             </DialogFooter>
           </form>

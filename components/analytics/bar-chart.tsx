@@ -5,6 +5,7 @@ import Link from "next/link";
 import { compactMoney } from "@/lib/networth";
 import { cn } from "@/lib/utils";
 import { niceTop } from "@/components/analytics/chart-card";
+import { t } from "@/lib/i18n";
 
 export type BarPoint = { key: string; label: string; income: number; spent: number };
 
@@ -54,7 +55,7 @@ export function CashFlowBars({ points, height = 240 }: { points: BarPoint[]; hei
                 key={p.key}
                 tabIndex={0}
                 role="img"
-                aria-label={`${p.label}: income ${compactMoney(p.income)}, spending ${compactMoney(p.spent)}`}
+                aria-label={`${p.label}: ${t("Income")} ${compactMoney(p.income)}, ${t("Spending")} ${compactMoney(p.spent)}`}
                 onMouseEnter={() => setActive(i)}
                 onMouseLeave={() => setActive(null)}
                 onFocus={() => setActive(i)}
@@ -99,11 +100,11 @@ export function CashFlowBars({ points, height = 240 }: { points: BarPoint[]; hei
           >
             <p className="font-medium text-ink">{point.label}</p>
             <dl className="mt-1.5 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-body">
-              <dt>Income</dt>
+              <dt>{t("Income")}</dt>
               <dd className="nums text-right text-ink">{compactMoney(point.income)}</dd>
-              <dt>Spending</dt>
+              <dt>{t("Spending")}</dt>
               <dd className="nums text-right text-ink">{compactMoney(point.spent)}</dd>
-              <dt>Saved</dt>
+              <dt>{t("Saved")}</dt>
               <dd className="nums text-right text-ink">{compactMoney(point.income - point.spent)}</dd>
             </dl>
           </div>

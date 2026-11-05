@@ -23,9 +23,11 @@ import { useChatUI } from "@/components/chat/chat-context";
 import { answer, QUESTIONS, useDemoMode, useTodaysBrief } from "@/lib/demo-data";
 import { todayLocal } from "@/lib/format";
 import { allocation } from "@/lib/networth";
+import { currentLanguage, usePreferences } from "@/lib/preferences";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 type ChatMessage = { id: string; role: "user" | "assistant"; content: string; error?: boolean };
 
@@ -134,16 +136,17 @@ function CopyButton({ text }: { text: string }) {
           // Clipboard blocked: nothing to do.
         }
       }}
-      aria-label={copied ? "Copied" : "Copy answer"}
+      aria-label={copied ? t("Copied") : t("Copy answer")}
       className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[12px] text-muted-foreground hover:bg-sand hover:text-ink"
     >
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {copied ? "Copied" : "Copy"}
+      {copied ? t("Copied") : t("Copy")}
     </button>
   );
 }
 
 export function FinlioChat() {
+  usePreferences();
   const { open, setOpen } = useChatUI();
   const { ready, profile, assets = [], goals = [] } = useStore();
   const { worth, items, thisMonth, month, positions } = useMoney();
@@ -197,9 +200,9 @@ export function FinlioChat() {
 
   // Shown in the header so people can see exactly what the chat is working from.
   const knows = [
-    "your totals",
-    positions.length ? `${positions.length} ${positions.length === 1 ? "stock" : "stocks"}` : null,
-    todays ? "today's brief" : null,
+    t("your totals"),
+    positions.length ? (positions.length === 1 ? t("1 stock") : t("{count} stocks", { count: positions.length })) : null,
+    todays ? t("today's brief") : null,
   ].filter(Boolean);
 
   async function send(text: string) {
@@ -241,6 +244,7 @@ export function FinlioChat() {
         body: JSON.stringify({
           messages: history.map(({ role, content }) => ({ role, content })),
           context,
+          language: currentLanguage(),
         }),
         signal: abort.current.signal,
       });
@@ -272,7 +276,7 @@ export function FinlioChat() {
 
   return (
     <aside
-      aria-label="Finlio chat"
+      aria-label={t("Finlio chat")}
       className={cn(
         "flex flex-col overflow-hidden border-line bg-card",
         // Docked card on wide screens, full-height sheet over the page otherwise.
@@ -287,8 +291,8 @@ export function FinlioChat() {
           <FinlioMark className="size-9" />
           <div className="min-w-0">
             <p className="text-[15px] leading-tight font-semibold text-ink">Finlio</p>
-            <p className="truncate text-[12px] text-muted-foreground" title="What Finlio chat can see">
-              Knows {knows.join(" · ")}
+            <p className="truncate text-[12px] text-muted-foreground" title={t("What Finlio chat can see")}>
+              {t("Knows {list}", { list: knows.join(" · ") })}
             </p>
           </div>
         </div>
@@ -299,16 +303,16 @@ export function FinlioChat() {
               setMessages([]);
             }}
             disabled={!messages.length}
-            aria-label="New chat"
-            title="New chat"
+            aria-label={t("New chat")}
+            title={t("New chat")}
             className="rounded-lg p-2 text-muted-foreground hover:bg-sand hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent"
           >
             <SquarePen className="size-4" />
           </button>
           <button
             onClick={() => setOpen(false)}
-            aria-label="Close chat"
-            title="Close (Esc)"
+            aria-label={t("Close chat")}
+            title={t("Close (Esc)")}
             className="rounded-lg p-2 text-muted-foreground hover:bg-sand hover:text-ink"
           >
             <X className="size-4" />
@@ -320,9 +324,9 @@ export function FinlioChat() {
         <div className="flex flex-1 flex-col justify-end overflow-y-auto px-5 pb-5">
           <FinlioMark className="mb-4 size-12 rounded-2xl" />
           <p className="text-[22px] leading-snug font-semibold tracking-tight text-ink">
-            {firstName ? `Hi ${firstName}.` : "Hi there."}
+            {firstName ? `Hi ${firstName}.` : t("Hi there.")}
             <br />
-            <span className="text-muted-foreground">What would you like to understand?</span>
+            <span className="text-muted-foreground">{t("What would you like to understand?")}</span>
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2">
             {STARTERS.map(({ icon: Icon, text }) => (
@@ -332,7 +336,7 @@ export function FinlioChat() {
                 className="flex flex-col items-start gap-2 rounded-2xl border border-line bg-card p-3 text-left text-[13px] leading-snug text-body transition-colors hover:border-gain/50 hover:bg-sand hover:text-ink"
               >
                 <Icon className="size-4 text-success" strokeWidth={1.75} />
-                {text}
+                {t(text)}
               </button>
             ))}
           </div>
@@ -342,7 +346,7 @@ export function FinlioChat() {
           className="min-h-0 flex-1"
           contentClassName="flex flex-col gap-6 px-5 py-5"
           busy={busy}
-          label="Finlio chat"
+          label={t("Finlio chat")}
         >
           {messages.map((m) =>
             m.role === "user" ? (
@@ -369,7 +373,7 @@ export function FinlioChat() {
                       </>
                     )
                   ) : (
-                    <ThinkingShimmer>Reading your numbers…</ThinkingShimmer>
+                    <ThinkingShimmer>{t("Reading your numbers…")}</ThinkingShimmer>
                   )}
                 </div>
               </div>
@@ -383,7 +387,7 @@ export function FinlioChat() {
                   onClick={() => send(f)}
                   className="rounded-full border border-line px-3 py-1.5 text-[12px] text-body transition-colors hover:border-gain/50 hover:bg-sand hover:text-ink"
                 >
-                  {f}
+                  {t(f)}
                 </button>
               ))}
             </div>
@@ -400,13 +404,13 @@ export function FinlioChat() {
           onStop={() => abort.current?.abort()}
           minRows={1}
           maxRows={6}
-          placeholder="Ask about your money…"
-          aria-label="Ask Finlio"
+          placeholder={t("Ask about your money…")}
+          aria-label={t("Ask Finlio")}
           className="rounded-2xl"
         />
         <div className="mt-2 flex items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground">
-          <span className="hidden sm:inline">Enter to send</span>
-          <span>Finlio explains; it doesn&apos;t advise.</span>
+          <span className="hidden sm:inline">{t("Enter to send")}</span>
+          <span>{t("Finlio explains; it doesn't advise.")}</span>
         </div>
       </div>
     </aside>
@@ -415,6 +419,7 @@ export function FinlioChat() {
 
 // Floating button that opens the panel when it's closed.
 export function ChatLauncher() {
+  usePreferences();
   const { open, setOpen } = useChatUI();
   if (open) return null;
   return (
@@ -426,7 +431,7 @@ export function ChatLauncher() {
       className="fixed right-5 bottom-5 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-[14px] font-medium text-primary-foreground shadow-lg transition-transform hover:scale-[1.03]"
     >
       <MessageCircle className="size-4" />
-      Ask Finlio
+      {t("Ask Finlio")}
       <kbd className="rounded bg-primary-foreground/15 px-1.5 py-0.5 text-[11px] font-normal">⌘L</kbd>
     </button>
   );
