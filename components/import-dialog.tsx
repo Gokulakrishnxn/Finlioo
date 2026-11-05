@@ -14,6 +14,7 @@ import { todayLocal, formatMoney } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Instrument } from "@/lib/types";
 import { parseZerodhaCsv } from "@/lib/zerodha-csv";
+import { t } from "@/lib/i18n";
 
 type Result = { added: string[]; merged: string[]; unmatched: string[] };
 
@@ -87,10 +88,9 @@ export function ImportDialog({
     <Dialog open={open} onOpenChange={close}>
       <DialogContent className="gap-5 rounded-2xl p-7 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold tracking-tight">Import from Zerodha</DialogTitle>
+          <DialogTitle className="text-lg font-semibold tracking-tight">{t("Import from Zerodha")}</DialogTitle>
           <DialogDescription>
-            In Kite, open Holdings and choose Download (CSV). The file is read here in your browser;
-            only the stock symbols are looked up.
+            {t("In Kite, open Holdings and choose Download (CSV). The file is read here in your browser; only the stock symbols are looked up.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,9 +102,9 @@ export function ImportDialog({
               <FileUp className="size-5 text-muted-foreground" />
             )}
             <span className="text-[14px] font-medium text-ink">
-              {busy ? "Matching your stocks…" : "Choose holdings CSV"}
+              {busy ? t("Matching your stocks…") : t("Choose holdings CSV")}
             </span>
-            <span className="text-[12px] text-muted-foreground">Quantity and average cost are imported</span>
+            <span className="text-[12px] text-muted-foreground">{t("Quantity and average cost are imported")}</span>
             <input
               type="file"
               accept=".csv,text/csv"
@@ -120,16 +120,15 @@ export function ImportDialog({
         {result && (
           <div className="flex flex-col gap-3 text-[14px] text-body">
             <p className="font-medium text-ink">
-              Imported {result.added.length + result.merged.length} of{" "}
-              {result.added.length + result.merged.length + result.unmatched.length} holdings.
+              {t("Imported {count} of {total} holdings.", { count: result.added.length + result.merged.length, total: result.added.length + result.merged.length + result.unmatched.length })}
             </p>
-            {result.added.length > 0 && <List title="Added" items={result.added} />}
-            {result.merged.length > 0 && <List title="Added to existing" items={result.merged} />}
+            {result.added.length > 0 && <List title={t("Added")} items={result.added} />}
+            {result.merged.length > 0 && <List title={t("Added to existing")} items={result.merged} />}
             {result.unmatched.length > 0 && (
-              <List title="Not found on NSE (skipped)" items={result.unmatched} />
+              <List title={t("Not found on NSE (skipped)")} items={result.unmatched} />
             )}
             <Button onClick={() => close(false)} className="mt-2 h-11 rounded-xl">
-              Done
+              {t("Done")}
             </Button>
           </div>
         )}

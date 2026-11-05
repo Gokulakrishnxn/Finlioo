@@ -1,4 +1,5 @@
 import { compactMoney } from "@/lib/networth";
+import { t } from "@/lib/i18n";
 
 // Assets versus liabilities as one split bar.
 export function WealthBar({ assets, loans }: { assets: number; loans: number }) {
@@ -13,10 +14,10 @@ export function WealthBar({ assets, loans }: { assets: number; loans: number }) 
       </div>
       <div className="mt-2 flex justify-between text-[11px] font-semibold tracking-[0.06em] uppercase">
         <span className="text-success">
-          {assetPct}% assets · <span className="nums">{compactMoney(assets)}</span>
+          {t("{pct}% assets", { pct: assetPct })} · <span className="nums">{compactMoney(assets)}</span>
         </span>
         <span className="text-loss">
-          {100 - assetPct}% liabilities · <span className="nums">{compactMoney(loans)}</span>
+          {t("{pct}% liabilities", { pct: 100 - assetPct })} · <span className="nums">{compactMoney(loans)}</span>
         </span>
       </div>
     </div>

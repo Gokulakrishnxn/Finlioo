@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { niceTop } from "@/components/analytics/chart-card";
+import { t } from "@/lib/i18n";
 
 export type LinePoint = { key: string; label: string; x: number; y: number };
 
@@ -80,7 +81,7 @@ export function LineChart({
           ref={plot}
           tabIndex={0}
           role="img"
-          aria-label={`${name}: ${formatValue(last.y)} at ${last.label}. Use the left and right arrow keys to read earlier points.`}
+          aria-label={`${name}: ${formatValue(last.y)}, ${last.label}. ${t("Use the left and right arrow keys to read earlier points.")}`}
           onMouseMove={(e) => nearest(e.clientX)}
           onMouseLeave={() => setActive(null)}
           onFocus={() => setActive(points.length - 1)}

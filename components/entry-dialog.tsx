@@ -16,6 +16,7 @@ import { todayLocal } from "@/lib/format";
 import { activeLocale } from "@/lib/locale";
 import { useStore } from "@/lib/store";
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 // Mount with a `key` per type so the form starts fresh.
 export function EntryDialog({
@@ -37,8 +38,8 @@ export function EntryDialog({
 
   function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!(Number(amount) > 0)) return setError("Enter an amount above zero.");
-    if (!date || date > todayLocal()) return setError("Pick today or an earlier date.");
+    if (!(Number(amount) > 0)) return setError(t("Enter an amount above zero."));
+    if (!date || date > todayLocal()) return setError(t("Pick today or an earlier date."));
     addEntry({ type, amount: Number(amount), date, category, note: note.trim() || undefined });
     onOpenChange(false);
   }
@@ -48,9 +49,9 @@ export function EntryDialog({
       <DialogContent className="gap-5 rounded-2xl p-7 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold tracking-tight">
-            {type === "income" ? "Add income" : "Add an expense"}
+            {type === "income" ? t("Add income") : t("Add an expense")}
           </DialogTitle>
-          <DialogDescription>Saved only in this browser.</DialogDescription>
+          <DialogDescription>{t("Saved only in this browser.")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
           <div className="grid grid-cols-2 gap-3">
@@ -66,7 +67,7 @@ export function EntryDialog({
                 className="nums h-11 rounded-xl"
               />
             </Field>
-            <Field id="entry-date" label="Date">
+            <Field id="entry-date" label={t("Date")}>
               <Input
                 id="entry-date"
                 type="date"
@@ -77,14 +78,14 @@ export function EntryDialog({
               />
             </Field>
           </div>
-          <Field id="entry-category" label="Category">
+          <Field id="entry-category" label={t("Category")}>
             <Select id="entry-category" value={category} onChange={(e) => setCategory(e.target.value)}>
               {categories.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </Select>
           </Field>
-          <Field id="entry-note" label="Note (optional)">
+          <Field id="entry-note" label={t("Note (optional)")}>
             <Input
               id="entry-note"
               value={note}
@@ -96,7 +97,7 @@ export function EntryDialog({
           {error && <p className="text-[13px] text-loss">{error}</p>}
           <DialogFooter>
             <Button type="submit" className="h-11 w-full rounded-xl text-[15px]">
-              Save {type}
+              {type === "income" ? t("Save income") : t("Save expense")}
             </Button>
           </DialogFooter>
         </form>

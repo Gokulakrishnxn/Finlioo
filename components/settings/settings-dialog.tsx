@@ -4,8 +4,10 @@ import { createContext, useCallback, useContext, useState } from "react";
 import { Database, Link2, Settings2, UserRound, X, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Accounts, DataCard, Preferences, ProfileCard } from "@/components/settings/sections";
+import { usePreferences } from "@/lib/preferences";
 import { useStore, type StoreData } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 export type SettingsTab = "general" | "profile" | "accounts" | "data";
 
@@ -44,6 +46,7 @@ function snapshotOf(store: ReturnType<typeof useStore>): StoreData {
 
 // Settings live in one pop-up window, opened from the profile menu (like ChatGPT).
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
+  usePreferences();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<SettingsTab>("general");
 
@@ -62,7 +65,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         >
           <nav className="flex shrink-0 gap-1 overflow-x-auto border-b border-line bg-sand/60 p-3 sm:w-[210px] sm:flex-col sm:border-r sm:border-b-0">
             <div className="mb-2 hidden items-center justify-between px-2 pt-1 sm:flex">
-              <DialogTitle className="text-[15px] font-semibold text-ink">Settings</DialogTitle>
+              <DialogTitle className="text-[15px] font-semibold text-ink">{t("Settings")}</DialogTitle>
             </div>
             {TABS.map(({ id, label, icon: Icon }) => (
               <button
@@ -74,15 +77,15 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
                 )}
               >
                 <Icon className="size-4" strokeWidth={1.75} />
-                {label}
+                {t(label)}
               </button>
             ))}
           </nav>
           <div className="relative min-h-0 flex-1 overflow-y-auto p-6">
-            <DialogDescription className="sr-only">Finlio settings, saved only in this browser.</DialogDescription>
+            <DialogDescription className="sr-only">{t("Finlio settings, saved only in this browser.")}</DialogDescription>
             <button
               onClick={() => setOpen(false)}
-              aria-label="Close settings"
+              aria-label={t("Close settings")}
               className="absolute top-4 right-4 rounded-lg p-1.5 text-muted-foreground hover:bg-sand hover:text-ink"
             >
               <X className="size-4" />

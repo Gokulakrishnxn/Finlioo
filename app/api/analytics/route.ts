@@ -1,4 +1,4 @@
-import { MONEY_STYLE } from "@/lib/ai-locale";
+import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -6,6 +6,7 @@ const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 // Totals only: no transactions, merchants, account names or stock quantities.
 const AnalyticsRequestSchema = z.object({
+  language: z.enum(AI_LANGUAGE_CODES).default("en"),
   netWorth: z.number(),
   assets: z.number(),
   loans: z.number(),
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
     const response = await ai.models.generateContent({
       model: MODEL,
       contents: JSON.stringify(parsed.data),
-      config: { systemInstruction: SYSTEM },
+      config: { systemInstruction: `${SYSTEM}${languageRule(parsed.data.language)}` },
     });
     const points = (response.text ?? "")
       .split("\n")

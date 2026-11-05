@@ -22,6 +22,7 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Position } from "@/lib/portfolio";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 // One holding in a centred card: today's price and what you own.
 export function HoldingDetail({
@@ -58,7 +59,7 @@ export function HoldingDetail({
                 </div>
                 <button
                   onClick={onClose}
-                  aria-label="Close"
+                  aria-label={t("Close")}
                   className="self-start rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-sand hover:text-ink"
                 >
                   <X className="size-4" />
@@ -67,7 +68,7 @@ export function HoldingDetail({
 
               <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
                 <div data-demo-hide={position.quote ? undefined : ""} className="rounded-xl bg-sand p-4">
-                  <p className="eyebrow">Price today</p>
+                  <p className="eyebrow">{t("Price today")}</p>
                   {position.quote ? (
                     <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <p className="nums text-[28px] leading-none font-semibold tracking-tight text-ink">
@@ -80,17 +81,17 @@ export function HoldingDetail({
                       />
                     </div>
                   ) : (
-                    <p className="mt-1.5 text-[14px] text-body">Live price isn&apos;t available right now.</p>
+                    <p className="mt-1.5 text-[14px] text-body">{t("Live price isn't available right now.")}</p>
                   )}
                 </div>
 
                 <dl className="mt-3 grid grid-cols-2 gap-3">
-                  <Stat label="Your shares" value={String(h.quantity)} />
-                  <Stat label="Average buy price" value={formatMoney(h.buyPrice)} />
-                  <Stat label="You put in" value={formatMoney(position.invested)} />
-                  <Stat label="Worth now" value={position.value !== undefined ? formatMoney(position.value) : "—"} />
+                  <Stat label={t("Your shares")} value={String(h.quantity)} />
+                  <Stat label={t("Average buy price")} value={formatMoney(h.buyPrice)} />
+                  <Stat label={t("You put in")} value={formatMoney(position.invested)} />
+                  <Stat label={t("Worth now")} value={position.value !== undefined ? formatMoney(position.value) : "—"} />
                   <div className="col-span-2 flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-3">
-                    <dt className="text-[13px] text-muted-foreground">Since {formatDate(h.buyDate)}</dt>
+                    <dt className="text-[13px] text-muted-foreground">{t("Since {date}", { date: formatDate(h.buyDate) })}</dt>
                     <dd>
                       <Change amount={position.gain} pct={position.gainPct} className="text-[14px]" />
                     </dd>
@@ -101,7 +102,7 @@ export function HoldingDetail({
               <footer className="flex gap-2 border-t border-line bg-sand/50 px-6 py-4">
                 <Button variant="outline" className="h-10 flex-1 rounded-xl bg-card" onClick={() => onEdit(h.id)}>
                   <Pencil className="size-4" />
-                  Edit
+                  {t("Edit")}
                 </Button>
                 <Button
                   variant="destructive"
@@ -109,7 +110,7 @@ export function HoldingDetail({
                   onClick={() => setConfirming(true)}
                 >
                   <Trash2 className="size-4" />
-                  Delete
+                  {t("Delete")}
                 </Button>
               </footer>
             </>
@@ -120,11 +121,11 @@ export function HoldingDetail({
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {h?.symbol}?</AlertDialogTitle>
-            <AlertDialogDescription>Finlio will forget this holding. You can add it again any time.</AlertDialogDescription>
+            <AlertDialogTitle>{t("Delete {name}?", { name: h?.symbol ?? "" })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("Finlio will forget this holding. You can add it again any time.")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogCancel>{t("Keep it")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => {
@@ -133,7 +134,7 @@ export function HoldingDetail({
                 onClose();
               }}
             >
-              Delete
+              {t("Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

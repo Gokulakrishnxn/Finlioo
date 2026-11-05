@@ -17,8 +17,10 @@ import { formatMoney } from "@/lib/format";
 import { inRange, rangeLabel } from "@/lib/date-range";
 import { useDateRange } from "@/lib/date-range-context";
 import { allocation, compactMoney, rangeTotals, spendingByCategory } from "@/lib/networth";
+import { currentLanguage } from "@/lib/preferences";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
+import { t } from "@/lib/i18n";
 
 const CATEGORY_COLORS = ["var(--chart-loss)", "#ff9f43", "#ffbe4c", "#9553f9", "#3784f4", "#14b8a6", "#a8a29e", "#c084fc", "#94a3b8"];
 
@@ -53,11 +55,11 @@ export default function InsightsPage() {
   const flow = useMemo(() => {
     if (!income.length || !spending.length) return null;
     const nodes = [
-      ...income.map((i) => ({ id: `in:${i.category}`, label: i.category, color: "var(--chart-gain)" })),
-      { id: "month", label: "This period", color: "#3784f4" },
+      ...income.map((i) => ({ id: `in:${i.category}`, label: t(i.category), color: "var(--chart-gain)" })),
+      { id: "month", label: t("This period"), color: "#3784f4" },
       ...flowSpending.map((s, n) => ({
         id: `out:${s.category}`,
-        label: s.category,
+        label: t(s.category),
         color: s.category === "Other spending" ? "#a8a29e" : CATEGORY_COLORS[n % CATEGORY_COLORS.length],
       })),
     ];
@@ -66,7 +68,7 @@ export default function InsightsPage() {
       ...flowSpending.map((s) => ({ source: "month", target: `out:${s.category}`, value: s.amount })),
     ];
     if (totals.saved > 0) {
-      nodes.push({ id: "saved", label: "Saved", color: "var(--success)" });
+      nodes.push({ id: "saved", label: t("Saved"), color: "var(--success)" });
       links.push({ source: "month", target: "saved", value: totals.saved });
     }
     return { nodes, links };
@@ -83,6 +85,7 @@ export default function InsightsPage() {
           netWorth: Math.round(worth.netWorth),
           assets: Math.round(worth.assets),
           loans: Math.round(worth.loans),
+          language: currentLanguage(),
           period: rangeLabel(range),
           totals,
           previousPeriodSpent: rangeTotals(items, previous).spent,
@@ -107,20 +110,19 @@ export default function InsightsPage() {
 
   return (
     <>
-      <PageHeader title="Insights" subtitle="Your money, explained in plain words." action={<DateRangePicker />} />
+      <PageHeader title={t("Insights")} subtitle={t("Your money, explained in plain words.")} action={<DateRangePicker />} />
 
       <section className="card-surface overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-4 p-6">
           <div className="max-w-xl">
-            <p className="eyebrow">Explain my money</p>
+            <p className="eyebrow">{t("Explain my money")}</p>
             <p className="mt-2 text-[15px] leading-relaxed text-body">
-              Finlio looks at your totals (net worth, this period, spending by category and how your money is
-              spread) and tells you what stands out. Only totals are sent; never transactions or names.
+              {t("Finlio looks at your totals (net worth, this period, spending by category and how your money is spread) and tells you what stands out. Only totals are sent; never transactions or names.")}
             </p>
           </div>
           <Button onClick={explain} disabled={loading} className="h-10 rounded-xl px-4">
             {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-            {loading ? "Reading your numbers…" : points ? "Explain again" : "Explain my money"}
+            {loading ? t("Reading your numbers…") : points ? t("Explain again") : t("Explain my money")}
           </Button>
         </div>
         {error && <p className="border-t border-line px-6 py-4 text-[14px] text-loss">{error}</p>}
@@ -132,19 +134,19 @@ export default function InsightsPage() {
                 {p}
               </li>
             ))}
-            <li className="text-[12px] text-muted-foreground">Finlio explains. It doesn&apos;t advise.</li>
+            <li className="text-[12px] text-muted-foreground">{t("Finlio explains. It doesn't advise.")}</li>
           </ul>
         )}
       </section>
 
       <div className="mt-4 grid gap-4 *:min-w-0 lg:grid-cols-2">
         <section className="card-surface p-6">
-          <p className="eyebrow mb-5">Where your money sits</p>
+          <p className="eyebrow mb-5">{t("Where your money sits")}</p>
           {alloc.length ? (
             <DonutChart
-              segments={alloc.map((a) => ({ id: a.label, name: a.label, color: a.color, value: a.amount }))}
+              segments={alloc.map((a) => ({ id: a.label, name: t(a.label), color: a.color, value: a.amount }))}
               formatValue={compactMoney}
-              label="Allocation"
+              label={t("Allocation")}
               thickness={18}
               gap={4}
             >
@@ -158,24 +160,24 @@ export default function InsightsPage() {
               </div>
             </DonutChart>
           ) : (
-            <p className="text-[14px] text-body">Add stocks or assets to see how your money is spread.</p>
+            <p className="text-[14px] text-body">{t("Add stocks or assets to see how your money is spread.")}</p>
           )}
         </section>
 
         <section className="card-surface p-6">
-          <p className="eyebrow mb-5">Spending</p>
+          <p className="eyebrow mb-5">{t("Spending")}</p>
           {spending.length ? (
             <DonutChart
               segments={topSpending.map((s, n) => ({
                 id: s.category,
-                name: s.category,
+                name: t(s.category),
                 color: s.category === "Other" ? "#a8a29e" : CATEGORY_COLORS[n % CATEGORY_COLORS.length],
                 value: s.amount,
               }))}
               thickness={18}
               gap={4}
               formatValue={compactMoney}
-              label="Spending by category"
+              label={t("Spending by category")}
             >
               <div className="grid items-center gap-6 2xl:grid-cols-[minmax(0,12rem)_1fr]">
                 <div className="mx-auto w-full max-w-[13rem]">
@@ -187,16 +189,16 @@ export default function InsightsPage() {
               </div>
             </DonutChart>
           ) : (
-            <p className="text-[14px] text-body">No spends recorded in this period.</p>
+            <p className="text-[14px] text-body">{t("No spends recorded in this period.")}</p>
           )}
         </section>
       </div>
 
       <section className="card-surface mt-4 p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="eyebrow">Money flow</p>
+          <p className="eyebrow">{t("Money flow")}</p>
           <p className="text-[13px] text-muted-foreground">
-            In <span className="nums text-ink">{formatMoney(totals.income)}</span> · Out{" "}
+            {t("In")} <span className="nums text-ink">{formatMoney(totals.income)}</span> · {t("Out")}{" "}
             <span className="nums text-ink">{formatMoney(totals.spent)}</span>
           </p>
         </div>
@@ -205,7 +207,7 @@ export default function InsightsPage() {
             nodes={flow.nodes}
             links={flow.links}
             formatValue={compactMoney}
-            label="Money flow"
+            label={t("Money flow")}
             nodePadding={26}
             nodeWidth={10}
             className="mt-4"
@@ -215,7 +217,7 @@ export default function InsightsPage() {
           </SankeyChart>
         ) : (
           <p className="mt-4 text-[14px] text-body">
-            Add income and a few expenses in this period to see where your money flows.
+            {t("Add income and a few expenses in this period to see where your money flows.")}
           </p>
         )}
       </section>

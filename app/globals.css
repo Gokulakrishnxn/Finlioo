@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans), var(--font-noto-devanagari), var(--font-noto-tamil), var(--font-noto-telugu), var(--font-noto-kannada), sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
+  --font-heading: var(--font-sans);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -175,7 +175,7 @@
   --text-lg: 1.125rem;
   --leading-body: 1.5;
   --tracking-body: -0.006em;
-  --font-body: var(--font-geist-sans);
+  --font-body: var(--font-sans);
   --surface: var(--card);
   --surface-muted: var(--muted);
   --surface-raised: var(--popover);
@@ -220,6 +220,17 @@
 @utility card-surface {
   @apply rounded-2xl border border-line bg-card;
   box-shadow: var(--card-shadow);
+}
+
+/* Indian scripts fall through to Noto, so they don't depend on the device's fonts. */
+html {
+  font-family: var(--font-geist-sans), var(--font-noto-devanagari), var(--font-noto-tamil), var(--font-noto-telugu), var(--font-noto-kannada), sans-serif;
+}
+
+/* Indian scripts have no capitals and read better without wide letter spacing. */
+html:not([lang="en"]) .eyebrow {
+  letter-spacing: 0;
+  font-size: 12px;
 }
 
 /* Small uppercase section label, e.g. "NET WORTH · ₹ INR". */

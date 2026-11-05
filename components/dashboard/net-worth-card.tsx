@@ -10,6 +10,7 @@ import { activeLocale } from "@/lib/locale";
 import { quarterBars, type QuarterBar } from "@/lib/quarters";
 import { cn } from "@/lib/utils";
 import type { Snapshot } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 function Sparkline({ points }: { points: number[] }) {
   const w = 320;
@@ -122,9 +123,9 @@ export function NetWorthCard({
     <section data-tour="networth" className="card-surface flex flex-col p-6 md:p-7">
       <div className="flex items-center justify-between gap-3">
         <p className="eyebrow">
-          Net worth · {activeLocale().symbol} {activeLocale().currency}
+          {t("Net worth")} · {activeLocale().symbol} {activeLocale().currency}
         </p>
-        {!stocksLive && <span className="text-[11px] text-muted-foreground">Stocks at cost</span>}
+        {!stocksLive && <span className="text-[11px] text-muted-foreground">{t("Stocks at cost")}</span>}
       </div>
       <CountUp
         value={netWorth}
@@ -137,21 +138,19 @@ export function NetWorthCard({
           <span className="nums">
             {formatSignedMoney(change)} ({formatPct(pct)})
           </span>
-          <span className="text-muted-foreground">since {shortDate(first.date)}</span>
+          <span className="text-muted-foreground">{t("since {date}", { date: shortDate(first.date) })}</span>
         </p>
       ) : (
         <p className="mt-3 text-[13px] text-muted-foreground">
-          Your history starts today and grows each day you open Finlio.
+          {t("Your history starts today and grows each day you open Finlio.")}
         </p>
       )}
 
       <div className="mt-5 flex items-center justify-between">
         <p className="text-[12px] text-muted-foreground">
           {view === "quarterly"
-            ? activeLocale().fyStartMonth === 4
-              ? "By quarter · financial year (Apr–Mar)"
-              : "By quarter · calendar year"
-            : "Day by day"}
+            ? t("By quarter · financial year (Apr–Mar)")
+            : t("Day by day")}
         </p>
         <div className="flex gap-0.5 rounded-lg bg-sand p-0.5">
           {(["quarterly", "daily"] as const).map((v) => (
@@ -163,7 +162,7 @@ export function NetWorthCard({
                 view === v && "bg-card font-medium text-ink shadow-sm",
               )}
             >
-              {v === "quarterly" ? "Quarterly" : "Daily"}
+              {v === "quarterly" ? t("Quarterly") : t("Daily")}
             </button>
           ))}
         </div>
@@ -182,18 +181,18 @@ export function NetWorthCard({
           </>
         ) : (
           <div className="flex h-[72px] items-center justify-center rounded-xl bg-sand/60 text-[12px] text-muted-foreground">
-            Your daily line starts today.
+            {t("Your daily line starts today.")}
           </div>
         )}
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 border-t border-line pt-4">
         <div>
-          <p className="eyebrow">Assets</p>
+          <p className="eyebrow">{t("Assets")}</p>
           <p className="nums mt-1 text-[15px] text-ink">{compactMoney(assets)}</p>
         </div>
         <div>
-          <p className="eyebrow">Liabilities</p>
+          <p className="eyebrow">{t("Liabilities")}</p>
           <p className="nums mt-1 text-[15px] text-ink">{compactMoney(loans)}</p>
         </div>
       </div>

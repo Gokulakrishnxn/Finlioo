@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { formatDate, formatMoney, todayLocal } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Goal } from "@/lib/types";
+import { t } from "@/lib/i18n";
 
 // Mount with a `key` per goal so the form starts fresh.
 export function ContributionDialog({
@@ -30,8 +31,8 @@ export function ContributionDialog({
   function save(e: React.FormEvent) {
     e.preventDefault();
     const fail = (message: string) => setProblem((p) => ({ message, attempt: (p?.attempt ?? 0) + 1 }));
-    if (!(Number(amount) > 0)) return fail("Enter an amount above zero.");
-    if (!date || date > todayLocal()) return fail("Pick today or an earlier date.");
+    if (!(Number(amount) > 0)) return fail(t("Enter an amount above zero."));
+    if (!date || date > todayLocal()) return fail(t("Pick today or an earlier date."));
     addContribution(goal.id, { amount: Number(amount), date });
     onAdded(goal, Number(amount));
     onOpenChange(false);
@@ -43,14 +44,14 @@ export function ContributionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-5 p-6 [--dialog-width:26rem]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold tracking-tight">Add money</DialogTitle>
-          <DialogDescription>Record what you put towards {goal.name}.</DialogDescription>
+          <DialogTitle className="text-lg font-semibold tracking-tight">{t("Add money")}</DialogTitle>
+          <DialogDescription>{t("Record what you put towards {name}.", { name: goal.name })}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
           <div className="grid gap-3 sm:grid-cols-2">
             <div key={problem?.attempt ?? 0} className={problem ? "t-input is-shaking" : "t-input"}>
-              <Field id="contribution-amount" label="Amount (₹)">
+              <Field id="contribution-amount" label={t("Amount (₹)")}>
                 <Input
                   id="contribution-amount"
                   type="number"
@@ -64,7 +65,7 @@ export function ContributionDialog({
                 />
               </Field>
             </div>
-            <Field id="contribution-date" label="Date">
+            <Field id="contribution-date" label={t("Date")}>
               <Input
                 id="contribution-date"
                 type="date"
@@ -82,14 +83,14 @@ export function ContributionDialog({
           )}
           <DialogFooter>
             <Button type="submit" className="h-11 w-full rounded-xl text-[15px]">
-              Add money
+              {t("Add money")}
             </Button>
           </DialogFooter>
         </form>
 
         {history.length > 0 && (
           <div className="border-t border-line pt-4">
-            <p className="eyebrow mb-2">History</p>
+            <p className="eyebrow mb-2">{t("History")}</p>
             <ul className="max-h-40 overflow-y-auto">
               {history.map((c) => (
                 <li key={c.id} className="flex items-center gap-3 py-1.5 text-[13px]">
