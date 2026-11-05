@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, Select } from "@/components/form";
+import { Field } from "@/components/form";
 import { useSettings } from "@/components/settings/settings-dialog";
 import { useTour } from "@/components/tour/tour";
 import { useTheme } from "@/components/theme-root";
@@ -24,7 +24,6 @@ import { todayLocal } from "@/lib/format";
 import type { StoreData } from "@/lib/store";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
 import { cn } from "@/lib/utils";
-import { activeLocale, COUNTRIES, isCountry, LOCALES, type Country } from "@/lib/locale";
 
 type Session = {
   configured: boolean;
@@ -55,7 +54,6 @@ export function ProfileCard({
   const [name, setName] = useState(initial?.name ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
   const [goal, setGoal] = useState(initial?.goal ?? "");
-  const [country, setCountry] = useState<Country>(isCountry(initial?.country) ? initial.country : "IN");
   const [saved, setSaved] = useState(false);
   const initialLetter = (name.trim()[0] ?? "F").toUpperCase();
 
@@ -65,7 +63,6 @@ export function ProfileCard({
       name: name.trim() || undefined,
       city: city.trim() || undefined,
       goal: goal.trim() || undefined,
-      country,
     });
     setSaved(true);
   }
@@ -108,28 +105,6 @@ export function ProfileCard({
             />
           </Field>
         </div>
-        <Field id="profile-country" label="Country">
-          <Select
-            id="profile-country"
-            value={country}
-            onChange={(e) => {
-              setCountry(e.target.value as Country);
-              setSaved(false);
-            }}
-          >
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c}>
-                {LOCALES[c].flag} {LOCALES[c].name} ({LOCALES[c].symbol} {LOCALES[c].currency})
-              </option>
-            ))}
-          </Select>
-        </Field>
-        {country !== (initial?.country ?? "IN") && (
-          <p className="-mt-2 text-[12px] text-muted-foreground">
-            Amounts will show in {LOCALES[country].currency}. Finlio doesn&apos;t convert what you&apos;ve already
-            entered, so update amounts that were in the other currency.
-          </p>
-        )}
         <Field id="profile-goal" label="A money goal (optional)">
           <Input
             id="profile-goal"
@@ -259,15 +234,6 @@ export function Preferences() {
                 setCollapsed(on);
               }}
             />
-          }
-        />
-        <Row
-          title="Country, currency and market"
-          body={`${activeLocale().flag} ${activeLocale().name}: ${activeLocale().currency} and ${activeLocale().market} stocks. Change your country in Profile.`}
-          control={
-            <span className="rounded-md bg-sand px-2 py-1 text-[12px] whitespace-nowrap text-body ring-1 ring-line">
-              {activeLocale().symbol} {activeLocale().currency}
-            </span>
           }
         />
         <Row

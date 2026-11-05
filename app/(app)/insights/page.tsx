@@ -14,7 +14,6 @@ import { PageHeader } from "@/components/page-header";
 import { PageSkeleton } from "@/components/page-skeleton";
 import { formatMoney } from "@/lib/format";
 import { allocation, compactMoney, monthTotals } from "@/lib/networth";
-import { activeLocale } from "@/lib/locale";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 
@@ -87,7 +86,6 @@ export default function InsightsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          country: activeLocale().country,
           netWorth: Math.round(worth.netWorth),
           assets: Math.round(worth.assets),
           loans: Math.round(worth.loans),

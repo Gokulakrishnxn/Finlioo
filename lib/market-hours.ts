@@ -1,7 +1,6 @@
 import { activeLocale } from "@/lib/locale";
 
-// Is the person's home market open right now? NSE 09:15–15:30 IST, US 09:30–16:00 ET,
-// weekdays. Exchange holidays aren't modelled.
+// Is the NSE open right now? 09:15–15:30 IST, weekdays. Exchange holidays aren't modelled.
 export function isMarketOpen(now = new Date()) {
   const { marketTimeZone, marketOpen, marketClose } = activeLocale();
   const parts = new Intl.DateTimeFormat("en-GB", {

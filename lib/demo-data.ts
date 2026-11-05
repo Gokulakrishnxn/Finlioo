@@ -39,17 +39,14 @@ export function demoQuote(h: Holding): Quote {
 
 const SECTOR: Record<string, string> = {
   TCS: "IT", INFY: "IT", HDFCBANK: "banking", RELIANCE: "energy", ITC: "consumer",
-  AAPL: "tech", MSFT: "tech", NVDA: "chip", AMZN: "tech", VOO: "large-company",
 };
 
-function quoteLink(symbol: string, country: "IN" | "US") {
-  return country === "IN"
-    ? { title: `NSE · ${symbol}`, url: `https://www.nseindia.com/get-quotes/equity?symbol=${encodeURIComponent(symbol)}` }
-    : { title: `Nasdaq · ${symbol}`, url: `https://www.nasdaq.com/market-activity/stocks/${symbol.toLowerCase()}` };
+function quoteLink(symbol: string) {
+  return { title: `NSE · ${symbol}`, url: `https://www.nseindia.com/get-quotes/equity?symbol=${encodeURIComponent(symbol)}` };
 }
 
 // A brief built from the sample stocks' own demo moves and weights.
-export function demoBrief(positions: Position[], country: "IN" | "US"): Brief | undefined {
+export function demoBrief(positions: Position[]): Brief | undefined {
   const sample = positions.filter((p) => p.holding.sample && p.dayChangePct !== undefined);
   if (!sample.length) return undefined;
   const byMove = [...sample].sort((a, b) => Math.abs(b.dayChangePct!) - Math.abs(a.dayChangePct!));
@@ -58,7 +55,7 @@ export function demoBrief(positions: Position[], country: "IN" | "US"): Brief | 
   const item = (p: Position, text: string): BriefItem => ({
     symbol: p.holding.symbol,
     text,
-    sources: [quoteLink(p.holding.symbol, country)],
+    sources: [quoteLink(p.holding.symbol)],
   });
   const move = (p: Position) => {
     const pct = Math.abs(p.dayChangePct!).toFixed(1);
@@ -81,12 +78,12 @@ export function demoBrief(positions: Position[], country: "IN" | "US"): Brief | 
 }
 
 // Today's brief: the real one when there is one, else the demo one in demo mode.
-export function useTodaysBrief(positions: Position[], country: "IN" | "US") {
+export function useTodaysBrief(positions: Position[]) {
   const { brief } = useStore();
   const demo = useDemoMode();
   // Dates are read only when there is a brief: Next.js prerenders without them.
   if (brief && brief.date === todayLocal()) return { brief, demo: false };
-  if (demo) return { brief: demoBrief(positions, country), demo: true };
+  if (demo) return { brief: demoBrief(positions), demo: true };
   return { brief: undefined, demo: false };
 }
 

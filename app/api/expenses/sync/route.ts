@@ -6,15 +6,13 @@ import {
   NotSignedInError,
 } from "@/lib/google-session";
 
-export async function POST(request: Request) {
-  const body = await request.json().catch(() => ({}));
-  const country = body?.country === "US" ? "US" : "IN";
+export async function POST() {
   try {
     const session = await activeSession();
     const emails = await readAlertEmails(session.accessToken);
     // Only these alerts' sender, subject and preview text go to Gemini.
     console.info(`[expenses] read ${emails.length} alert emails for ${session.email}`);
-    const expenses = await extractExpenses(emails, country);
+    const expenses = await extractExpenses(emails);
     return Response.json({
       account: session.email,
       syncedAt: new Date().toISOString(),

@@ -34,12 +34,10 @@ export default function HoldingsPage() {
         }
         action={
           <>
-            {activeLocale().country === "IN" && (
-              <Button variant="outline" onClick={() => setImporting(true)} className="h-10 rounded-xl px-4">
-                <FileUp className="size-4" />
-                Import from Zerodha
-              </Button>
-            )}
+            <Button variant="outline" onClick={() => setImporting(true)} className="h-10 rounded-xl px-4">
+              <FileUp className="size-4" />
+              Import from Zerodha
+            </Button>
             <Button onClick={openAdd} className="h-10 rounded-xl px-4">
               <Plus className="size-4" />
               Add stock

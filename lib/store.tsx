@@ -2,7 +2,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { todayLocal } from "@/lib/format";
-import { activeLocale, isCountry, setActiveCountry } from "@/lib/locale";
 import { sampleAssets, sampleEntries, sampleHoldings, sampleSnapshots } from "@/lib/sample";
 import type { Asset, Brief, Entry, ExpenseSnapshot, Holding, Profile, Snapshot } from "@/lib/types";
 
@@ -59,7 +58,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // localStorage only exists in the browser, so load after mount.
   useEffect(() => {
     const loaded = load();
-    setActiveCountry(isCountry(loaded.profile?.country) ? loaded.profile.country : "IN");
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(loaded);
     setReady(true);
@@ -130,19 +128,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       update((prev) => {
         const id = () => crypto.randomUUID();
         const today = todayLocal();
-        const country = activeLocale().country;
         const owned = new Set(prev.holdings.map((h) => h.instrumentKey));
         const holdings = [
           ...prev.holdings,
-          ...sampleHoldings(country).filter((s) => !owned.has(s.instrumentKey)).map((s) => ({ ...s, id: id() })),
+          ...sampleHoldings().filter((s) => !owned.has(s.instrumentKey)).map((s) => ({ ...s, id: id() })),
         ];
         const hasSample = (list?: { sample?: boolean }[]) => list?.some((x) => x.sample) ?? false;
         const assets = hasSample(prev.assets)
           ? prev.assets!
-          : [...(prev.assets ?? []), ...sampleAssets(country).map((a) => ({ ...a, id: id() }))];
+          : [...(prev.assets ?? []), ...sampleAssets().map((a) => ({ ...a, id: id() }))];
         const entries = hasSample(prev.entries)
           ? prev.entries!
-          : [...(prev.entries ?? []), ...sampleEntries(today, country).map((e) => ({ ...e, id: id() }))];
+          : [...(prev.entries ?? []), ...sampleEntries(today).map((e) => ({ ...e, id: id() }))];
         // Scale the history to today's net worth (stocks at cost) so the chart ends where the card starts.
         const current =
           holdings.reduce((sum, h) => sum + h.quantity * h.buyPrice, 0) +
@@ -229,11 +226,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [update],
   );
 
-  // Merges into the saved profile. Country changes take effect on the next render,
+  // Merges into the saved profile.
   // so formats switch everywhere at once.
   const setProfile = useCallback(
     (profile: Profile) => {
-      if (isCountry(profile.country)) setActiveCountry(profile.country);
       update((prev) => ({ ...prev, profile: { ...prev.profile, ...profile } }));
     },
     [update],
@@ -242,7 +238,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // Restores a backup made with Export.
   const replaceAll = useCallback(
     (next: StoreData) => {
-      setActiveCountry(isCountry(next.profile?.country) ? next.profile.country : "IN");
       update(() => ({ ...next, holdings: next.holdings ?? [] }));
     },
     [update],
@@ -250,7 +245,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const clearAll = useCallback(() => {
     window.localStorage.removeItem(STORAGE_KEY);
-    setActiveCountry("IN");
     setData({ holdings: [] });
   }, []);
 
