@@ -1,4 +1,4 @@
-import { MONEY_STYLE } from "@/lib/ai-locale";
+import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -7,6 +7,7 @@ const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 // The browser sends a summary of the person's money: totals, percentages and
 // today's brief, never transactions, merchants or share quantities.
 const ChatRequestSchema = z.object({
+  language: z.enum(AI_LANGUAGE_CODES).default("en"),
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(4000) }))
     .min(1)
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return Response.json({ error: "Chat isn't set up yet (no Gemini key)." }, { status: 503 });
 
-  const { messages, context } = parsed.data;
+  const { messages, context, language } = parsed.data;
   const ai = new GoogleGenAI({ apiKey });
 
   try {
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
         parts: [{ text: m.content }],
       })),
       config: {
-        systemInstruction: `${SYSTEM}\n\nTheir money right now:\n${JSON.stringify(context)}`,
+        systemInstruction: `${SYSTEM}\n\nTheir money right now:\n${JSON.stringify(context)}${languageRule(language)}`,
       },
     });
 
