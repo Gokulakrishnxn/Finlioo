@@ -84,17 +84,22 @@ export const inRange = (date: string, range: DateRange) => date >= range.from &&
 export const daysIn = (range: DateRange) =>
   Math.round((toDate(range.to).getTime() - toDate(range.from).getTime()) / 864e5) + 1;
 
-// The period just before, for comparisons. Whole months compare with the same number
-// of whole months, so February isn't measured against a 28-day slice of January.
+// The period just before, for comparisons. A range that starts on the 1st compares with
+// the same days of earlier months, so salaries and rent fall on both sides equally:
+// 1 Jun to 6 Nov compares with 1 Dec to 6 May. Other ranges compare with the same number
+// of days immediately before.
 export function previousRange(range: DateRange): DateRange {
-  const startsMonth = range.from.endsWith("-01");
-  if (startsMonth && range.to === monthEnd(monthKey(range.to))) {
+  if (range.from.endsWith("-01")) {
     const [fy, fm] = monthKey(range.from).split("-").map(Number);
     const [ty, tm] = monthKey(range.to).split("-").map(Number);
     const months = (ty - fy) * 12 + (tm - fm) + 1;
+    const endMonth = shiftMonth(monthKey(range.to), -months);
+    const lastDay = monthEnd(endMonth);
+    const sameDay = `${endMonth}-${range.to.slice(8)}`;
+    const toMonthEnd = range.to === monthEnd(monthKey(range.to));
     return {
       from: monthStart(shiftMonth(monthKey(range.from), -months)),
-      to: monthEnd(shiftMonth(monthKey(range.to), -months)),
+      to: toMonthEnd || sameDay > lastDay ? lastDay : sameDay,
     };
   }
   const days = daysIn(range);

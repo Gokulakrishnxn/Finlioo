@@ -3,99 +3,67 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CASH_FLOW_LEGEND, CashFlowBars, RankedBars } from "@/components/analytics/bar-chart";
+import { ChartCard, DataTable, EmptyChart } from "@/components/analytics/chart-card";
+import { LineChart } from "@/components/analytics/line-chart";
+import { DateRangePicker } from "@/components/date-range-picker";
 import { PageHeader } from "@/components/page-header";
 import { PageSkeleton } from "@/components/page-skeleton";
-import { formatMoney, formatMonth } from "@/lib/format";
-import { activeLocale } from "@/lib/locale";
-import { compactMoney, monthTotals, type Activity } from "@/lib/networth";
+import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
+import {
+  cashFlowSeries,
+  categoryComparison,
+  changePct,
+  netWorthSeries,
+  savingsRate,
+  topMerchants,
+} from "@/lib/analytics";
+import { rangeLabel } from "@/lib/date-range";
+import { useDateRange } from "@/lib/date-range-context";
+import { formatDate, formatMoney } from "@/lib/format";
+import { allocation, compactMoney, rangeTotals } from "@/lib/networth";
+import { totals as portfolioTotals } from "@/lib/portfolio";
 import { useStore } from "@/lib/store";
 import { useMoney } from "@/lib/use-money";
 import { cn } from "@/lib/utils";
 
-const CHART_MONTHS = 6;
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "cash-flow", label: "Cash flow" },
+  { id: "spending", label: "Spending" },
+  { id: "portfolio", label: "Portfolio" },
+];
 
-function shiftMonth(key: string, by: number) {
-  const [y, m] = key.split("-").map(Number);
-  const d = new Date(y, m - 1 + by, 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
-const shortMonth = (key: string) =>
-  new Date(`${key}-01T00:00:00`).toLocaleDateString(activeLocale().language, { month: "short" });
-
-function spendingByCategory(items: Activity[], month: string) {
-  const totals = new Map<string, number>();
-  for (const i of items) {
-    if (i.type === "expense" && i.date.startsWith(month)) {
-      totals.set(i.category, (totals.get(i.category) ?? 0) + i.amount);
-    }
-  }
-  return totals;
-}
-
-// Each recent month's totals, starting from the first month that has any activity.
-function buildTrend(items: Activity[], month: string) {
-  if (!month) return [];
-  const earliest = items.reduce((min, i) => (i.date < min ? i.date : min), month).slice(0, 7);
-  return Array.from({ length: CHART_MONTHS }, (_, n) => shiftMonth(month, n - CHART_MONTHS + 1))
-    .filter((key) => key >= earliest)
-    .map((key) => ({ key, ...monthTotals(items, key) }));
-}
-
-// A round top for the axis, so the ticks land on clean numbers.
-function niceMax(value: number) {
-  if (value <= 0) return 1;
-  const size = 10 ** Math.floor(Math.log10(value));
-  const step = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].find((s) => value <= s * size) ?? 10;
-  return step * size;
-}
+type Tone = "good-up" | "bad-up" | "neutral";
 
 export default function AnalyticsPage() {
-  const { ready } = useStore();
-  const { positions, worth, items, month } = useMoney();
+  const { ready, assets } = useStore();
+  const { positions, worth, items, snapshots } = useMoney();
+  const { range, previous, today } = useDateRange();
+  const [tab, setTab] = useState("overview");
 
-  // The running month is unfinished, so comparisons use the last two full months.
-  const lastFull = month ? shiftMonth(month, -1) : "";
-  const prevFull = month ? shiftMonth(month, -2) : "";
-
-  const trend = buildTrend(items, month);
-
-  const fullMonths = trend.filter((t) => t.key !== month && (t.spent > 0 || t.income > 0));
-  const avgSpend = fullMonths.length ? fullMonths.reduce((s, t) => s + t.spent, 0) / fullMonths.length : null;
-  const last = monthTotals(items, lastFull);
-  const prev = monthTotals(items, prevFull);
-  const savingsRate = last.income > 0 ? (last.saved / last.income) * 100 : null;
-  const prevRate = prev.income > 0 ? (prev.saved / prev.income) * 100 : null;
-  const debtRatio = worth.assets > 0 ? (worth.loans / worth.assets) * 100 : null;
-
-  const categories = useMemo(() => {
-    const a = spendingByCategory(items, lastFull);
-    const b = spendingByCategory(items, prevFull);
-    return [...new Set([...a.keys(), ...b.keys()])]
-      .map((category) => ({ category, last: a.get(category) ?? 0, prev: b.get(category) ?? 0 }))
-      .sort((x, y) => y.last - x.last);
-  }, [items, lastFull, prevFull]);
-  const biggest = categories[0]?.last ? categories[0] : null;
-
-  const holdings = useMemo(() => {
+  const current = useMemo(() => rangeTotals(items, range), [items, range]);
+  const before = useMemo(() => rangeTotals(items, previous), [items, previous]);
+  const cashFlow = useMemo(() => (today ? cashFlowSeries(items, range, today) : []), [items, range, today]);
+  const categories = useMemo(() => categoryComparison(items, range, previous), [items, range, previous]);
+  const merchants = useMemo(() => topMerchants(items, range), [items, range]);
+  const history = useMemo(() => netWorthSeries(snapshots, range), [snapshots, range]);
+  const spread = useMemo(() => allocation(worth.stocks, assets), [worth.stocks, assets]);
+  const portfolio = useMemo(() => portfolioTotals(positions), [positions]);
+  const stocks = useMemo(() => {
     const rows = positions.map((p) => ({ symbol: p.holding.symbol, amount: p.value ?? p.invested }));
-    const total = rows.reduce((s, r) => s + r.amount, 0);
-    return rows
-      .map((r) => ({ ...r, share: total ? (r.amount / total) * 100 : 0 }))
-      .sort((x, y) => y.amount - x.amount);
+    const total = rows.reduce((sum, r) => sum + r.amount, 0);
+    return rows.map((r) => ({ ...r, share: total ? (r.amount / total) * 100 : 0 })).sort((a, b) => b.amount - a.amount);
   }, [positions]);
 
   if (!ready) return <PageSkeleton />;
 
-  const lastName = formatMonth(lastFull);
-  const prevName = formatMonth(prevFull);
-  const hasActivity = items.length > 0;
-
-  if (!hasActivity && !positions.length) {
+  const hasAnything = items.length > 0 || positions.length > 0 || (assets?.length ?? 0) > 0;
+  if (!hasAnything) {
     return (
       <>
-        <PageHeader title="Analytics" subtitle="Your numbers over time." />
+        <PageHeader title="Analytics" subtitle="Your money, measured over time." />
         <section className="card-surface p-8">
           <p className="text-[16px] font-semibold tracking-tight text-ink">Nothing to measure yet</p>
           <p className="mt-2 text-[14px] leading-relaxed text-body">
@@ -114,317 +82,331 @@ export default function AnalyticsPage() {
     );
   }
 
+  const rate = savingsRate(current.income, current.saved);
+  const rateBefore = savingsRate(before.income, before.saved);
+  const startWorth = history[0]?.netWorth;
+  const worthChange = startWorth !== undefined ? worth.netWorth - startWorth : null;
+  const debtRatio = worth.assets > 0 ? (worth.loans / worth.assets) * 100 : null;
+  const unfinished = cashFlow.some((c) => c.unfinished);
+  const previousName = rangeLabel(previous);
+  const rateSeries = cashFlow
+    .map((c, i) => ({ key: c.key, label: c.label, x: i, y: c.rate }))
+    .filter((p): p is { key: string; label: string; x: number; y: number } => p.y !== null);
+  const cashFlowTable = (
+    <DataTable
+      head={["Period", "Income", "Spending", "Saved"]}
+      rows={cashFlow.map((c) => ({
+        key: c.key,
+        cells: [c.label, formatMoney(c.income), formatMoney(c.spent), formatMoney(c.saved)],
+      }))}
+    />
+  );
+  const worthChart = history.length > 1 ? (
+    <LineChart
+      name="Net worth"
+      formatValue={compactMoney}
+      points={history.map((s) => ({
+        key: s.date,
+        label: formatDate(s.date),
+        x: new Date(`${s.date}T00:00:00Z`).getTime(),
+        y: s.netWorth,
+      }))}
+    />
+  ) : (
+    <EmptyChart>
+      Not enough net worth history in this period. Finlio records a point each day you open the dashboard.
+    </EmptyChart>
+  );
+  const cashFlowChart = cashFlow.some((c) => c.income > 0 || c.spent > 0) ? (
+    <CashFlowBars points={cashFlow} />
+  ) : (
+    <EmptyChart>No income or spending in this period. Choose other dates above.</EmptyChart>
+  );
+  const unfinishedNote = unfinished ? " * The latest period isn't finished yet." : "";
+
   return (
     <>
-      <PageHeader title="Analytics" subtitle="Your numbers over time." />
+      <PageHeader title="Analytics" subtitle="Your money, measured over time." action={<DateRangePicker />} />
 
-      <div className="grid gap-4 *:min-w-0 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat
-          label={`Savings rate · ${shortMonth(lastFull)}`}
-          value={savingsRate === null ? "—" : `${Math.round(savingsRate)}%`}
+      <div className="grid grid-cols-2 gap-3 *:min-w-0 md:gap-4 lg:grid-cols-5">
+        <Kpi label="Income" value={compactMoney(current.income)} current={current.income} before={before.income} tone="good-up" />
+        <Kpi label="Spending" value={compactMoney(current.spent)} current={current.spent} before={before.spent} tone="bad-up" />
+        <Kpi label="Saved" value={compactMoney(current.saved)} current={current.saved} before={before.saved} tone="good-up" />
+        <Kpi
+          label="Savings rate"
+          value={rate === null ? "—" : `${Math.round(rate)}%`}
           note={
-            savingsRate === null
-              ? "Needs a month with income"
-              : prevRate === null
-                ? "Share of income you kept"
-                : `${prevName}: ${Math.round(prevRate)}%`
+            rate !== null && rateBefore !== null
+              ? `Was ${Math.round(rateBefore)}%`
+              : "Of income kept"
           }
         />
-        <Stat
-          label="Average monthly spend"
-          value={avgSpend === null ? "—" : compactMoney(avgSpend)}
+        <Kpi
+          label="Net worth today"
+          value={compactMoney(worth.netWorth)}
           note={
-            avgSpend === null
-              ? "Needs one full month"
-              : `Over ${fullMonths.length} full ${fullMonths.length === 1 ? "month" : "months"}`
+            worthChange === null
+              ? worth.stocksLive
+                ? "At current prices"
+                : "Stocks at what you paid"
+              : `${worthChange >= 0 ? "+" : "−"}${compactMoney(Math.abs(worthChange))} this period`
           }
-        />
-        <Stat
-          label={`Top category · ${shortMonth(lastFull)}`}
-          value={biggest ? compactMoney(biggest.last) : "—"}
-          note={biggest ? biggest.category : "Needs a month with spending"}
-        />
-        <Stat
-          label="Debt to assets"
-          value={debtRatio === null ? "—" : `${Math.round(debtRatio)}%`}
-          note={debtRatio === null ? "Add assets to see this" : `${compactMoney(worth.loans)} owed`}
+          className="col-span-2 lg:col-span-1"
         />
       </div>
 
-      <IncomeSpendingChart
-        trend={trend}
-        currentMonth={month}
-        className="mt-4"
+      <p className="mt-3 text-[12px] text-muted-foreground">Changes compare with {previousName}.</p>
+
+      <AnimatedTabs
+        tabs={TABS}
+        activeTab={tab}
+        onChange={setTab}
+        renderContent={false}
+        className="mt-5"
+        tabsContainerClassName="max-w-full overflow-x-auto [scrollbar-width:none]"
       />
 
-      <div className="mt-4 grid gap-4 *:min-w-0 lg:grid-cols-12">
-        <section className="card-surface px-6 pt-5 pb-3 lg:col-span-7">
-          <p className="eyebrow">Spending by category</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            {lastName} compared with {prevName}, the last two full months.
-          </p>
-          {categories.length ? (
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="border-b border-line text-left text-muted-foreground">
-                    <th scope="col" className="py-2 pr-3 font-medium">Category</th>
-                    <th scope="col" className="py-2 pr-3 text-right font-medium">{shortMonth(prevFull)}</th>
-                    <th scope="col" className="py-2 pr-3 text-right font-medium">{shortMonth(lastFull)}</th>
-                    <th scope="col" className="py-2 text-right font-medium">Change</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map((c) => (
-                    <tr key={c.category} className="border-b border-line last:border-b-0">
-                      <th scope="row" className="py-2.5 pr-3 text-left font-normal text-ink">{c.category}</th>
-                      <td className="nums py-2.5 pr-3 text-right text-body">{compactMoney(c.prev)}</td>
-                      <td className="nums py-2.5 pr-3 text-right text-ink">{compactMoney(c.last)}</td>
-                      <td className="py-2.5 text-right">
-                        <ChangeCell last={c.last} prev={c.prev} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <div role="tabpanel" aria-label={TABS.find((t) => t.id === tab)?.label} className="mt-4 flex flex-col gap-4">
+        {tab === "overview" && (
+          <>
+            <ChartCard
+              title="Income and spending"
+              subtitle={`How money came in and went out.${unfinishedNote}`}
+              legend={CASH_FLOW_LEGEND}
+              chart={cashFlowChart}
+              table={cashFlowTable}
+            />
+            <div className="grid gap-4 *:min-w-0 lg:grid-cols-2">
+              <ChartCard title="Net worth" subtitle="What you own minus what you owe." chart={worthChart} />
+              <ChartCard
+                title="Where it went"
+                subtitle="Your biggest spending categories."
+                chart={
+                  categories.length ? (
+                    <RankedBars
+                      color="var(--chart-spend)"
+                      rows={categories.slice(0, 5).map((c) => ({
+                        key: c.category,
+                        label: c.category,
+                        value: compactMoney(c.amount),
+                        share: c.share,
+                        href: `/transactions?category=${encodeURIComponent(c.category)}`,
+                      }))}
+                    />
+                  ) : (
+                    <EmptyChart>No spending in this period.</EmptyChart>
+                  )
+                }
+              />
             </div>
-          ) : (
-            <p className="py-5 text-[14px] text-body">Your comparison appears after a full month of spending.</p>
-          )}
-        </section>
+          </>
+        )}
 
-        <section className="card-surface p-6 lg:col-span-5">
-          <p className="eyebrow">Portfolio by stock</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            {worth.stocksLive ? "At current prices." : "At what you paid, until live prices are set up."}
-          </p>
-          {holdings.length ? (
-            <ul className="mt-5 flex flex-col gap-4">
-              {holdings.map((h) => (
-                <li key={h.symbol} className="text-[13px]">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="truncate font-medium text-ink">{h.symbol}</span>
-                    <span className="nums shrink-0 text-body">
-                      {compactMoney(h.amount)} · {Math.round(h.share)}%
-                    </span>
-                  </div>
-                  <div className="mt-1.5 h-2 rounded-full bg-sand">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${Math.max(h.share, 1)}%`, background: "var(--chart-income)" }}
+        {tab === "cash-flow" && (
+          <>
+            <ChartCard
+              title="Income and spending"
+              subtitle={`Grouped to suit the length of the period.${unfinishedNote}`}
+              legend={CASH_FLOW_LEGEND}
+              chart={cashFlowChart}
+              table={cashFlowTable}
+            />
+            <ChartCard
+              title="Savings rate"
+              subtitle="The share of income you kept in each period."
+              chart={
+                rateSeries.length > 1 ? (
+                  <LineChart
+                    name="Savings rate"
+                    formatValue={(value) => `${Math.round(value)}%`}
+                    points={rateSeries}
+                    color="var(--chart-income)"
+                    zeroBased
+                  />
+                ) : (
+                  <EmptyChart>This needs income in at least two periods. Try a longer date range.</EmptyChart>
+                )
+              }
+              table={
+                rateSeries.length ? (
+                  <DataTable
+                    head={["Period", "Savings rate"]}
+                    rows={rateSeries.map((p) => ({ key: p.key, cells: [p.label, `${Math.round(p.y)}%`] }))}
+                  />
+                ) : undefined
+              }
+            />
+          </>
+        )}
+
+        {tab === "spending" && (
+          <div className="grid gap-4 *:min-w-0 lg:grid-cols-12">
+            <ChartCard
+              className="lg:col-span-7"
+              title="By category"
+              subtitle={`Compared with ${previousName}. Select a category to see its transactions.`}
+              chart={
+                categories.length ? (
+                  <div className="overflow-x-auto">
+                    <DataTable
+                      head={["Category", "Spent", "Share", "Change"]}
+                      rows={categories.map((c) => ({
+                        key: c.category,
+                        cells: [
+                          <Link
+                            key="name"
+                            href={`/transactions?category=${encodeURIComponent(c.category)}`}
+                            className="hover:underline"
+                          >
+                            {c.category}
+                          </Link>,
+                          compactMoney(c.amount),
+                          `${Math.round(c.share)}%`,
+                          <SpendChange key="change" change={c.change} />,
+                        ],
+                      }))}
                     />
                   </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-5 text-[14px] text-body">
-              <Link href="/holdings" className="text-ink underline">
-                Add a stock
-              </Link>{" "}
-              to see how your portfolio is spread.
-            </p>
-          )}
-        </section>
+                ) : (
+                  <EmptyChart>No spending in this period.</EmptyChart>
+                )
+              }
+            />
+            <ChartCard
+              className="lg:col-span-5"
+              title="Top merchants"
+              subtitle="Where most of your money went."
+              chart={
+                merchants.length ? (
+                  <RankedBars
+                    color="var(--chart-spend)"
+                    rows={merchants.map((m) => ({
+                      key: m.name,
+                      label: `${m.name} (${m.count})`,
+                      value: compactMoney(m.amount),
+                      share: m.share,
+                      href: `/transactions?merchant=${encodeURIComponent(m.name)}`,
+                    }))}
+                  />
+                ) : (
+                  <EmptyChart>No spending in this period.</EmptyChart>
+                )
+              }
+            />
+          </div>
+        )}
+
+        {tab === "portfolio" && (
+          <>
+            <div className="grid grid-cols-2 gap-3 *:min-w-0 md:gap-4 lg:grid-cols-4">
+              <Kpi label="Stocks" value={compactMoney(worth.stocks)} note={worth.stocksLive ? "At current prices" : "At what you paid"} />
+              <Kpi
+                label="Stock gain"
+                value={portfolio.complete ? compactMoney(portfolio.gain) : "—"}
+                note={portfolio.complete ? `${portfolio.gainPct.toFixed(1)}% on what you paid` : "Needs live prices"}
+              />
+              <Kpi label="Liabilities" value={compactMoney(worth.loans)} note="Everything you owe" />
+              <Kpi
+                label="Debt to assets"
+                value={debtRatio === null ? "—" : `${Math.round(debtRatio)}%`}
+                note={debtRatio === null ? "Add assets to see this" : "Share of assets owed"}
+              />
+            </div>
+            <div className="grid gap-4 *:min-w-0 lg:grid-cols-2">
+              <ChartCard
+                title="Where your money sits"
+                subtitle="Your assets, by type."
+                chart={
+                  spread.length ? (
+                    <RankedBars
+                      rows={spread.map((a) => ({
+                        key: a.label,
+                        label: a.label,
+                        value: compactMoney(a.amount),
+                        share: worth.assets ? (a.amount / worth.assets) * 100 : 0,
+                      }))}
+                    />
+                  ) : (
+                    <EmptyChart>Add stocks or assets to see how your money is spread.</EmptyChart>
+                  )
+                }
+              />
+              <ChartCard
+                title="Portfolio by stock"
+                subtitle={worth.stocksLive ? "At current prices." : "At what you paid, until live prices are set up."}
+                chart={
+                  stocks.length ? (
+                    <RankedBars
+                      rows={stocks.map((s) => ({
+                        key: s.symbol,
+                        label: s.symbol,
+                        value: compactMoney(s.amount),
+                        share: s.share,
+                      }))}
+                    />
+                  ) : (
+                    <EmptyChart>Add a stock on Holdings to see how your portfolio is spread.</EmptyChart>
+                  )
+                }
+              />
+            </div>
+          </>
+        )}
       </div>
     </>
   );
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note: string }) {
-  return (
-    <section className="card-surface flex flex-col p-5">
-      <p className="eyebrow mb-2">{label}</p>
-      <p className="nums mt-auto text-[26px] leading-none font-semibold tracking-tight text-ink">{value}</p>
-      <p className="mt-2 truncate text-[12px] text-muted-foreground">{note}</p>
-    </section>
-  );
-}
-
-// Spending going up is the unfavourable direction; the arrow and sign carry it without colour.
-function ChangeCell({ last, prev }: { last: number; prev: number }) {
-  const diff = last - prev;
-  if (diff === 0) return <span className="nums text-muted-foreground">No change</span>;
-  const up = diff > 0;
-  const Icon = up ? ArrowUpRight : ArrowDownRight;
-  return (
-    <span className={cn("nums inline-flex items-center justify-end gap-1", up ? "text-loss" : "text-success")}>
-      <Icon className="size-3.5 shrink-0" aria-hidden />
-      {up ? "+" : "−"}
-      {compactMoney(Math.abs(diff))}
-    </span>
-  );
-}
-
-type Trend = { key: string; income: number; spent: number; saved: number }[];
-
-function IncomeSpendingChart({
-  trend,
-  currentMonth,
+function Kpi({
+  label,
+  value,
+  current,
+  before,
+  tone = "neutral",
+  note,
   className,
 }: {
-  trend: Trend;
-  currentMonth: string;
+  label: string;
+  value: string;
+  current?: number;
+  before?: number;
+  tone?: Tone;
+  note?: string;
   className?: string;
 }) {
-  const [view, setView] = useState<"chart" | "table">("chart");
-  const [active, setActive] = useState<number | null>(null);
-
-  const top = niceMax(Math.max(0, ...trend.flatMap((t) => [t.income, t.spent])));
-  const ticks = [0, 0.5, 1].map((f) => top * f);
-  const label = (key: string) => (key === currentMonth ? `${shortMonth(key)} so far` : shortMonth(key));
-  const point = active === null ? null : trend[active];
-
+  const change = current !== undefined && before !== undefined ? changePct(current, before) : null;
+  const up = change !== null && change > 0;
+  const good = tone === "good-up" ? up : !up;
+  const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (
-    <section className={cn("card-surface p-6", className)}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="eyebrow">Income and spending</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Up to the last {CHART_MONTHS} months. The current month isn&apos;t finished yet.
-          </p>
-        </div>
-        <div className="flex gap-1 rounded-xl bg-sand p-1">
-          {(["chart", "table"] as const).map((v) => (
-            <Button
-              key={v}
-              variant="ghost"
-              onClick={() => setView(v)}
-              aria-pressed={view === v}
-              className={cn(
-                "h-7 rounded-lg px-3 text-[13px] text-body capitalize",
-                view === v && "bg-card font-medium text-ink shadow-sm",
-              )}
-            >
-              {v}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {view === "chart" ? (
-        <>
-          <ul className="mt-4 flex gap-4 text-[12px] text-body">
-            <li className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-[3px]" style={{ background: "var(--chart-income)" }} />
-              Income
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="size-2.5 rounded-[3px]" style={{ background: "var(--chart-spend)" }} />
-              Spending
-            </li>
-          </ul>
-
-          <div className="mt-4 flex gap-3">
-            <div className="relative h-56 w-12 shrink-0" aria-hidden>
-              {ticks.map((t) => (
-                <span
-                  key={t}
-                  className="nums absolute right-0 translate-y-1/2 text-[11px] whitespace-nowrap text-muted-foreground"
-                  style={{ bottom: `${(t / top) * 100}%` }}
-                >
-                  {t === 0 ? "0" : compactMoney(t)}
-                </span>
-              ))}
-            </div>
-
-            <div className="relative min-w-0 flex-1">
-              <div className="relative h-56">
-                {ticks.map((t) => (
-                  <span
-                    key={t}
-                    className="absolute inset-x-0 h-px bg-line"
-                    style={{ bottom: `${(t / top) * 100}%` }}
-                    aria-hidden
-                  />
-                ))}
-                <div className="absolute inset-0 flex">
-                  {trend.map((t, i) => (
-                    <div
-                      key={t.key}
-                      tabIndex={0}
-                      role="img"
-                      aria-label={`${label(t.key)}: income ${formatMoney(t.income)}, spending ${formatMoney(t.spent)}`}
-                      onMouseEnter={() => setActive(i)}
-                      onMouseLeave={() => setActive(null)}
-                      onFocus={() => setActive(i)}
-                      onBlur={() => setActive(null)}
-                      className={cn(
-                        "flex h-full min-w-0 flex-1 items-end justify-center gap-0.5 rounded-t-md outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        active === i && "bg-sand/60",
-                      )}
-                    >
-                      {[
-                        { value: t.income, color: "var(--chart-income)" },
-                        { value: t.spent, color: "var(--chart-spend)" },
-                      ].map(({ value, color }) => (
-                        <span
-                          key={color}
-                          className="w-full max-w-6 rounded-t-[4px]"
-                          style={{ height: value > 0 ? `max(${(value / top) * 100}%, 2px)` : 0, background: color }}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-2 flex" aria-hidden>
-                {trend.map((t) => (
-                  <span key={t.key} className="min-w-0 flex-1 truncate text-center text-[11px] text-muted-foreground">
-                    {label(t.key)}
-                  </span>
-                ))}
-              </div>
-
-              {point && active !== null && (
-                <div
-                  role="status"
-                  className="pointer-events-none absolute top-2 z-10 w-44 rounded-xl border border-line bg-card p-3 text-[12px] shadow-lg"
-                  style={
-                    active < trend.length / 2
-                      ? { left: `${((active + 1) / trend.length) * 100}%` }
-                      : { right: `${((trend.length - active) / trend.length) * 100}%` }
-                  }
-                >
-                  <p className="font-medium text-ink">{label(point.key)}</p>
-                  <dl className="mt-1.5 grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-body">
-                    <dt>Income</dt>
-                    <dd className="nums text-right text-ink">{compactMoney(point.income)}</dd>
-                    <dt>Spending</dt>
-                    <dd className="nums text-right text-ink">{compactMoney(point.spent)}</dd>
-                    <dt>Saved</dt>
-                    <dd className="nums text-right text-ink">{compactMoney(point.saved)}</dd>
-                  </dl>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
+    <SpotlightCard className={cn("flex flex-col", className)}>
+      <p className="eyebrow">{label}</p>
+      <p className="nums mt-2 truncate text-[24px] leading-none font-semibold tracking-tight text-ink">{value}</p>
+      {change !== null && Math.round(change) !== 0 ? (
+        <p className={cn("nums mt-2 flex items-center gap-1 text-[12px]", good ? "text-success" : "text-loss")}>
+          <Icon className="size-3.5 shrink-0" aria-hidden />
+          {up ? "+" : "−"}
+          {Math.abs(Math.round(change))}%
+        </p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-[13px]">
-            <thead>
-              <tr className="border-b border-line text-left text-muted-foreground">
-                <th scope="col" className="py-2 pr-3 font-medium">Month</th>
-                <th scope="col" className="py-2 pr-3 text-right font-medium">Income</th>
-                <th scope="col" className="py-2 pr-3 text-right font-medium">Spending</th>
-                <th scope="col" className="py-2 text-right font-medium">Saved</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trend.map((t) => (
-                <tr key={t.key} className="border-b border-line last:border-b-0">
-                  <th scope="row" className="py-2.5 pr-3 text-left font-normal text-ink">{label(t.key)}</th>
-                  <td className="nums py-2.5 pr-3 text-right text-body">{formatMoney(t.income)}</td>
-                  <td className="nums py-2.5 pr-3 text-right text-body">{formatMoney(t.spent)}</td>
-                  <td className="nums py-2.5 text-right text-ink">{formatMoney(t.saved)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <p className="mt-2 truncate text-[12px] text-muted-foreground">
+          {note ?? (current !== undefined && before ? "No change" : "No earlier data")}
+        </p>
       )}
-    </section>
+    </SpotlightCard>
+  );
+}
+
+// More spending is the unfavourable direction; the arrow and sign carry it without colour alone.
+function SpendChange({ change }: { change: number }) {
+  if (Math.round(change) === 0) return <span className="text-muted-foreground">No change</span>;
+  const up = change > 0;
+  const Icon = up ? ArrowUpRight : ArrowDownRight;
+  return (
+    <span className={cn("inline-flex items-center justify-end gap-1", up ? "text-loss" : "text-success")}>
+      <Icon className="size-3.5 shrink-0" aria-hidden />
+      {up ? "+" : "−"}
+      {compactMoney(Math.abs(change))}
+    </span>
   );
 }
