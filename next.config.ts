@@ -15,7 +15,9 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   turbopack: {
     rules: {
+      // Only the Tailwind entry file: running it on every *.css would break CSS modules.
       "*.css": {
+        condition: { path: /app\/globals\.css$/ },
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },
