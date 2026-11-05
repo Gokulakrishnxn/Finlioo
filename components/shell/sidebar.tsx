@@ -11,7 +11,6 @@ import {
   Landmark,
   Lightbulb,
   LayoutDashboard,
-  Lock,
   PanelLeftClose,
   MessageCircle,
   PanelLeftOpen,
@@ -265,11 +264,7 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
             <span className="flex-1">Finlio chat</span>
             <kbd className="text-[11px] text-muted-foreground">⌘L</kbd>
           </button>
-          <button role="menuitem" className={item} onClick={pick(() => openSettings("privacy"))}>
-            <Lock className="size-4" strokeWidth={1.75} />
-            Privacy
-          </button>
-        </div>
+                  </div>
       )}
       <button
         onClick={() => setMenu((m) => !m)}
