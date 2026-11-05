@@ -31,26 +31,26 @@ type NavItem = { href: string; label: string; icon: LucideIcon };
 const SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: "Overview",
-    items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
+      { href: "/insights", label: "Insights", icon: Lightbulb },
+    ],
   },
   {
-    title: "Money",
+    title: "Wealth",
     items: [
       { href: "/holdings", label: "Holdings", icon: Briefcase },
       { href: "/assets", label: "Assets", icon: Landmark },
       { href: "/liabilities", label: "Liabilities", icon: CreditCard },
-      { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
     ],
   },
   {
-    title: "Understand",
-    items: [
-      { href: "/insights", label: "Insights", icon: Lightbulb },
-      { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
-    ],
+    title: "Money",
+    items: [{ href: "/transactions", label: "Transactions", icon: ArrowLeftRight }],
   },
   {
-    title: "Plan",
+    title: "Planning",
     items: [{ href: "/goals", label: "Goals", icon: Target }],
   },
 ];
