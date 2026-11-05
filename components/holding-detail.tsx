@@ -42,7 +42,7 @@ export function HoldingDetail({
       <Dialog open={Boolean(h)} onOpenChange={(open) => !open && onClose()}>
         <DialogContent
           showCloseButton={false}
-          className="flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden rounded-2xl bg-card p-0 sm:max-w-[480px]"
+          className="flex max-h-[calc(100vh-2rem)] flex-col gap-0 rounded-2xl bg-card p-0 [--dialog-overflow:hidden] [--dialog-width:480px]"
         >
           {h && position && (
             <>
@@ -104,8 +104,8 @@ export function HoldingDetail({
                   Edit
                 </Button>
                 <Button
-                  variant="outline"
-                  className="h-10 flex-1 rounded-xl bg-card text-loss hover:text-loss"
+                  variant="destructive"
+                  className="h-10 flex-1 rounded-xl"
                   onClick={() => setConfirming(true)}
                 >
                   <Trash2 className="size-4" />

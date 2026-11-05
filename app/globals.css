@@ -158,6 +158,41 @@
   --chart-gain-soft: #3b7650;
 }
 
+/* Tokens the uiarc Button and Dialog read, mapped onto Finlio's palette. */
+:root {
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --control-height-sm: 2rem;
+  --control-height-md: 2.25rem;
+  --control-height-lg: 2.75rem;
+  --radius-control: 0.75rem;
+  --radius-surface: 1rem;
+  --text-sm: 0.875rem;
+  --text-lg: 1.125rem;
+  --leading-body: 1.5;
+  --tracking-body: -0.006em;
+  --font-body: var(--font-geist-sans);
+  --surface: var(--card);
+  --surface-muted: var(--muted);
+  --surface-raised: var(--popover);
+  --danger: var(--destructive);
+  --text-muted: var(--muted-foreground);
+  --text-secondary: var(--body);
+  --shadow-resting: 0 1px 2px rgb(18 18 18 / 6%);
+  --shadow-floating: 0 18px 48px -12px rgb(18 18 18 / 28%);
+  --duration-instant: 120ms;
+  --duration-fast: 160ms;
+  --duration-standard: 240ms;
+  --duration-spring: 400ms;
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
