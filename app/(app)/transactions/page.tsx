@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, LogOut, Mail, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Loader2, LogOut, Mail, Plus, RefreshCw, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountUp } from "@/components/count-up";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -40,15 +40,22 @@ export default function TransactionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState<"income" | "expense" | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [match, setMatch] = useState<{ kind: "category" | "merchant"; value: string } | null>(null);
 
   useEffect(() => {
     // Result of the Google redirect, e.g. /transactions?google=connected
-    const status = new URLSearchParams(window.location.search).get("google");
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("google");
     if (status) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotice(MESSAGES[status] ?? null);
       window.history.replaceState(null, "", "/transactions");
     }
+    // Links from Analytics open this list on one category or merchant.
+    const category = params.get("category");
+    const merchant = params.get("merchant");
+    if (category) setMatch({ kind: "category", value: category });
+    else if (merchant) setMatch({ kind: "merchant", value: merchant });
     fetch("/api/auth/session")
       .then((r) => r.json())
       .then(setSession)
@@ -58,7 +65,12 @@ export default function TransactionsPage() {
   const totals = useMemo(() => rangeTotals(items, range), [items, range]);
   const before = useMemo(() => rangeTotals(items, previous), [items, previous]);
   const byCategory = useMemo(() => spendingByCategory(items, range), [items, range]);
-  const shown = items.filter((i) => inRange(i.date, range) && (filter === "all" || i.type === filter));
+  const shown = items.filter(
+    (i) =>
+      inRange(i.date, range) &&
+      (filter === "all" || i.type === filter) &&
+      (!match || (match.kind === "category" ? i.category === match.value : i.title === match.value)),
+  );
 
   async function sync() {
     setSyncing(true);
@@ -201,7 +213,23 @@ export default function TransactionsPage() {
 
       <section className="card-surface mt-4 px-6 pt-5 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="eyebrow">Transactions</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="eyebrow">Transactions</p>
+            {match && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMatch(null);
+                  window.history.replaceState(null, "", "/transactions");
+                }}
+                className="inline-flex items-center gap-1 rounded-full bg-sand px-2.5 py-0.5 text-[12px] text-ink ring-1 ring-line hover:bg-muted"
+              >
+                {match.value}
+                <X className="size-3" aria-hidden />
+                <span className="sr-only">Clear this filter</span>
+              </button>
+            )}
+          </div>
           <div className="flex gap-1 rounded-xl bg-sand p-1">
             {(["all", "expense", "income"] as const).map((f) => (
               <button
