@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 <WealthBar assets={worth.assets} loans={worth.loans} />
               </div>
               <p className="mt-5 text-[13px] leading-relaxed text-body">
-                Add your bank balance, deposits, gold, EPF and loans to see your full net worth.
+                Add your bank balance, deposits, gold, EPF and liabilities to see your full net worth.
               </p>
               <button
                 onClick={() => openAdd("asset")}

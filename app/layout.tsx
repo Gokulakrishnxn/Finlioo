@@ -22,9 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finlio Daily",
-  description:
-    "A plain-English daily briefing on the stocks you own: what changed, what's coming up, and what deserves your attention.",
+  title: "Finlio",
+  description: "All your money in one place: investments, assets, spending, goals and analytics.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
