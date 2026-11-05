@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import type { PresetId } from "@/lib/date-range";
 
 // How this browser likes Finlio to look and behave. Saved separately from money data,
 // so erasing data keeps these choices.
@@ -13,6 +14,7 @@ export type Preferences = {
   hideAmounts: boolean;
   density: Density;
   landing: LandingPage;
+  defaultRange: PresetId;
 };
 
 export const LANDING_PAGES: { value: LandingPage; label: string }[] = [
@@ -27,6 +29,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   hideAmounts: false,
   density: "comfortable",
   landing: "/dashboard",
+  defaultRange: "last-6",
 };
 
 const KEY = "finlio:preferences";

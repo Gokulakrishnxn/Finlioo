@@ -9,8 +9,9 @@ const AnalyticsRequestSchema = z.object({
   netWorth: z.number(),
   assets: z.number(),
   loans: z.number(),
-  month: z.object({ income: z.number(), spent: z.number(), saved: z.number() }),
-  lastMonthSpent: z.number(),
+  period: z.string().max(60),
+  totals: z.object({ income: z.number(), spent: z.number(), saved: z.number() }),
+  previousPeriodSpent: z.number(),
   spendingByCategory: z.array(z.object({ category: z.string().max(40), amount: z.number() })).max(20),
   allocation: z.array(z.object({ label: z.string().max(40), percent: z.number() })).max(10),
 });
@@ -18,7 +19,7 @@ const AnalyticsRequestSchema = z.object({
 const SYSTEM = `You are Finlio, a calm friend who explains someone's money to them in plain English. They live in ${MONEY_STYLE}
 
 Write 4 to 6 short bullet points, each one sentence, starting with "- ".
-- Describe what the numbers show: where most money goes, how this month compares with last month, how much was saved, how the money is spread, how loans compare with assets.
+- Describe what the numbers show: where most money goes, how this period compares with the one before it, how much was saved, how the money is spread, how loans compare with assets.
 - Never tell them to buy, sell, invest in or move money into anything, and never recommend products. Explain; don't advise.
 - If a number is zero or missing, don't comment on it.`;
 

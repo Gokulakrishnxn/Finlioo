@@ -3,7 +3,7 @@
 // The sections of the Settings window (opened from the profile menu).
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Download, EyeOff, House, ImageIcon, IndianRupee, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
+import { CalendarRange, Download, EyeOff, House, ImageIcon, IndianRupee, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -22,6 +22,7 @@ import { useTour } from "@/components/tour/tour";
 import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
 import type { StoreData } from "@/lib/store";
+import { PRESETS, type PresetId } from "@/lib/date-range";
 import { LANDING_PAGES, setPreferences, usePreferences, type LandingPage } from "@/lib/preferences";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
 import { cn } from "@/lib/utils";
@@ -233,6 +234,25 @@ export function Preferences() {
               on={prefs.density === "compact"}
               onChange={(on) => setPreferences({ density: on ? "compact" : "comfortable" })}
             />
+          }
+        />
+        <Row
+          icon={<CalendarRange className="size-4" />}
+          title="Default date range"
+          body="The period Analytics, Transactions and Insights start on."
+          control={
+            <Select
+              aria-label="Default date range"
+              value={prefs.defaultRange}
+              onChange={(e) => setPreferences({ defaultRange: e.target.value as PresetId })}
+              className="h-9 w-[9.5rem] rounded-lg text-[13px]"
+            >
+              {PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+            </Select>
           }
         />
         <Row
