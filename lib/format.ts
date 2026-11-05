@@ -1,5 +1,5 @@
 import { activeLocale } from "@/lib/locale";
-import { getPreferences } from "@/lib/preferences";
+import { getPreferences, uiLocale } from "@/lib/preferences";
 
 // Money and dates in Indian style, like ₹1,24,000.
 
@@ -48,21 +48,21 @@ export const formatPct = (value: number) =>
 
 // Times and dates use the person's own device time zone, in Indian date style.
 export const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString(activeLocale().language, { hour: "numeric", minute: "2-digit" });
+  new Date(iso).toLocaleTimeString(uiLocale(), { hour: "numeric", minute: "2-digit" });
 
 export const formatDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString(activeLocale().language, {
+  new Date(`${iso}T00:00:00`).toLocaleDateString(uiLocale(), {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 
 export const formatShortDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString(activeLocale().language, { day: "numeric", month: "short" });
+  new Date(`${iso}T00:00:00`).toLocaleDateString(uiLocale(), { day: "numeric", month: "short" });
 
 export const formatMonth = (yearMonth: string, style: "long" | "short-year" = "long") =>
   new Date(`${yearMonth}-01T00:00:00`).toLocaleDateString(
-    activeLocale().language,
+    uiLocale(),
     style === "long" ? { month: "long" } : { month: "short", year: "numeric" },
   );
 

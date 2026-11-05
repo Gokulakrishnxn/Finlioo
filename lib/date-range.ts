@@ -1,3 +1,5 @@
+import { uiLocale } from "@/lib/preferences";
+
 // Date ranges for looking back at earlier periods. Dates are "YYYY-MM-DD" strings, so
 // they compare correctly as text and never shift across time zones. Pure helpers; safe
 // on server and client.
@@ -114,7 +116,7 @@ export function validateRange(range: DateRange, today: string): RangeProblem {
   return null;
 }
 
-export function rangeLabel(range: DateRange, language = "en-IN") {
+export function rangeLabel(range: DateRange, language = uiLocale()) {
   const format = (value: string, withYear: boolean) =>
     toDate(value).toLocaleDateString(language, {
       day: "numeric",
@@ -130,7 +132,7 @@ export function rangeLabel(range: DateRange, language = "en-IN") {
 // How a range is split up on charts: fine for short ranges, coarser for long ones.
 export type Bucket = { key: string; label: string; range: DateRange };
 
-export function bucketsFor(range: DateRange, language = "en-IN"): Bucket[] {
+export function bucketsFor(range: DateRange, language = uiLocale()): Bucket[] {
   const days = daysIn(range);
   const clip = (from: string, to: string): DateRange => ({
     from: from < range.from ? range.from : from,

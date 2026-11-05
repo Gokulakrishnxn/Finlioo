@@ -7,9 +7,11 @@ import type { PresetId } from "@/lib/date-range";
 // so erasing data keeps these choices.
 export type NumberFormat = "indian" | "international";
 export type Density = "comfortable" | "compact";
+export type Language = "en" | "hi" | "ta" | "te" | "kn" | "mr";
 export type LandingPage = "/dashboard" | "/analytics" | "/transactions" | "/holdings";
 
 export type Preferences = {
+  language: Language;
   numberFormat: NumberFormat;
   hideAmounts: boolean;
   density: Density;
@@ -24,7 +26,17 @@ export const LANDING_PAGES: { value: LandingPage; label: string }[] = [
   { value: "/holdings", label: "Holdings" },
 ];
 
+export const LANGUAGES: { value: Language; label: string; tag: string }[] = [
+  { value: "en", label: "English", tag: "en-IN" },
+  { value: "hi", label: "हिन्दी (Hindi)", tag: "hi-IN" },
+  { value: "ta", label: "தமிழ் (Tamil)", tag: "ta-IN" },
+  { value: "te", label: "తెలుగు (Telugu)", tag: "te-IN" },
+  { value: "kn", label: "ಕನ್ನಡ (Kannada)", tag: "kn-IN" },
+  { value: "mr", label: "मराठी (Marathi)", tag: "mr-IN" },
+];
+
 export const DEFAULT_PREFERENCES: Preferences = {
+  language: "en",
   numberFormat: "indian",
   hideAmounts: false,
   density: "comfortable",
@@ -36,6 +48,8 @@ const KEY = "finlio:preferences";
 const listeners = new Set<() => void>();
 let current: Preferences = DEFAULT_PREFERENCES;
 let loaded = false;
+// English until the page has loaded, so the first render matches the server's.
+let languageApplied = false;
 
 function load() {
   if (loaded || typeof window === "undefined") return;
@@ -51,6 +65,24 @@ function load() {
 
 function applyToDocument() {
   document.documentElement.dataset.density = current.density;
+  if (languageApplied) document.documentElement.lang = current.language;
+}
+
+export function applySavedLanguage() {
+  load();
+  languageApplied = true;
+  current = { ...current };
+  applyToDocument();
+  listeners.forEach((listener) => listener());
+}
+
+export const languageReady = () => languageApplied;
+export const currentLanguage = (): Language => (languageApplied ? getPreferences().language : "en");
+
+// The Intl locale for dates and month names, always with Western digits so numbers read the same everywhere.
+export function uiLocale() {
+  const tag = LANGUAGES.find((l) => l.value === currentLanguage())?.tag ?? "en-IN";
+  return `${tag}-u-nu-latn`;
 }
 
 // For code outside React, such as the money formatters.
