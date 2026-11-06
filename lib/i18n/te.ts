@@ -179,8 +179,6 @@ const te: Record<string, string> = {
   "Fit more rows on screen in lists and tables.": "జాబితాలు, పట్టికల్లో ఎక్కువ వరుసలు చూపిస్తుంది.",
   "Default date range": "డిఫాల్ట్ తేదీ పరిధి",
   "The period Analytics, Transactions and Insights start on.": "విశ్లేషణ, లావాదేవీలు, అంతర్దృష్టులు ఈ కాలంతో మొదలవుతాయి.",
-  "Opening page": "ప్రారంభ పేజీ",
-  "The page Finlio opens on.": "Finlio తెరుచుకునే పేజీ.",
   "Show company logos": "కంపెనీ లోగోలు చూపించండి",
   "Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks.": "మీ షేర్లు, బ్యాంకులు, వ్యాపారుల లోగోలు. పబ్లిక్ డెమో రికార్డ్ చేసే ముందు ఆపివేయండి: లోగోలు ఇతర కంపెనీల ట్రేడ్‌మార్క్‌లు.",
   "Compact sidebar": "చిన్న సైడ్‌బార్",

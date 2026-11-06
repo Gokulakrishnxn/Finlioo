@@ -179,8 +179,6 @@ const kn: Record<string, string> = {
   "Fit more rows on screen in lists and tables.": "ಪಟ್ಟಿಗಳು ಮತ್ತು ಕೋಷ್ಟಕಗಳಲ್ಲಿ ಹೆಚ್ಚು ಸಾಲುಗಳನ್ನು ತೋರಿಸುತ್ತದೆ.",
   "Default date range": "ಡೀಫಾಲ್ಟ್ ದಿನಾಂಕ ವ್ಯಾಪ್ತಿ",
   "The period Analytics, Transactions and Insights start on.": "ವಿಶ್ಲೇಷಣೆ, ವಹಿವಾಟುಗಳು ಮತ್ತು ಒಳನೋಟಗಳು ಈ ಅವಧಿಯಿಂದ ಆರಂಭವಾಗುತ್ತವೆ.",
-  "Opening page": "ಆರಂಭಿಕ ಪುಟ",
-  "The page Finlio opens on.": "Finlio ತೆರೆಯುವ ಪುಟ.",
   "Show company logos": "ಕಂಪನಿ ಲೋಗೋಗಳನ್ನು ತೋರಿಸಿ",
   "Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks.": "ನಿಮ್ಮ ಷೇರುಗಳು, ಬ್ಯಾಂಕ್‌ಗಳು, ವ್ಯಾಪಾರಿಗಳ ಲೋಗೋಗಳು. ಸಾರ್ವಜನಿಕ ಡೆಮೊ ದಾಖಲಿಸುವ ಮೊದಲು ಆಫ್ ಮಾಡಿ: ಲೋಗೋಗಳು ಇತರ ಕಂಪನಿಗಳ ಟ್ರೇಡ್‌ಮಾರ್ಕ್‌ಗಳು.",
   "Compact sidebar": "ಚಿಕ್ಕ ಸೈಡ್‌ಬಾರ್",

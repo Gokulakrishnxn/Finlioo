@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePreferences } from "@/lib/preferences";
 import { HeroShot } from "./hero-shot";
 import { Reveal } from "./reveal";
 import { SplitHeadline } from "./split-headline";
@@ -15,7 +14,6 @@ const QUIET_BUTTON =
   "group inline-flex items-center gap-2 rounded-full border border-line bg-card/70 px-5 py-3.5 text-[15px] font-medium text-ink backdrop-blur transition-colors hover:bg-sand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export function Hero() {
-  const { landing } = usePreferences();
   const anchor = useAnchorScroll();
   return (
     <section className="px-3 pt-20 sm:px-5 sm:pt-24">
@@ -34,7 +32,7 @@ export function Hero() {
 
           <Reveal delay={0.55} className="mt-7 flex flex-wrap items-center gap-2.5">
             
-              <Link href={landing} className={INK_BUTTON}>
+              <Link href="/dashboard" className={INK_BUTTON}>
                 Get started
                 
               </Link>

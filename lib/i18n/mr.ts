@@ -179,8 +179,6 @@ const mr: Record<string, string> = {
   "Fit more rows on screen in lists and tables.": "याद्या आणि तक्त्यांमध्ये जास्त ओळी दाखवते.",
   "Default date range": "डीफॉल्ट तारीख मर्यादा",
   "The period Analytics, Transactions and Insights start on.": "अॅनालिटिक्स, व्यवहार आणि इनसाइट्स या कालावधीपासून सुरू होतात.",
-  "Opening page": "सुरुवातीचे पान",
-  "The page Finlio opens on.": "Finlio उघडते ते पान.",
   "Show company logos": "कंपनीचे लोगो दाखवा",
   "Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks.": "तुमचे शेअर्स, बँका आणि व्यापाऱ्यांचे लोगो. सार्वजनिक डेमो रेकॉर्ड करण्यापूर्वी बंद करा: लोगो इतर कंपन्यांचे ट्रेडमार्क आहेत.",
   "Compact sidebar": "लहान साइडबार",

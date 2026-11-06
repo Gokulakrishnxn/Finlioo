@@ -7,7 +7,6 @@ import { Check } from "lucide-react";
 import { DigitSwap } from "@/components/motion/digit-swap";
 import { motionTransitions } from "@/lib/motion-tokens";
 import { CURRENCY, PLANS, PRICING_NOTE, price, type Billing } from "@/lib/landing-pricing";
-import { usePreferences } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
 import { Reveal } from "./reveal";
 import styles from "./lower-sections.module.css";
@@ -18,7 +17,6 @@ const BILLING: { id: Billing; label: string }[] = [
 ];
 
 export function Pricing() {
-  const { landing } = usePreferences();
   const [billing, setBilling] = useState<Billing>("monthly");
 
   return (
@@ -119,7 +117,7 @@ export function Pricing() {
                     </button>
                   ) : (
                   <Link
-                    href={landing}
+                    href="/dashboard"
                     className={cn(
                       "mt-4 inline-flex items-center justify-center rounded-full px-4 py-3 text-[14px] font-medium transition-colors",
                       plan.featured

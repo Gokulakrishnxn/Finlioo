@@ -179,8 +179,6 @@ const ta: Record<string, string> = {
   "Fit more rows on screen in lists and tables.": "பட்டியல்களிலும் அட்டவணைகளிலும் அதிக வரிசைகளைக் காட்டும்.",
   "Default date range": "இயல்புநிலை தேதி வரம்பு",
   "The period Analytics, Transactions and Insights start on.": "பகுப்பாய்வு, பரிவர்த்தனைகள், நுண்ணறிவு இந்தக் காலத்தில் தொடங்கும்.",
-  "Opening page": "தொடக்கப் பக்கம்",
-  "The page Finlio opens on.": "Finlio திறக்கும் பக்கம்.",
   "Show company logos": "நிறுவன லோகோக்களைக் காட்டு",
   "Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks.": "உங்கள் பங்குகள், வங்கிகள், வணிகர்களின் லோகோக்கள். பொது டெமோ பதிவு செய்யும் முன் அணைக்கவும்: லோகோக்கள் பிற நிறுவனங்களின் வர்த்தக முத்திரைகள்.",
   "Compact sidebar": "சிறிய பக்கப்பட்டி",

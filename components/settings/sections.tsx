@@ -3,7 +3,7 @@
 // The sections of the Settings window (opened from the profile menu).
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarRange, Download, EyeOff, House, ImageIcon, IndianRupee, Languages, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
+import { CalendarRange, Download, EyeOff, ImageIcon, IndianRupee, Languages, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -23,7 +23,7 @@ import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
 import type { StoreData } from "@/lib/store";
 import { PRESETS, type PresetId } from "@/lib/date-range";
-import { LANDING_PAGES, LANGUAGES, setPreferences, usePreferences, type LandingPage, type Language } from "@/lib/preferences";
+import { LANGUAGES, setPreferences, usePreferences, type Language } from "@/lib/preferences";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
@@ -253,25 +253,6 @@ export function Preferences() {
               {PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id}>
                   {t(preset.label)}
-                </option>
-              ))}
-            </Select>
-          }
-        />
-        <Row
-          icon={<House className="size-4" />}
-          title={t("Opening page")}
-          body={t("The page Finlio opens on.")}
-          control={
-            <Select
-              aria-label={t("Opening page")}
-              value={prefs.landing}
-              onChange={(e) => setPreferences({ landing: e.target.value as LandingPage })}
-              className="h-9 w-[9.5rem] rounded-lg text-[13px]"
-            >
-              {LANDING_PAGES.map((page) => (
-                <option key={page.value} value={page.value}>
-                  {t(page.label)}
                 </option>
               ))}
             </Select>

@@ -8,23 +8,14 @@ import type { PresetId } from "@/lib/date-range";
 export type NumberFormat = "indian" | "international";
 export type Density = "comfortable" | "compact";
 export type Language = "en" | "hi" | "ta" | "te" | "kn" | "mr";
-export type LandingPage = "/dashboard" | "/analytics" | "/transactions" | "/holdings";
 
 export type Preferences = {
   language: Language;
   numberFormat: NumberFormat;
   hideAmounts: boolean;
   density: Density;
-  landing: LandingPage;
   defaultRange: PresetId;
 };
-
-export const LANDING_PAGES: { value: LandingPage; label: string }[] = [
-  { value: "/dashboard", label: "Dashboard" },
-  { value: "/analytics", label: "Analytics" },
-  { value: "/transactions", label: "Transactions" },
-  { value: "/holdings", label: "Holdings" },
-];
 
 export const LANGUAGES: { value: Language; label: string; tag: string }[] = [
   { value: "en", label: "English", tag: "en-IN" },
@@ -40,7 +31,6 @@ export const DEFAULT_PREFERENCES: Preferences = {
   numberFormat: "indian",
   hideAmounts: false,
   density: "comfortable",
-  landing: "/dashboard",
   defaultRange: "last-6",
 };
 
