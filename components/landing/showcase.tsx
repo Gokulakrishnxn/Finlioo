@@ -11,7 +11,7 @@ export function Showcase() {
             <p className="eyebrow">Meet your dashboard</p>
             <h2 className={styles.title}>A little perspective.<br /><span>Every morning.</span></h2>
           </div>
-          <p>Your net worth, spending and daily brief. A clear place to start.</p>
+          <p>Your net worth, spending and recent activity. A clear place to start.</p>
         </Reveal>
         <Reveal delay={0.1}>
           <figure>

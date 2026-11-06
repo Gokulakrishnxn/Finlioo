@@ -28,7 +28,7 @@ export function Pricing() {
             Clarity starts free.
           </Reveal>
           <Reveal delay={0.1} className="mt-4 text-[16px] leading-[1.65] text-body">
-            Choose Pro for daily insights. Max adds your preferred AI.
+            Choose Pro for AI summaries and chat. Max adds your preferred AI.
           </Reveal>
 
           <Reveal delay={0.14} className="mt-7 flex justify-center">

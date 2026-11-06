@@ -13,18 +13,17 @@ Part 3 lists the assets. The built page lives at `/` (`app/(marketing)/page.tsx`
 > Every pixel earns its place; every motion has a cause.
 >
 > **Objective.** Design and build the landing page for **Finlio**, a private,
-> AI-assisted money dashboard for India and the United States. One page, six
+> AI-assisted money dashboard for India. One page, six
 > sections: Hero, Features, Privacy, Subscription, FAQ, Footer — plus a floating
-> navigation with centred links and Log in / Sign up.
+> navigation with centred links and an Open Finlio button.
 >
-> **The product, in its own words.** Finlio reads only the news about what you
-> own, adds up everything you have, and tells you what changed, what is coming
-> up and what deserves your attention — in plain English, with a link to the
-> source on every line. It holds the whole picture of your money: stocks,
-> savings, gold, property, loans and spending. **It explains. It never advises.**
+> **The product, in its own words.** Finlio adds up everything you have and owe,
+> and tells you what changed, in plain language. It holds the whole picture of
+> your money: stocks, savings, gold, property, loans, spending and goals.
+> **It explains. It never advises.**
 > It never says buy, sell or hold.
 >
-> **Audience.** People in India and the US who have money in three apps and a
+> **Audience.** People in India who have money in three apps and a
 > bank SMS feed, who were never taught where to look. They are not looking for a
 > trading terminal. They want to understand, quietly.
 >
@@ -104,7 +103,7 @@ Nothing else is decorative. If a gradient does not carry the story, delete it.
   on the page's own ground, pinned top-left, running off the right edge and off
   the foot of its stage, dissolving into the page over a 56px mask. Inside:
   the Finlio dashboard at 1:1 — greeting, net worth with the gain since 30 Sept,
-  six quarterly bars in the Indian financial year, a "Coming up" list, recent
+  six quarterly bars in the Indian financial year, a stocks list, recent
   activity. One satellite card ("This month", In/Out/Saved) straddles the
   window's left edge, half outside, covering the rail — chrome, never content.
   Only real words where the story is; gray bars are filler at the edges.
@@ -139,9 +138,8 @@ Animate only transform, opacity, filter and clip-path. Never hijack touch scroll
 
 **Nav.** Floating pill, 1120px, blur and a hairline shadow after 16px of scroll.
 Left: mark + wordmark. **Centre (true optical centring):** Features · Privacy ·
-Pricing · FAQ. Right: "Log in" (quiet) and "Sign up" (ink pill with an arrow
-that steps out on hover). Mobile: wordmark, Sign up, menu; a full-screen sheet
-with the four links and both actions. A 2px green progress line runs along the
+Pricing · FAQ. Right: "Open Finlio" (ink pill). Mobile: wordmark, Open Finlio,
+menu; a full-screen sheet with the four links and the same action. A 2px green progress line runs along the
 top edge of the page. Anchor jumps glide with Lenis and land 88px below the nav.
 
 Hero, principles strip, features, product, privacy, subscription, FAQ and
@@ -170,7 +168,7 @@ footer are written out in Part 2.
 3. The page is legible and complete with motion turned off.
 4. No invented logo, stock photo, sparkle or purple anywhere.
 5. Every claim on the page is true to the product: no database, no advice,
-   read-only Gmail, India and the US, India FY quarters.
+   read-only Gmail, India only, India FY quarters.
 
 ---
 
@@ -178,7 +176,7 @@ footer are written out in Part 2.
 
 ### Navigation
 
-`Finlio` · Features · Privacy · Pricing · FAQ · `Log in` · **Sign up**
+`Finlio` · Features · Privacy · Pricing · FAQ · **Open Finlio**
 
 ### Hero
 
@@ -186,39 +184,33 @@ footer are written out in Part 2.
 >
 > # Know why your money moved.
 >
-> Finlio reads the news about what you own, adds up everything you have, and
-> explains it in plain English. Every line has a source. It never tells you
-> what to buy.
+> Your money, in one view. Understand what changed and why.
 >
-> **Open Finlio** · See how it works
->
-> No database. No selling. No advice.
+> **Get started** · Explore Finlio
 
 Caption under the shot: *The Finlio dashboard, with a sample household. Figures
 are examples.*
 
 ### Principles strip
 
-No Finlio database · Your money stays in your browser · Every claim has a
-source · Explain, never advise · India and the United States
+No Finlio database · Your money stays in your browser · Chat sees totals, never
+transactions · Explain, never advise · Built for India
 
 ### Features
 
 > ## Everything you own. One quiet place.
 >
-> Your picture, your brief, and the money that leaves. Nothing to reconcile by
-> hand, and nothing explained in a language only a broker understands.
+> Your picture, your spending, your answers.
 
 - **Your whole picture** — Net worth, quarter by quarter, in your financial
   year. Everything you own on one quiet screen.
-- **The morning brief** — What changed. What's coming up. What deserves your
-  attention. A source on every line.
-- **Why it moved** — Open any holding for the day, the gain, and the reason, in
-  one card.
+- **Goals with a clear pace** — The monthly amount needed, and when you should
+  get there.
+- **Analytics over time** — Compare any period with the one before it.
 - **Spending, without the spreadsheet** — Connect Gmail read-only. Bank and UPI
   alerts become categories you can read at a glance.
-- **Everything you own, and owe** — Savings, FDs, EPF, gold, property, 401(k).
-  Every loan. One ledger, two countries.
+- **Everything you own, and owe** — Savings, FDs, EPF, PPF, NPS, gold and
+  property. Every loan. One ledger.
 - **Ask about your own money** — Press ⌘L. It answers from totals and
   percentages, never from your transactions or quantities.
 
@@ -227,10 +219,9 @@ you are saving toward.*
 
 ### Product
 
-> ## One screen. The whole morning.
+> ## A little perspective. Every morning.
 >
-> Net worth, the quarter, the month, and what happened while you were asleep.
-> This is the dashboard itself, with a sample household.
+> Your net worth, spending and recent activity. A clear place to start.
 
 *Sample data. Yours replaces it in a minute.*
 
@@ -242,24 +233,23 @@ you are saving toward.*
 >
 > That is the architecture, not a promise.
 >
-> **01 — What you keep.** Holdings, assets, spending, briefs and history live in
-> this browser, in local storage. Signing out erases them on purpose, because
-> that is the only copy.
+> **01 — What you keep.** Holdings, assets, spending, goals and history live in
+> this browser, in local storage. That is the only copy, so download a backup
+> before clearing your browser.
 >
-> **02 — What travels.** Stock symbols, so prices can be fetched. Stock names,
-> so the brief can be written. Totals and percentages, so chat can answer.
-> Nothing else leaves.
+> **02 — What travels.** NSE codes, so prices can be fetched. Totals and
+> percentages, so Insights and chat can answer. Company web addresses for logos,
+> which you can turn off. Bank alert details, only if you connect Gmail.
 >
-> **03 — What never travels.** Quantities. Buy prices. Balances. Transactions.
-> Every number that would describe how much you actually have stays where you
-> are.
+> **03 — What AI never sees.** Share quantities and your transaction list. The
+> one exception is reading bank alerts, which runs only if you connect Gmail.
 
 Four facts, as four tinted tiles in a 2×2 bento (mint, butter, blush, sky):
 **No database** — there is nothing on our side to breach, sell or hand over.
 **Keys stay server-side** — API keys live only in route handlers, never in the
 browser. **Revocable access** — read-only Gmail is a separate grant you can
-revoke on its own. **Yours to take** — a JSON backup you download, and sign-out
-that really erases.
+revoke on its own. **Yours to take** — a JSON backup you download, and an Erase
+option in Settings that really erases.
 
 Each tile carries one small, tilted product object that proves the line above
 it: a `finlio.db` record with a red rule through it and "not created"; a black
@@ -274,23 +264,22 @@ drawn from the product's own surfaces — no stock art, no mascots.
 
 > **Pricing**
 >
-> ## Start free. Pay for the thinking.
+> ## Clarity starts free.
 >
-> Seeing your whole picture costs nothing. The brief, the chat and the reason
-> behind a move are the part worth paying for.
+> Choose Pro for AI summaries and chat. Max adds your preferred AI.
 >
 > Monthly / Yearly
 
 **Free · ₹0 forever** — Everything you need to see the whole picture.
 Net worth and quarterly bars · Holdings, expenses, assets and loans · Analytics
-and goals · India and the United States · Local-only storage, JSON backups.
+and goals · Built for India: NSE, EPF, PPF and NPS · Local-only storage, JSON
+backups.
 **Start free**
 
-**Pro · ₹199 a month (₹1,999 a year)** — The brief, the chat, and the reason
-behind the move.
-Everything in Free · The morning brief, with a source on every line · Finlio chat
-(⌘L) in plain English · Why it moved, on every holding · Read-only Gmail
+**Pro · ₹199 a month (₹1,999 a year)** — AI summaries, chat and automatic
 spending sync.
+Everything in Free · Plain-language AI summaries in Insights · Finlio chat (⌘L),
+answered from your totals · Read-only Gmail spending sync.
 **Start 14 days free**
 
 *Cancel any time. Your data is yours either way. Prices are examples while
@@ -304,34 +293,32 @@ Finlio is in early access.*
 > missing, the Terms have the long version. **Read the Terms**
 
 1. **Where does my data actually live?** In your browser. Holdings, assets,
-   loans, spending, briefs and history sit in local storage under `finlio:v1`.
+   loans, spending, goals and history sit in local storage under `finlio:v1`.
    Finlio has no database to store them in.
 2. **Does Finlio tell me what to buy?** No. Finlio explains. It never advises,
    and it never says buy, sell or hold. The words are kept out of the prompts as
    well as the writing.
-3. **What leaves my device?** Three things, and only when you ask for them:
-   stock symbols so prices can be fetched, stock names and symbols so the brief
-   can be written, and totals and percentages so chat can answer you.
+3. **What leaves my device?** Only what each feature needs: NSE codes for prices,
+   totals and percentages for Insights and chat, and company web addresses for
+   logos, which you can turn off. If you connect Gmail, the sender, subject and
+   preview of bank alerts are read to find your spending. The Terms list all of it.
 4. **Why would I connect Gmail?** Only if you want spending tracked. It is a
    separate, optional, read-only grant that turns bank and UPI alerts into
-   categories. You can revoke it without signing out.
-5. **Which countries work today?** India and the United States. Currency, stock
-   market, financial year and account types follow the country you choose,
-   including Indian financial-year quarters.
-6. **What if I clear my browser?** Your money is gone from that device, because
-   that was the only copy. Finlio gives you a JSON backup you keep yourself, and
-   sign-out erases the rest on purpose.
-7. **How do I know the AI isn't inventing reasons?** No source, no sentence.
-   Every line of the brief is validated, and a stock with no news says it has no
-   news rather than making a reason up.
-8. **Do I need an account?** Signing in with Google keeps your profile and
-   avatar. If Finlio is running without keys, it offers to open on this device
-   instead, so you can look around first.
+   categories. You can disconnect it at any time in Settings.
+5. **Who is Finlio for?** People in India. Finlio uses rupees, NSE stocks, the
+   April to March financial year and Indian accounts like EPF, PPF and NPS.
+6. **What if I clear my browser?** Clearing browser data erases your financial
+   data on this device. Download a backup first.
+7. **Can I trust the AI's answers?** It answers from your own totals and is told
+   not to invent numbers, but AI can still make mistakes. Check anything important
+   against the figures in your pages.
+8. **Do I need an account?** No. Finlio has no accounts or passwords. It opens in
+   your browser, and Google is used only if you choose to connect Gmail.
 
 ### Footer
 
 > **Finlio** — Know why your money moved. A private, AI-assisted money dashboard
-> for India and the United States. **Open Finlio**
+> for India. **Get started**
 >
 > Product: Features · Privacy · Pricing · FAQ
 > The app: Dashboard · Holdings · Transactions · Analytics · Goals
@@ -339,7 +326,7 @@ Finlio is in early access.*
 > Elsewhere: GitHub · gokulakrishnan.dev
 >
 > © 2026 Gokulakrishnan · Finlio is not a financial adviser · MIT licensed
-> Prices by Upstox and Finnhub · Cookie preferences
+> Prices by Upstox · Cookie preferences
 
 ---
 
@@ -359,9 +346,8 @@ Assumptions worth knowing:
 - **Prices are placeholders.** Finlio has not published pricing; the numbers
   live in `lib/landing-pricing.ts`, the copy says they are examples, and they
   should be replaced before a real launch.
-- **Log in and Sign up both open `/dashboard`.** This checkout has no
-  `/sign-in` route; the app's own gate handles Google sign-in and the
-  open-on-this-device path. Point them at the auth entry once it exists.
+- **Open Finlio goes straight to `/dashboard`.** Finlio has no accounts. Add Log
+  in and Sign up only once accounts exist.
 - **Copy is English-only.** The app's six languages cover the product, not the
   marketing page.
 - **No testimonials.** A privacy-first product with invented quotes would

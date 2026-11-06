@@ -7,8 +7,8 @@
 .card { height: 100%; overflow: hidden; border: 1px solid var(--border); border-radius: 22px; background: var(--card); }
 .stage { position: relative; height: 260px; overflow: hidden; padding: 28px; background: #f0f2ed; color: #292d29; font-size: 13px; line-height: 1.5; }
 .stage[data-scene="picture"] { height: 330px; background: linear-gradient(155deg, #dce7e4, #edf1e8); padding: 30px 40px 0; }
-.stage[data-scene="brief"] { height: 330px; background: #f2eee5; }
-.stage[data-scene="moved"] { background: #eaf0ee; }
+.stage[data-scene="goals"] { height: 330px; background: #f2eee5; }
+.stage[data-scene="analytics"] { background: #eaf0ee; }
 .stage[data-scene="chat"] { background: #e9efed; }
 .caption { padding: 24px 26px 26px; }
 .caption h3 { font-size: 19px; font-weight: 500; letter-spacing: -.025em; }
@@ -69,7 +69,7 @@
 @media (max-width: 639px) {
  .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
  .stage[data-scene="picture"] { height: 310px; }
- .stage[data-scene="brief"] { height: 280px; }
+ .stage[data-scene="goals"] { height: 280px; }
  .caption { padding: 22px; }
  .heading { margin-bottom: 28px; }
 }
