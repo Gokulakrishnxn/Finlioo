@@ -77,11 +77,11 @@ flowchart TB
 
 ### Opening the app
 
-The server sends a loading frame with no text, because it cannot know this browser's data or language. The app then renders once on the client, already in the right language.
+The landing page at `/` is rendered on the server and works without any saved data. App pages are different: the server sends a loading frame with no text, because it cannot know this browser's data or language. The app then renders once on the client, already in the right language.
 
 ```mermaid
 flowchart LR
-    A["Open /"] --> B["Go to the chosen opening page"]
+    A["Landing page at /"] --> B["Open an app page"]
     B --> C["AppGate shows a loading frame"]
     C --> D["Apply saved language"]
     D --> E["Store loads finlio:v1"]
@@ -140,7 +140,7 @@ sequenceDiagram
 | Framework | Next.js 16 (App Router), React 19, TypeScript |
 | Styling | Tailwind CSS 4, design tokens in `app/globals.css` |
 | Components | Base UI, Radix Dialog, uiarc, easyui, transitions.dev |
-| Motion | Motion, respecting the reduced-motion setting |
+| Motion | Motion, respecting the reduced-motion setting; Lenis for landing page scrolling |
 | Dates | React Day Picker, date-fns |
 | Validation | Zod |
 | AI | Google Gemini (`@google/genai`) |
@@ -168,7 +168,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open http://localhost:3000. Choose **Try a sample portfolio** on the dashboard to explore with 14 months of example data.
+Open http://localhost:3000 for the landing page, or http://localhost:3000/dashboard for the app. Choose **Try a sample portfolio** on the dashboard to explore with 14 months of example data.
 
 The app runs without any API keys. Features that need a key show a clear message until one is added.
 
@@ -200,11 +200,11 @@ Never commit real keys. `.env.local` is ignored by git.
 app/
 ├── (app)/            App pages: dashboard, analytics, insights, holdings,
 │                     assets, liabilities, transactions, goals, terms
-├── (marketing)/      Public pages: cookies
+├── (marketing)/      Public pages: landing page at / and cookies
 ├── api/              Server routes for prices, AI, Gmail and logos
-├── layout.tsx        Root layout, fonts and app-wide providers
-└── page.tsx          Redirects to the chosen opening page
+└── layout.tsx        Root layout, fonts and app-wide providers
 components/
+├── landing/          Landing page sections and the vendored stage-kit
 ├── analytics/        Charts and chart cards
 ├── goals/            Goal and add-money dialogs
 ├── settings/         Settings window
@@ -222,7 +222,10 @@ lib/
 ├── date-range.ts     Presets, financial years and period comparison
 ├── preferences.ts    Language, number format and display settings
 ├── i18n/             Translations, keyed by the English text
+├── landing-*.ts      Landing page content and pricing
 └── google-session.ts Google OAuth and the encrypted session
+public/marketing/     Landing page images
+docs/landing.md       Landing page brief and copy
 ```
 
 ## Data and privacy
