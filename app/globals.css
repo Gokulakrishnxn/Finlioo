@@ -328,3 +328,274 @@ html[data-demo] [data-demo-hide],
 html[data-demo] nextjs-portal {
   display: none !important;
 }
+
+/* ------------------------------------------------------------------------- */
+/* Marketing landing page                                                     */
+/* ------------------------------------------------------------------------- */
+
+/* The pricing section is dark inside a page that is always light. `dark:` is
+   scoped away from .marketing-theme on purpose, so the section re-declares the
+   tokens it needs instead of switching the whole appearance. */
+.marketing-dark {
+  color-scheme: dark;
+  --background: #141312;
+  --foreground: #f4f2ee;
+  --card: #1c1b19;
+  --card-foreground: #f4f2ee;
+  --popover: #232120;
+  --popover-foreground: #f4f2ee;
+  --primary: #f4f2ee;
+  --primary-foreground: #141312;
+  --secondary: #211f1d;
+  --secondary-foreground: #f4f2ee;
+  --muted: #262421;
+  --muted-foreground: #a9a397;
+  --accent: #2a2724;
+  --accent-foreground: #f4f2ee;
+  --border: #2d2a26;
+  --input: #8a8378;
+  --ring: #7dd79b;
+  --body: #cdc7bd;
+  --success: #7dd79b;
+  --success-soft: #1c2a21;
+  --gain: #5fd47f;
+  --destructive: #ff9a8f;
+  --danger-soft: #2c2020;
+  --card-shadow: 0 1px 3px rgb(0 0 0 / 35%);
+}
+
+/* Lenis smooth scrolling. Mounted only while the browser allows motion. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Three soft colours, drifting slowly behind the hero. */
+.fl-aurora {
+  position: absolute;
+  inset: -22% -12% auto;
+  height: 860px;
+  pointer-events: none;
+  filter: blur(72px);
+  opacity: 0.62;
+  background:
+    radial-gradient(38% 44% at 24% 32%, color-mix(in oklab, var(--success) 24%, transparent), transparent 72%),
+    radial-gradient(32% 38% at 74% 26%, color-mix(in oklab, var(--gold) 28%, transparent), transparent 70%),
+    radial-gradient(40% 42% at 52% 66%, color-mix(in oklab, var(--pink) 20%, transparent), transparent 74%);
+  animation: fl-drift 26s ease-in-out infinite alternate;
+}
+
+/* A dot grid, faded at the edges so it reads as texture rather than a table. */
+.fl-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    color-mix(in oklab, var(--foreground) 15%, transparent) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(58% 46% at 50% 24%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(58% 46% at 50% 24%, #000 0%, transparent 78%);
+}
+
+/* A film of grain over everything, for a printed rather than glossy feel. */
+.fl-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.fl-pulse {
+  animation: fl-pulse 2.6s ease-out infinite;
+}
+
+.fl-marquee {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.fl-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: fl-marquee 46s linear infinite;
+}
+.fl-marquee:hover .fl-marquee__track {
+  animation-play-state: paused;
+}
+
+/* SplitText wraps each line and word; the line clips the word as it rises. */
+.fl-line {
+  overflow: clip;
+}
+.fl-word {
+  display: inline-block;
+  will-change: transform;
+}
+
+@keyframes fl-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, -28px, 0) scale(1.06);
+  }
+}
+
+@keyframes fl-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--success) 60%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes fl-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-aurora,
+  .fl-pulse,
+  .fl-marquee__track {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------------- */
+/* The hero's product shot (stageshow kit: a real window on the page ground)  */
+/* ------------------------------------------------------------------------- */
+.fl-stage {
+  --ss-canvas: #f6f4ef;
+  --ss-surface: #ffffff;
+  --ss-chrome: #ffffff;
+  --ss-line: #ecebe7;
+  --ss-line-faint: #f2f1ee;
+  --ss-text: #716f6b;
+  --ss-text-strong: #343433;
+  --ss-text-faint: #a5a29b;
+  --ss-ink-1: rgb(24 22 20 / 4%);
+  --ss-ink-2: rgb(24 22 20 / 6%);
+  --ss-ink-3: rgb(24 22 20 / 8%);
+  --ss-ink-4: rgb(24 22 20 / 10%);
+  --ss-ink-5: rgb(24 22 20 / 15%);
+  --ss-fill: #ebeae6;
+  --ss-accent: #21803d;
+  --ss-accent-soft: #eef8f1;
+  --ss-accent-text: #1c6b34;
+  --ss-success: #21803d;
+  --ss-success-soft: #eef8f1;
+  --ss-success-text: #1c6b34;
+  --ss-danger: #c53030;
+  --ss-radius-window: 14px;
+  --ss-shadow-window: 0 0 0 1px rgb(24 22 20 / 6%), 0 18px 44px -26px rgb(24 22 20 / 24%);
+  --ss-shadow-hero: 0 0 0 1px rgb(24 22 20 / 7%), 0 34px 80px -34px rgb(24 22 20 / 32%);
+  --ss-shadow-satellite: 0 0 0 1px rgb(24 22 20 / 6%), 0 14px 34px -14px rgb(24 22 20 / 26%);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The window's own address field is a detail: keep it quiet in Finlio's ink,
+   and a field's shape rather than a bar the width of the window. */
+.fl-stage .ss-window__url {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  max-width: 300px;
+  margin-inline: auto;
+}
+
+/* The window runs off the foot of the stage; the mask lets it dissolve into
+   the page instead of slicing a row in half. Only filler sits under it. */
+.fl-shot-clip {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+}
+
+/* Compact design: on a phone column the rail is chrome we cannot afford, so
+   the content column takes the window's whole width. */
+@media (max-width: 639px) {
+  .fl-stage .ss-window__side {
+    display: none;
+  }
+}
+
+.fl-satellite {
+  background: var(--ss-surface);
+  border-radius: 13px;
+  padding: 12px;
+  box-shadow: var(--ss-shadow-satellite);
+}
+
+.fl-hero {
+  position: relative;
+  background: linear-gradient(115deg, #d5dfe0, #f6f4ea);
+}
+
+.fl-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: url("/marketing/hero-meadow.webp") center bottom / max(100%, 760px) auto no-repeat;
+  mask-image: linear-gradient(transparent 20%, #000 60%);
+}
+
+.fl-hero .fl-shot-clip {
+  mask-image: linear-gradient(#000 75%, transparent);
+}
+
+.fl-product-frame {
+  background: linear-gradient(150deg, #e3eceb, #edf0df 60%, #d2ddca);
+}
+
+[data-feature="picture"] {
+  background: radial-gradient(ellipse at 80% 100%, #96c4ac, transparent 76%), linear-gradient(#f6faf6, #c9e2db);
+}
+
+[data-feature="moved"] {
+  background: linear-gradient(140deg, #edf6fc, #dce9f5);
+}
+
+[data-feature="ledger"] {
+  background: linear-gradient(145deg, #fcf5ed, #f5e7e6);
+}
+
+[data-feature="chat"] {
+  background: radial-gradient(ellipse at 75% 110%, #c8e6eb, transparent 72%), var(--card);
+}
+
+/* Marketing uses native scrolling and a stationary, wrapping principles list. */
+.marketing-theme .fl-marquee { mask-image: none; }
+.marketing-theme .fl-marquee__track {
+  animation: none;
+  width: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 20px;
+  padding: 0 20px;
+}
+.marketing-theme .fl-marquee__track > [aria-hidden="true"] { display: none; }
+@media (max-width: 767px) {
+  .fl-stage .ss-window__side { display: none; }
+}

@@ -16,6 +16,10 @@ const eslintConfig = defineConfig([
     "components/agents/**",
     "components/charts/**",
     "components/motion/**",
+    // Vendored stageshow kit (MIT, see its NOTICE.md), kept as shipped.
+    "components/landing/stage-kit/**",
+    // Installed agent skills, not application source.
+    ".agents/**",
   ]),
 ]);
 
