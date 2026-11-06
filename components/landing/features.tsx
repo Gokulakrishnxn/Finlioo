@@ -1,4 +1,4 @@
-import { ArrowUpRight, Check, Newspaper, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Check, ShieldCheck, Target } from "lucide-react";
 import { FEATURES, QUARTERS, formatLakh, NET_WORTH } from "@/lib/landing-content";
 import { Reveal } from "./reveal";
 import styles from "./features.module.css";
@@ -23,27 +23,27 @@ function WealthPreview() {
   );
 }
 
-function BriefPreview() {
+function GoalsPreview() {
   return (
     <div className={styles.paper}>
-      <div className={styles.toolbar}><Newspaper size={16} /><span>Your morning brief</span></div>
-      <p className={styles.label}>What changed</p>
-      <p className={styles.headline}>A stronger quarter.<br />A clearer picture.</p>
-      <p>Reliance gained after quarterly results.</p>
-      <div className={styles.source}><Check size={12} /> Source · NSE</div>
+      <div className={styles.toolbar}><Target size={16} /><span>Emergency fund</span></div>
+      <p className={styles.label}>Saved so far</p>
+      <p className={styles.headline}>₹3.2L of ₹5L.<br />64% of the way.</p>
+      <p>Needs ₹15K a month to finish on time.</p>
+      <div className={styles.source}><Check size={12} /> On track</div>
       <div className={styles.paperLines} aria-hidden><span /><span /></div>
     </div>
   );
 }
 
-function MovementPreview() {
+function AnalyticsPreview() {
   return (
     <div className={styles.movement}>
-      <div className={styles.toolbar}><span>Reliance</span><span className={styles.positive}>+1.8%</span></div>
+      <div className={styles.toolbar}><span>Savings rate</span><span className={styles.positive}>70%</span></div>
       <svg viewBox="0 0 320 90" className={styles.lineChart} aria-hidden>
         <path d="M0 78 L28 66 L53 70 L79 40 L100 50 L128 34 L150 42 L176 24 L202 29 L230 12 L258 20 L285 8 L320 4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" />
       </svg>
-      <p className={styles.reason}>Results beat estimates <ArrowUpRight size={14} /></p>
+      <p className={styles.reason}>Up 6 points on last month <ArrowUpRight size={14} /></p>
     </div>
   );
 }
@@ -91,8 +91,8 @@ function ChatPreview() {
 
 const PREVIEWS = {
   picture: WealthPreview,
-  brief: BriefPreview,
-  moved: MovementPreview,
+  goals: GoalsPreview,
+  analytics: AnalyticsPreview,
   spending: SpendingPreview,
   ledger: LedgerPreview,
   chat: ChatPreview,

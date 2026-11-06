@@ -5,7 +5,7 @@ import styles from "./lower-sections.module.css";
 const CONTROLS = [
   { icon: Monitor, title: "Stored on your device", body: "Your holdings and transactions stay in this browser." },
   { icon: Mail, title: "Connect on your terms", body: "Gmail access is optional, read-only and revocable." },
-  { icon: ArrowDownToLine, title: "Take a copy with you", body: "Download a backup before signing out or clearing your browser." },
+  { icon: ArrowDownToLine, title: "Take a copy with you", body: "Download a backup before clearing your browser." },
 ];
 
 export function Privacy() {
@@ -28,7 +28,7 @@ export function Privacy() {
             </div>
             <div className={styles.shared}>
               <p>Shared when needed</p>
-              <span>Stock symbols for prices. Names for briefs. Totals and percentages for chat.</span>
+              <span>NSE codes for prices. Totals and percentages for Insights and chat. Bank alert details, only if you connect Gmail.</span>
             </div>
           </div>
         </Reveal>

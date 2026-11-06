@@ -24,8 +24,7 @@ export function Wordmark({ className }: { className?: string }) {
   );
 }
 
-const LOG_IN = "/dashboard";
-const SIGN_UP = "/dashboard";
+const APP_HOME = "/dashboard";
 
 export function SiteNav() {
   const anchor = useAnchorScroll();
@@ -95,7 +94,7 @@ export function SiteNav() {
             <Wordmark className="flex items-center gap-2" />
           </Link>
 
-          {/* Optically centered between the wordmark and the account actions. */}
+          {/* Optically centered between the wordmark and the app button. */}
           <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
@@ -108,17 +107,10 @@ export function SiteNav() {
 
           <div className="ml-auto flex items-center gap-1.5">
             <Link
-              href={LOG_IN}
-              className="hidden rounded-full px-3.5 py-2 text-[14px] font-medium text-body transition-colors hover:bg-sand hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:inline-flex"
-            >
-              Log in
-            </Link>
-            <Link
-              href={SIGN_UP}
+              href={APP_HOME}
               className="group inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-[14px] font-medium text-primary-foreground transition-colors hover:bg-primary/88 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              Sign up
-              
+              Open Finlio
             </Link>
             <button
               type="button"
@@ -164,19 +156,11 @@ export function SiteNav() {
               </ul>
               <div className="flex flex-col gap-2.5">
                 <Link
-                  href={SIGN_UP}
+                  href={APP_HOME}
                   onClick={() => setOpen(false)}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-4 text-[15px] font-medium text-primary-foreground"
                 >
-                  Sign up
-                  
-                </Link>
-                <Link
-                  href={LOG_IN}
-                  onClick={() => setOpen(false)}
-                  className="inline-flex items-center justify-center rounded-full border border-line px-5 py-4 text-[15px] font-medium text-ink"
-                >
-                  Log in
+                  Open Finlio
                 </Link>
               </div>
             </div>

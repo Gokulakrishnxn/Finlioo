@@ -32,10 +32,10 @@ const RAIL = [
 ];
 
 // Two real rows carry the crop; the last is filler the stage edge takes.
-const COMING_UP = [
-  { what: "Reliance", when: "Results · Thursday", filler: false },
-  { what: "Infosys", when: "Results · Thursday", filler: false },
-  { what: "HDFC Bank", when: "Results · Friday", filler: false },
+const STOCKS = [
+  { what: "Reliance", when: "+1.8% today", filler: false },
+  { what: "Infosys", when: "+0.6% today", filler: false },
+  { what: "HDFC Bank", when: "−0.4% today", filler: false },
 ];
 
 // Three real rows, then filler under the crop.
@@ -135,9 +135,9 @@ function ShotBody() {
       </div>
 
       <div className="mt-4 border-t border-[#f2f1ee] pt-3">
-        <div className="text-[9.5px] font-semibold uppercase tracking-[0.09em] text-[#a5a29b]">Coming up</div>
+        <div className="text-[9.5px] font-semibold uppercase tracking-[0.09em] text-[#a5a29b]">Your stocks</div>
         <div className="mt-1.5 flex flex-col">
-          {COMING_UP.map((row, index) =>
+          {STOCKS.map((row, index) =>
             row.filler ? (
               <div key={`cu-${index}`} className="flex items-center justify-between gap-3 py-2.5">
                 <span className="h-[6px] w-[92px] rounded-full bg-[rgb(24_22_20/7%)]" />

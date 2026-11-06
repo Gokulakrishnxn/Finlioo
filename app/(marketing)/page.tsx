@@ -13,12 +13,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.finlio.app"),
   title: "Finlio — Know why your money moved",
   description:
-    "A private, AI-assisted money dashboard for India and the United States. Finlio reads the news about what you own, adds everything up, and explains it in plain English. Every line has a source. It never advises.",
+    "A private, AI-assisted money dashboard for India. Finlio adds up what you own and owe, tracks spending and goals, and explains your numbers in plain language. It never advises.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "Finlio — Know why your money moved",
     description:
-      "Your money stays on your device. Finlio explains what changed in plain English, with a source for every line.",
+      "Your money stays in your browser. Finlio explains what changed in plain language, and never advises.",
     type: "website",
     url: "/",
     images: [{ url: "/finlio-mark.png", width: 1024, height: 1024, alt: "Finlio" }],

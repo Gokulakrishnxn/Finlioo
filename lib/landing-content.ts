@@ -11,9 +11,9 @@ export const NAV_LINKS = [
 export const PRINCIPLES = [
   "No Finlio database",
   "Your money stays in your browser",
-  "Every claim has a source",
+  "Chat sees totals, never transactions",
   "Explain, never advise",
-  "India and the United States",
+  "Built for India",
 ] as const;
 
 export const FEATURES = [
@@ -24,16 +24,16 @@ export const FEATURES = [
     body: "Your net worth. Every asset. One clear view.",
   },
   {
-    id: "brief",
-    icon: "news",
-    title: "The morning brief",
-    body: "The news behind your holdings, with sources.",
+    id: "goals",
+    icon: "target",
+    title: "Goals with a clear pace",
+    body: "The monthly amount needed, and when you should get there.",
   },
   {
-    id: "moved",
+    id: "analytics",
     icon: "trend",
-    title: "Why it moved",
-    body: "The move and the reason, together.",
+    title: "Analytics over time",
+    body: "Compare any period with the one before it.",
   },
   {
     id: "spending",
@@ -55,12 +55,6 @@ export const FEATURES = [
   },
 ] as const;
 
-export const BRIEF_LINES = [
-  { label: "Deserves your attention", text: "Your bank raises fixed-deposit rates this week.", source: "The Economic Times" },
-  { label: "What changed", text: "Reliance closed up 1.8% after its results.", source: "NSE" },
-  { label: "Coming up", text: "Infosys reports on Thursday before the open.", source: "BSE" },
-] as const;
-
 export const FAQS = [
   {
     q: "Where does my data actually live?",
@@ -72,27 +66,27 @@ export const FAQS = [
   },
   {
     q: "What leaves my device?",
-    a: "Three things, and only when you ask for them: stock symbols so prices can be fetched, stock names and symbols so the brief can be written, and totals and percentages so chat can answer you.",
+    a: "Only what each feature needs: NSE codes for prices, totals and percentages for Insights and chat, and company web addresses for logos, which you can turn off. If you connect Gmail, the sender, subject and preview of bank alerts are read to find your spending. The Terms list all of it.",
   },
   {
     q: "Why would I connect Gmail?",
-    a: "Only if you want spending tracked. It is a separate, optional, read-only grant that turns bank and UPI alerts into categories. You can revoke it without signing out.",
+    a: "Only if you want spending tracked. It is a separate, optional, read-only grant that turns bank and UPI alerts into categories. You can disconnect it at any time in Settings.",
   },
   {
-    q: "Which countries work today?",
-    a: "India and the United States. Currency, stock market, financial year and account types follow the country you choose, including Indian financial-year quarters.",
+    q: "Who is Finlio for?",
+    a: "People in India. Finlio uses rupees, NSE stocks, the April to March financial year and Indian accounts like EPF, PPF and NPS.",
   },
   {
     q: "What if I clear my browser?",
-    a: "Clearing browser data or signing out erases your financial data on this device. Download a backup first.",
+    a: "Clearing browser data erases your financial data on this device. Download a backup first.",
   },
   {
-    q: "How do I know the AI isn't inventing reasons?",
-    a: "No source, no sentence. Every line of the brief is validated, and a stock with no news says it has no news rather than making a reason up.",
+    q: "Can I trust the AI's answers?",
+    a: "It answers from your own totals and is told not to invent numbers, but AI can still make mistakes. Check anything important against the figures in your pages.",
   },
   {
     q: "Do I need an account?",
-    a: "Signing in with Google keeps your profile and avatar. If Finlio is running without keys, it offers to open on this device instead, so you can look around first.",
+    a: "No. Finlio has no accounts or passwords. It opens in your browser, and Google is used only if you choose to connect Gmail.",
   },
 ] as const;
 

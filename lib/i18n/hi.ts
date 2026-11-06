@@ -179,8 +179,6 @@ const hi: Record<string, string> = {
   "Fit more rows on screen in lists and tables.": "सूचियों और तालिकाओं में अधिक पंक्तियाँ दिखाएँ।",
   "Default date range": "डिफ़ॉल्ट तिथि सीमा",
   "The period Analytics, Transactions and Insights start on.": "एनालिटिक्स, लेनदेन और इनसाइट्स इस अवधि से शुरू होते हैं।",
-  "Opening page": "शुरुआती पेज",
-  "The page Finlio opens on.": "वह पेज जिस पर Finlio खुलता है।",
   "Show company logos": "कंपनी के लोगो दिखाएँ",
   "Logos for your stocks, banks and merchants. Turn off before recording a public demo: logos are other companies' trademarks.": "आपके शेयरों, बैंकों और व्यापारियों के लोगो। सार्वजनिक डेमो रिकॉर्ड करने से पहले बंद करें: लोगो अन्य कंपनियों के ट्रेडमार्क हैं।",
   "Compact sidebar": "छोटा साइडबार",
