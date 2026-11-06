@@ -1,0 +1,95 @@
+.heading { margin-bottom: 40px; }
+.heading h2 { margin: 14px 0 16px; font-size: clamp(32px, 4.4vw, 54px); line-height: 1.05; font-weight: 500; letter-spacing: -.045em; }
+.heading h2 span { color: var(--muted-foreground); }
+.heading > p:last-child { color: var(--muted-foreground); font-size: 15px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.wide { grid-column: span 2; }
+.card { height: 100%; overflow: hidden; border: 1px solid var(--border); border-radius: 22px; background: var(--card); }
+.stage { position: relative; height: 260px; overflow: hidden; padding: 28px; background: #f0f2ed; color: #292d29; font-size: 13px; line-height: 1.5; }
+.stage[data-scene="picture"] { height: 330px; background: linear-gradient(155deg, #dce7e4, #edf1e8); padding: 30px 40px 0; }
+.stage[data-scene="brief"] { height: 330px; background: #f2eee5; }
+.stage[data-scene="moved"] { background: #eaf0ee; }
+.stage[data-scene="chat"] { background: #e9efed; }
+.caption { padding: 24px 26px 26px; }
+.caption h3 { font-size: 19px; font-weight: 500; letter-spacing: -.025em; }
+.caption p { margin-top: 7px; font-size: 14px; line-height: 1.6; color: var(--muted-foreground); max-width: 48ch; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 500; }
+.wealth, .paper, .movement, .spending, .ledger { background: white; border: 1px solid #e4e8e3; border-radius: 12px; padding: 22px; box-shadow: 0 16px 32px -24px #29413666; }
+.wealth { max-width: 500px; margin: 0 auto; }
+.label { margin-top: 22px; color: #72786f; font-size: 11px; }
+.amount { font-size: 37px; line-height: 1.25; letter-spacing: -.04em; }
+.positive { color: #347348; font-size: 11px; margin-top: 3px; }
+.chart { height: 154px; display: flex; align-items: end; gap: 14px; margin-top: 8px; }
+.chart > div { flex: 1; text-align: center; }
+.chart span { display: block; border-radius: 5px 5px 0 0; background: #c7d9bd; }
+.chart > div:last-child span { background: #49764c; }
+.chart small { display: block; margin-top: 7px; color: #72786f; font-size: 10px; }
+.total { display: flex; justify-content: space-between; gap: 16px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 12px; font-size: 11px; }
+.total b { display: block; font-size: 13px; }
+.paper { transform: rotate(-3deg); min-height: 310px; }
+.paper .toolbar { justify-content: start; }
+.headline { font-size: 23px; letter-spacing: -.04em; line-height: 1.15; margin: 8px 0 14px; }
+.paper > p:not(.headline):not(.label) { font-size: 12px; color: #657064; }
+.source { display: flex; align-items: center; gap: 5px; font-size: 10px; margin-top: 12px; color: #47794f; }
+.paperLines { display: grid; gap: 9px; margin-top: 24px; }
+.paperLines span { height: 5px; background: #edf0e9; border-radius: 4px; }
+.paperLines span:last-child { width: 70%; }
+.movement { margin-top: 8px; }
+.lineChart { width: 100%; height: 90px; margin-top: 20px; color: #49764c; }
+.reason { display: flex; align-items: center; gap: 8px; border-top: 1px solid #edf0e9; padding-top: 10px; font-size: 11px; }
+.spending { padding: 18px; }
+.spendingBody { display: flex; gap: 16px; align-items: center; margin-top: 24px; }
+.ring { flex: 0 0 106px; height: 106px; border-radius: 50%; background: conic-gradient(#49764c 0 30%, #a2b998 30% 48%, #e2e9dc 48%); display: grid; place-items: center; }
+.ring > span { display: grid; place-content: center; width: 82px; height: 82px; border-radius: 50%; background: white; font-size: 15px; text-align: center; }
+.ring small { font-size: 9px; color: #72786f; }
+.legend { flex: 1; font-size: 10px; }
+.legend p { margin: 8px 0; }
+.legend b { display: block; font-weight: 500; }
+.legend i { display: inline-block; width: 5px; height: 5px; background: #49764c; border-radius: 50%; margin-right: 5px; }
+.legend p:nth-child(2) i { background: #a2b998; }
+.legend p:nth-child(3) i { background: #e2e9dc; }
+.account { display: flex; align-items: center; gap: 10px; padding: 17px 0; border-bottom: 1px solid #edf0e9; font-size: 12px; }
+.accountNumber { color: #9ca899; font-size: 10px; }
+.account b { margin-left: auto; font-weight: 500; white-space: nowrap; }
+.chat { max-width: 440px; margin: 0 auto; }
+.question { margin-left: auto; width: fit-content; max-width: 95%; padding: 11px 15px; border-radius: 14px 14px 3px 14px; background: #29372c; color: white; font-size: 12px; }
+.answer { margin-top: 12px; padding: 18px; background: white; border: 1px solid #dce3d9; border-radius: 14px; }
+.answer p { font-size: 20px; letter-spacing: -.02em; }
+.answer > span { color: #6a7467; font-size: 12px; }
+.savingBar { margin: 14px 0; height: 6px; border-radius: 10px; background: #edf1e9; }
+.savingBar span { display: block; width: 70%; height: 100%; border-radius: inherit; background: #6e9163; }
+.answer small { display: flex; align-items: center; gap: 6px; color: #6a7467; font-size: 10px; }
+.sample { margin-top: 18px; font-size: 11px; color: var(--muted-foreground); }
+@media (max-width: 1023px) {
+ .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .wide { grid-column: auto; }
+ .stage { padding: 22px; }
+ .stage[data-scene="picture"] { padding: 22px; }
+}
+@media (max-width: 639px) {
+ .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+ .stage[data-scene="picture"] { height: 310px; }
+ .stage[data-scene="brief"] { height: 280px; }
+ .caption { padding: 22px; }
+ .heading { margin-bottom: 28px; }
+}
+@media (min-width: 1024px) {
+ .grid > :last-child { grid-column: 1 / -1; }
+ .grid > :last-child .card { display: grid; grid-template-columns: 1fr 1.3fr; }
+ .grid > :last-child .stage { order: 2; }
+ .grid > :last-child .caption { align-self: center; padding: 40px; }
+}
+/* Keep miniature interfaces readable between phone and desktop widths. */
+.grid > * { min-width: 0; }
+@media (min-width: 640px) and (max-width: 767px) {
+ .grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 380px) {
+ .stage { padding: 16px; }
+ .wealth { padding: 16px; }
+ .spendingBody { gap: 10px; }
+ .ring { flex-basis: 92px; height: 92px; }
+ .ring > span { width: 72px; height: 72px; }
+ .caption { padding: 20px; }
+ .amount { font-size: 32px; }
+}
