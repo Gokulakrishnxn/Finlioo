@@ -89,21 +89,21 @@ export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string
           </div>
           <main className={styles.main}>
             <div className={styles.form}>
-              <h1>{c.title}</h1>
-              <p className={styles.lead}>{c.lead}</p>
+              <h1 className={styles.hideOnStep}>{c.title}</h1>
+              <p className={`${styles.lead} ${styles.hideOnStep}`}>{c.lead}</p>
               {message ? <p role="alert" className={styles.error}>{message}</p> : null}
 
               <EmailForm mode={mode} next={next} />
 
               {c.cta ? (
-                <>
+                <div className={styles.hideOnStep}>
                   <div className={styles.divider} role="separator"><span /> or continue with <span /></div>
                   <a href={href} className={styles.google}><GoogleMark /> {c.cta}</a>
-                </>
+                </div>
               ) : null}
 
               {c.altHref ? (
-                <p className={styles.switch}>
+                <p className={`${styles.switch} ${styles.hideOnStep}`}>
                   {c.altText} <Link href={c.altHref}>{c.altLabel}</Link>
                 </p>
               ) : null}

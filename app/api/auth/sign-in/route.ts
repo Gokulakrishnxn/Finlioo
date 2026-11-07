@@ -6,7 +6,7 @@ const Body = z.object({ email: z.email().max(254), password: z.string().min(1).m
 
 const MESSAGES: Record<string, { error: string; status: number }> = {
   invalid_credentials: { error: "That email or password isn't right.", status: 401 },
-  email_not_confirmed: { error: "Please confirm your email first. Check your inbox for the link.", status: 403 },
+  email_not_confirmed: { error: "Please confirm your email first.", status: 403 },
   over_request_rate_limit: { error: "Too many attempts. Please wait a few minutes.", status: 429 },
 };
 
@@ -21,7 +21,10 @@ export async function POST(request: Request) {
     if (!error) return Response.json({ signedIn: true });
     console.error("[auth] sign-in:", error.code ?? error.status);
     const known = error.code ? MESSAGES[error.code] : undefined;
-    return Response.json({ error: known?.error ?? "Couldn't sign you in. Please try again." }, { status: known?.status ?? 502 });
+    return Response.json(
+      { error: known?.error ?? "Couldn't sign you in. Please try again.", reason: error.code },
+      { status: known?.status ?? 502 },
+    );
   } catch (err) {
     const missing = err instanceof SupabaseNotConfiguredError;
     return Response.json(

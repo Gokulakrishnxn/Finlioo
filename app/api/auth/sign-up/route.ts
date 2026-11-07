@@ -1,12 +1,10 @@
 import { z } from "zod";
 import { API_LIMITS, guardAuthForm } from "@/lib/api-guard";
-import { safeNext } from "@/lib/auth/routes";
 import { createClient, SupabaseNotConfiguredError } from "@/lib/supabase/server";
 
 const Body = z.object({
   email: z.email().max(254),
   password: z.string().min(8).max(72),
-  next: z.string().max(500).optional(),
 });
 
 const MESSAGES: Record<string, { error: string; status: number }> = {
@@ -23,16 +21,9 @@ export async function POST(request: Request) {
   if (blocked) return blocked;
   const body = Body.safeParse(await request.json().catch(() => null));
   if (!body.success) return Response.json({ error: "Enter an email and a password of at least 8 characters." }, { status: 400 });
-  const { email, password, next } = body.data;
-  const callback = new URL("/api/auth/callback", new URL(request.url).origin);
-  callback.searchParams.set("next", safeNext(next));
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: callback.toString() },
-    });
+    const { data, error } = await supabase.auth.signUp(body.data);
     if (error) {
       console.error("[auth] sign-up:", error.code ?? error.status);
       const known = error.code ? MESSAGES[error.code] : undefined;
