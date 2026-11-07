@@ -144,23 +144,11 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
-    title: "9. Open source",
+    title: "9. Changes and contact",
     body: (
       <p>
-        Finlio&apos;s source code is published under the MIT License at{" "}
-        <a href="https://github.com/Gokulakrishnxn/finlio" className="underline" target="_blank" rel="noreferrer">
-          github.com/Gokulakrishnxn/finlio
-        </a>
-        . Third-party code and its licences are listed in THIRD_PARTY_NOTICES.md.
-      </p>
-    ),
-  },
-  {
-    title: "10. Changes and contact",
-    body: (
-      <p>
-        We may update these Terms. When we do, Finlio will ask you to accept the new version before you continue.
-        Questions: open an issue on the GitHub repository above.
+        We may update these Terms. The date at the top of this page shows when they last changed. Contact details
+        for questions and complaints will be added here before Finlio opens to the public.
       </p>
     ),
   },

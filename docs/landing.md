@@ -325,7 +325,7 @@ Finlio is in early access.*
 > Legal: Terms · Your data · Cookies
 > Elsewhere: GitHub · gokulakrishnan.dev
 >
-> © 2026 Gokulakrishnan · Finlio is not a financial adviser · MIT licensed
+> © 2026 Gokulakrishnan · Finlio is not a financial adviser
 > Prices by Upstox · Cookie preferences
 
 ---
