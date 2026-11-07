@@ -437,7 +437,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       update((prev) => {
         const rest = (prev.snapshots ?? []).filter((s) => s.date !== snapshot.date);
         const last = prev.snapshots?.find((s) => s.date === snapshot.date);
-        if (last && Math.abs(last.netWorth - snapshot.netWorth) < 0.5) return prev;
+        if (last && Math.abs(last.netWorth - snapshot.netWorth) < 0.5 && Boolean(last.sample) === Boolean(snapshot.sample)) return prev;
         return {
           ...prev,
           snapshots: [...rest, snapshot].sort((a, b) => a.date.localeCompare(b.date)).slice(-365),

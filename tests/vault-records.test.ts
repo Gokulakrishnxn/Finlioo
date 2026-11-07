@@ -24,6 +24,12 @@ describe("records", () => {
     expect([...toRecords(data).keys()]).toEqual(["holding:real"]);
   });
 
+  it("deletes a saved day once it is marked as sample", () => {
+    const real: VaultData = { holdings: [], snapshots: [{ date: "2026-11-08", netWorth: 5 }] };
+    const sample: VaultData = { holdings: [], snapshots: [{ date: "2026-11-08", netWorth: 5, sample: true }] };
+    expect(diffRecords(real, sample)).toEqual([{ kind: "snapshot", id: "2026-11-08", json: null }]);
+  });
+
   it("finds only what changed, including deletions", () => {
     const prev: VaultData = { holdings: [holding("a", "A"), holding("b", "B")] };
     const next: VaultData = { holdings: [holding("a", "A", { quantity: 9 })] };
