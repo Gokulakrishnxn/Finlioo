@@ -13,16 +13,34 @@ import {
 import { todayLocal, formatMoney } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Instrument } from "@/lib/types";
-import { parseZerodhaCsv } from "@/lib/zerodha-csv";
+import { BROKERS, parseHoldingsCsv, type CsvHolding } from "@/lib/broker-csv";
+import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 
 type Result = { added: string[]; merged: string[]; unmatched: string[] };
 
-async function findExact(symbol: string): Promise<Instrument | undefined> {
-  const res = await fetch(`/api/instruments?q=${encodeURIComponent(symbol)}`);
-  if (!res.ok) return undefined;
-  const { results } = (await res.json()) as { results: Instrument[] };
-  return results.find((r) => r.symbol === symbol);
+async function search(q: string): Promise<Instrument[]> {
+  const res = await fetch(`/api/instruments?q=${encodeURIComponent(q)}`);
+  if (!res.ok) return [];
+  return ((await res.json()) as { results: Instrument[] }).results;
+}
+
+// ISIN first (exact), then the NSE symbol, then the company name when it is a clear match.
+async function findStock(row: CsvHolding): Promise<Instrument | undefined> {
+  if (row.isin) {
+    const hit = (await search(row.isin))[0];
+    if (hit) return hit;
+  }
+  if (row.symbol) {
+    const hit = (await search(row.symbol)).find((r) => r.symbol === row.symbol);
+    if (hit) return hit;
+  }
+  if (row.name) {
+    const results = await search(row.name);
+    const wanted = row.name.toUpperCase();
+    return results.find((r) => r.name.toUpperCase() === wanted || r.symbol === wanted) ?? (results.length === 1 ? results[0] : undefined);
+  }
+  return undefined;
 }
 
 export function ImportDialog({
@@ -36,12 +54,14 @@ export function ImportDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
+  const [brokerId, setBrokerId] = useState("zerodha");
+  const broker = BROKERS.find((b) => b.id === brokerId) ?? BROKERS[0];
 
   async function importFile(file: File) {
     setBusy(true);
     setError(null);
     setResult(null);
-    const { rows, error } = parseZerodhaCsv(await file.text());
+    const { rows, error } = parseHoldingsCsv(await file.text());
     if (error) {
       setError(error);
       setBusy(false);
@@ -49,9 +69,9 @@ export function ImportDialog({
     }
     const done: Result = { added: [], merged: [], unmatched: [] };
     for (const row of rows) {
-      const match = await findExact(row.symbol);
+      const match = await findStock(row);
       if (!match) {
-        done.unmatched.push(row.symbol);
+        done.unmatched.push(row.symbol ?? row.name ?? row.isin ?? "?");
         continue;
       }
       const values = {
@@ -86,13 +106,41 @@ export function ImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={close}>
-      <DialogContent className="gap-5 rounded-2xl p-7 sm:max-w-md">
+      <DialogContent className="max-h-[90dvh] gap-5 overflow-y-auto rounded-2xl p-6 sm:max-w-lg sm:p-7">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold tracking-tight">{t("Import from Zerodha")}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold tracking-tight">{t("Import your holdings")}</DialogTitle>
           <DialogDescription>
-            {t("In Kite, open Holdings and choose Download (CSV). The file is read here in your browser; only the stock symbols are looked up.")}
+            {t("Pick your broker, then choose its holdings file. The file is read here in your browser; only the stock symbols are looked up.")}
           </DialogDescription>
         </DialogHeader>
+
+        {!result && (
+          <div>
+            <p className="eyebrow mb-2">{t("Your broker")}</p>
+            <div role="radiogroup" aria-label={t("Your broker")} className="flex flex-wrap gap-1.5">
+              {BROKERS.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={b.id === brokerId}
+                  onClick={() => setBrokerId(b.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-[13px] transition-colors",
+                    b.id === brokerId
+                      ? "border-success bg-success-soft font-medium text-success dark:text-ink"
+                      : "border-line text-body hover:bg-sand",
+                  )}
+                >
+                  {b.name === "Other broker" ? t("Other broker") : b.name}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 rounded-xl bg-sand/70 px-3.5 py-3 text-[13px] leading-relaxed text-body">
+              {t(broker.steps, { broker: broker.name })}
+            </p>
+          </div>
+        )}
 
         {!result && (
           <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-line bg-sand/60 px-6 py-10 text-center transition-colors hover:bg-sand">

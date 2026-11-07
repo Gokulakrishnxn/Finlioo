@@ -58,6 +58,8 @@ export async function searchEquities(query: string, limit = 8) {
   const q = query.trim().toUpperCase();
   if (!q) return [];
   const all = await getEquities();
+  // An ISIN (INE…) is the last part of the instrument key, e.g. "NSE_EQ|INE467B01029".
+  if (/^IN[A-Z0-9]{10}$/.test(q)) return all.filter((i) => i.instrumentKey.endsWith(`|${q}`)).slice(0, limit);
   const rank = (i: Instrument) => {
     const name = i.name.toUpperCase();
     if (i.symbol === q) return 0;
