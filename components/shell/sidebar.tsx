@@ -77,7 +77,7 @@ function Brand() {
 export function Sidebar() {
   usePreferences();
   const pathname = usePathname();
-  const { profile } = useStore();
+  const { profile, account } = useStore();
   const { openAdd, dialogs } = useQuickAdd();
   const { open: chatOpen } = useChatUI();
   const [preferCollapsed, setPreferCollapsed] = useState(false); // the saved choice
@@ -203,7 +203,7 @@ export function Sidebar() {
         <ImportDataButton onClick={() => openAdd("import")} collapsed={collapsed} />
       </div>
       {dialogs}
-      <ProfileChip name={profile?.name} city={profile?.city} collapsed={collapsed} />
+      <ProfileChip name={profile?.name} email={account?.email} collapsed={collapsed} />
     </aside>
   );
 }
@@ -216,7 +216,7 @@ function ImportDataButton({ onClick, collapsed, className }: { onClick: () => vo
       title={collapsed ? label : undefined}
       aria-label={collapsed ? label : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-xl py-2 text-[14px] font-medium text-ink transition-colors hover:bg-sand",
+        "flex w-full items-center gap-3 rounded-xl py-2 text-[14px] font-medium text-ink transition-colors hover:bg-sand",
         collapsed ? "justify-center px-0" : "bg-sand/70 px-3",
         className,
       )}
@@ -259,7 +259,7 @@ function useLogout() {
 }
 
 // Who's using Finlio. Opens a small menu card above it, like ChatGPT's account menu.
-function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; collapsed: boolean }) {
+function ProfileChip({ name, email, collapsed }: { name?: string; email?: string; collapsed: boolean }) {
   const [menu, setMenu] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { openSettings } = useSettings();
@@ -292,10 +292,10 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
           className="absolute bottom-full left-0 z-50 mb-2 w-[248px] rounded-2xl border border-line bg-card p-1.5 shadow-[0_12px_40px_-12px_rgba(18,18,18,0.25)] animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2"
         >
           <div className="flex items-center gap-3 px-2.5 py-2.5">
-            <Avatar name={name} className="size-9" />
+            <Avatar name={name || email} className="size-9" />
             <div className="min-w-0">
-              <p className="truncate text-[14px] font-semibold text-ink">{name?.trim() || t("Finlio user")}</p>
-              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || t("Profile and settings")}</p>
+              <p className="truncate text-[14px] font-semibold text-ink">{name?.trim() || t("Add your name")}</p>
+              <p className="truncate text-[12px] text-muted-foreground">{email ?? t("Profile and settings")}</p>
             </div>
           </div>
           <div className="my-1 h-px bg-line" />
@@ -331,11 +331,11 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
           menu && "bg-sand",
         )}
       >
-        <Avatar name={name} />
+        <Avatar name={name || email} />
         {!collapsed && (
           <span className="min-w-0">
             <span className="block truncate text-[13px] font-medium text-ink">{name?.trim() || t("Add your name")}</span>
-            <span className="block text-[11px] text-muted-foreground">{t("Profile & settings")}</span>
+            <span className="block truncate text-[11px] text-muted-foreground">{email ?? t("Profile & settings")}</span>
           </span>
         )}
       </button>
@@ -355,7 +355,7 @@ const MORE_ITEMS = ALL.filter((i) => ![...TABS_LEFT, ...TABS_RIGHT].some((tab) =
 export function MobileNav() {
   usePreferences();
   const pathname = usePathname();
-  const { profile } = useStore();
+  const { profile, account } = useStore();
   const { openSettings } = useSettings();
   const { setOpen: openChat } = useChatUI();
   const { openAdd, dialogs } = useQuickAdd();
@@ -400,7 +400,7 @@ export function MobileNav() {
           data-tour="profile"
           className="rounded-full"
         >
-          <Avatar name={profile?.name} className="size-8" />
+          <Avatar name={profile?.name || account?.email} className="size-8" />
         </button>
       </header>
 

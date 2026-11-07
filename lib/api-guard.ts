@@ -18,6 +18,7 @@ export const API_LIMITS = {
   vaultPull: { name: "vault-pull", limit: 120 },
   vaultPush: { name: "vault-push", limit: 120 },
   accountDelete: { name: "account-delete", limit: 3 },
+  accountProfile: { name: "account-profile", limit: 20 },
 } as const;
 
 type Limit = { name: string; limit: number; windowMs?: number };

@@ -142,6 +142,7 @@ export type Profile = {
   onboardedAt?: string; // set when the welcome setup is finished
   termsVersion?: string; // the Terms version the person accepted
   tourDone?: boolean;
+  namePromptSeen?: boolean; // the first-open name step was answered or skipped
 };
 
 export type Instrument = {
