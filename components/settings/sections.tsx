@@ -22,6 +22,7 @@ import { useTour } from "@/components/tour/tour";
 import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
 import { saveAccountName } from "@/lib/account";
+import { dataToCsv } from "@/lib/export-csv";
 import { useStore, type Account, type StoreData } from "@/lib/store";
 import { PRESETS, type PresetId } from "@/lib/date-range";
 import { LANGUAGES, setPreferences, usePreferences, type Language } from "@/lib/preferences";
@@ -532,6 +533,16 @@ export function DataCard({
     setMessage(t("Backup downloaded."));
   }
 
+  function exportCsv() {
+    const url = URL.createObjectURL(new Blob([dataToCsv(data)], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `finlio-data-${todayLocal()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setMessage(t("CSV downloaded."));
+  }
+
   async function restore(file: File) {
     try {
       const parsed = JSON.parse(await file.text());
@@ -549,7 +560,7 @@ export function DataCard({
     <Card title={t("Your data")}>
       <p className="text-[14px] leading-relaxed text-body">
         {signedIn
-          ? t("Your money data is encrypted and saved to your account, so it follows you to any device you sign in on. Download a copy any time.")
+          ? t("Your data is stored on Supabase, encrypted in transit and at rest, and every request is checked against your account. Export all your data as CSV or JSON any time, or delete your account and financial data below.")
           : t("Everything lives in this browser. Download a backup to move Finlio to another browser or keep a copy.")}
       </p>
       {signedIn && syncState === "error" ? (
@@ -560,7 +571,11 @@ export function DataCard({
       <div className="mt-4 flex flex-wrap gap-2">
         <Button variant="outline" onClick={exportData} className="h-10 rounded-xl">
           <Download className="size-4" />
-          {t("Export backup")}
+          {t("Export JSON")}
+        </Button>
+        <Button variant="outline" onClick={exportCsv} className="h-10 rounded-xl">
+          <Download className="size-4" />
+          {t("Export CSV")}
         </Button>
         <Button variant="outline" onClick={() => fileRef.current?.click()} className="h-10 rounded-xl">
           <Upload className="size-4" />
@@ -576,7 +591,7 @@ export function DataCard({
       </div>
       {message && <p className="mt-3 text-[13px] text-body">{message}</p>}
       <p className="mt-4 border-t border-line pt-4 text-[13px] text-muted-foreground">
-        {t("Restoring replaces what's here now.")}
+        {t("Restore uses a JSON export and replaces what's here now.")}
       </p>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4">
