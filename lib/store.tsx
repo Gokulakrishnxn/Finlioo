@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { todayLocal } from "@/lib/format";
+import { lotsOf, withLots } from "@/lib/portfolio";
 import { sampleAssets, sampleEntries, sampleGoals, sampleHoldings, sampleSnapshots } from "@/lib/sample";
 import type { Asset, Brief, Entry, ExpenseSnapshot, Goal, GoalContribution, Holding, Profile, Snapshot } from "@/lib/types";
 
@@ -26,6 +27,7 @@ type Store = StoreData & {
   mergeHolding: (id: string, extra: NewHolding) => void;
   updateHolding: (id: string, changes: Partial<NewHolding>) => void;
   removeHolding: (id: string) => void;
+  removeLot: (holdingId: string, lotId: string) => void;
   addSample: () => void;
   removeSample: () => void;
   setBrief: (brief: Brief) => void;
@@ -102,28 +104,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (holding: NewHolding) =>
       update((prev) => ({
         ...prev,
-        holdings: [...prev.holdings, { ...holding, id: crypto.randomUUID() }],
+        holdings: [
+          ...prev.holdings,
+          {
+            ...holding,
+            id: crypto.randomUUID(),
+            lots: holding.lots ?? [
+              { id: crypto.randomUUID(), date: holding.buyDate, price: holding.buyPrice, quantity: holding.quantity },
+            ],
+          },
+        ],
       })),
     [update],
   );
 
-  // Two buys of the same stock become one position: shares add up, the price
-  // becomes the average paid, and the earlier date is kept.
+  // Two buys of the same stock become one position: shares add up and the price
+  // becomes the average paid, while each buy stays in the holding's history.
   const mergeHolding = useCallback(
     (id: string, extra: NewHolding) =>
       update((prev) => ({
         ...prev,
         holdings: prev.holdings.map((h) => {
           if (h.id !== id) return h;
-          const quantity = h.quantity + extra.quantity;
-          const buyPrice = (h.quantity * h.buyPrice + extra.quantity * extra.buyPrice) / quantity;
-          return {
-            ...h,
-            quantity,
-            buyPrice: Math.round(buyPrice * 100) / 100,
-            buyDate: h.buyDate < extra.buyDate ? h.buyDate : extra.buyDate,
-            sample: h.sample && extra.sample,
-          };
+          const lot = { id: crypto.randomUUID(), date: extra.buyDate, price: extra.buyPrice, quantity: extra.quantity };
+          return { ...withLots(h, [...lotsOf(h), lot]), sample: h.sample && extra.sample };
         }),
       })),
     [update],
@@ -133,7 +137,29 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     (id: string, changes: Partial<NewHolding>) =>
       update((prev) => ({
         ...prev,
-        holdings: prev.holdings.map((h) => (h.id === id ? { ...h, ...changes } : h)),
+        holdings: prev.holdings.map((h) => {
+          if (h.id !== id) return h;
+          const next = { ...h, ...changes };
+          // Editing a single-buy holding edits that buy; the history stays in step.
+          const touched = "buyDate" in changes || "buyPrice" in changes || "quantity" in changes;
+          return touched && lotsOf(h).length === 1
+            ? { ...next, lots: [{ ...lotsOf(h)[0], date: next.buyDate, price: next.buyPrice, quantity: next.quantity }] }
+            : next;
+        }),
+      })),
+    [update],
+  );
+
+  // Takes one buy out of a holding's history. The last buy removes the holding.
+  const removeLot = useCallback(
+    (holdingId: string, lotId: string) =>
+      update((prev) => ({
+        ...prev,
+        holdings: prev.holdings.flatMap((h) => {
+          if (h.id !== holdingId) return [h];
+          const left = lotsOf(h).filter((l) => l.id !== lotId);
+          return left.length ? [withLots(h, left)] : [];
+        }),
       })),
     [update],
   );
@@ -333,6 +359,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         mergeHolding,
         updateHolding,
         removeHolding,
+        removeLot,
         addSample,
         removeSample,
         setBrief,

@@ -13,7 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Sidebar />
           <MobileNav />
           <main className="min-w-0 flex-1 bg-cream md:rounded-3xl md:border md:border-line">
-            <div className="mx-auto w-full max-w-[1180px] px-4 py-6 md:px-8 md:py-10 xl:px-12">
+            <div className="mx-auto w-full max-w-[1180px] px-4 pt-5 pb-28 md:px-8 md:py-10 md:pb-10 xl:px-12">
               <PreferencesBoundary>{children}</PreferencesBoundary>
             </div>
           </main>

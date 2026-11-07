@@ -1,3 +1,11 @@
+// One purchase of a stock. A holding keeps every buy so the history stays visible.
+export type Lot = {
+  id: string;
+  date: string; // "2025-03-14"
+  price: number; // ₹ per share
+  quantity: number;
+};
+
 export type Holding = {
   id: string;
   instrumentKey: string; // e.g. "NSE_EQ|INE467B01029"
@@ -5,7 +13,8 @@ export type Holding = {
   name: string; // "Tata Consultancy Serv Ltd"
   buyDate: string; // "2025-03-14"
   buyPrice: number; // ₹ per share
-  quantity: number;
+  quantity: number; // total across all lots
+  lots?: Lot[]; // each buy; older saved holdings have none and count as one buy
   sample?: boolean;
   imported?: boolean; // added from a broker CSV; buy date is the import date
 };

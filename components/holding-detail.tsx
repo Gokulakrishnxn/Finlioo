@@ -14,13 +14,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { BuyHistory } from "@/components/buy-history";
 import { Change } from "@/components/change";
 import { BrandLogo } from "@/components/brand-logo";
 import { InitialBadge } from "@/components/initial-badge";
 import { stockDomain } from "@/lib/brands";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatDate, formatMoney, formatQuantity } from "@/lib/format";
 import { useStore } from "@/lib/store";
-import type { Position } from "@/lib/portfolio";
+import { lotsOf, type Position } from "@/lib/portfolio";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 
@@ -34,9 +35,11 @@ export function HoldingDetail({
   onClose: () => void;
   onEdit: (id: string) => void;
 }) {
-  const { removeHolding } = useStore();
+  const { removeHolding, removeLot } = useStore();
   const [confirming, setConfirming] = useState(false);
   const h = position?.holding;
+  const lots = h ? lotsOf(h) : [];
+  const price = position?.quote?.price;
 
   return (
     <>
@@ -85,25 +88,29 @@ export function HoldingDetail({
                   )}
                 </div>
 
-                <dl className="mt-3 grid grid-cols-2 gap-3">
-                  <Stat label={t("Your shares")} value={String(h.quantity)} />
-                  <Stat label={t("Average buy price")} value={formatMoney(h.buyPrice)} />
+                <dl className="mt-3 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
+                  <Stat label={t("Your shares")} value={formatQuantity(h.quantity)} />
+                  <Stat label={lots.length > 1 ? t("Average buy price") : t("Buy price")} value={formatMoney(h.buyPrice)} />
                   <Stat label={t("You put in")} value={formatMoney(position.invested)} />
                   <Stat label={t("Worth now")} value={position.value !== undefined ? formatMoney(position.value) : "—"} />
-                  <div className="col-span-2 flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-3 min-[400px]:col-span-2">
                     <dt className="text-[13px] text-muted-foreground">{t("Since {date}", { date: formatDate(h.buyDate) })}</dt>
                     <dd>
                       <Change amount={position.gain} pct={position.gainPct} className="text-[14px]" />
                     </dd>
                   </div>
                 </dl>
+
+                <BuyHistory holding={h} price={price} onRemove={(lotId) => removeLot(h.id, lotId)} />
               </div>
 
               <footer className="flex gap-2 border-t border-line bg-sand/50 px-6 py-4">
-                <Button variant="outline" className="h-10 flex-1 rounded-xl bg-card" onClick={() => onEdit(h.id)}>
-                  <Pencil className="size-4" />
-                  {t("Edit")}
-                </Button>
+                {lots.length === 1 && (
+                  <Button variant="outline" className="h-10 flex-1 rounded-xl bg-card" onClick={() => onEdit(h.id)}>
+                    <Pencil className="size-4" />
+                    {t("Edit")}
+                  </Button>
+                )}
                 <Button
                   variant="destructive"
                   className="h-10 flex-1 rounded-xl"
@@ -147,7 +154,7 @@ function Stat({ label, value, className }: { label: string; value: string; class
   return (
     <div className={cn("rounded-xl border border-line px-4 py-3", className)}>
       <dt className="text-[12px] text-muted-foreground">{label}</dt>
-      <dd className="nums mt-1 text-[16px] text-ink">{value}</dd>
+      <dd className="nums mt-1 text-[16px] [overflow-wrap:anywhere] text-ink">{value}</dd>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Faq } from "@/components/landing/faq";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
-import { PrinciplesStrip } from "@/components/landing/principles-strip";
 import { Pricing } from "@/components/landing/pricing";
 import { Privacy } from "@/components/landing/privacy";
 import { Showcase } from "@/components/landing/showcase";
@@ -42,7 +41,6 @@ export default function LandingPage() {
       <SiteNav />
       <main id="main">
         <Hero />
-        <PrinciplesStrip />
         <Features />
         <Showcase />
         <Privacy />

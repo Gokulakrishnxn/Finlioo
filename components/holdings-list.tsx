@@ -22,12 +22,12 @@ export function HoldingsList({
         <li key={p.holding.id} className="border-b border-line last:border-b-0">
           <button
             onClick={() => onSelect(p.holding.id)}
-            className="group -mx-3 flex w-[calc(100%+1.5rem)] items-center gap-4 rounded-2xl px-3 py-4 text-left transition-colors hover:bg-sand/70"
+            className="group -mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-2xl sm:gap-4 px-3 py-4 text-left transition-colors hover:bg-sand/70"
           >
-            <BrandLogo domain={stockDomain(p.holding.symbol)} fallback={<InitialBadge symbol={p.holding.symbol} />} />
+            <span className="shrink-0"><BrandLogo domain={stockDomain(p.holding.symbol)} fallback={<InitialBadge symbol={p.holding.symbol} />} /></span>
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-2 font-medium text-ink">
-                {p.holding.symbol}
+              <p className="flex min-w-0 items-center gap-2 font-medium text-ink">
+                <span className="truncate">{p.holding.symbol}</span>
                 {p.holding.sample && (
                   <span data-demo-hide className="rounded-full bg-sand px-2 py-0.5 text-[11px] font-medium text-muted-foreground ring-1 ring-line">
                     {t("Sample")}
@@ -45,8 +45,8 @@ export function HoldingsList({
               </p>
               <Change amount={p.dayChange} pct={p.dayChangePct} className="text-[12px]" />
             </div>
-            <div className="w-32 text-right lg:w-40">
-              <p className="nums text-[15px] font-medium text-ink">
+            <div className="shrink-0 text-right lg:w-40">
+              <p className="nums whitespace-nowrap text-[15px] font-medium text-ink">
                 {p.value !== undefined ? formatMoney(p.value) : formatMoney(p.invested)}
               </p>
               {p.value !== undefined ? (
@@ -55,7 +55,7 @@ export function HoldingsList({
                 <p className="text-[12px] text-muted-foreground">{t("invested")}</p>
               )}
             </div>
-            <ChevronRight className="size-4 text-muted-foreground transition-colors group-hover:text-ink" />
+            <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-ink" />
           </button>
         </li>
       ))}

@@ -18,6 +18,10 @@ function moneyFormat() {
   return f;
 }
 
+// Share counts with the same digit grouping as money: 1,25,000 or 125,000.
+export const formatQuantity = (value: number) =>
+  new Intl.NumberFormat(getPreferences().numberFormat === "indian" ? "en-IN" : "en-US", { maximumFractionDigits: 4 }).format(value);
+
 export const formatMoney = (value: number) => (getPreferences().hideAmounts ? MASK : moneyFormat().format(value));
 
 export const formatSignedMoney = (value: number) =>

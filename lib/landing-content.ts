@@ -8,14 +8,6 @@ export const NAV_LINKS = [
   { href: "#faq", label: "FAQ" },
 ] as const;
 
-export const PRINCIPLES = [
-  "No Finlio database",
-  "Your money stays in your browser",
-  "Chat sees totals, never transactions",
-  "Explain, never advise",
-  "Built for India",
-] as const;
-
 export const FEATURES = [
   {
     id: "picture",
