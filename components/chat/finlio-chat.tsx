@@ -410,7 +410,7 @@ export function FinlioChat() {
         />
         <div className="mt-2 flex items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground">
           <span className="hidden sm:inline">{t("Enter to send")}</span>
-          <span>{t("Finlio explains; it doesn't advise.")}</span>
+          <span>{t("Finlio explains; it doesn't advise. Not investment advice, and it can be wrong.")}</span>
         </div>
       </div>
     </aside>

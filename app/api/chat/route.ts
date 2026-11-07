@@ -1,4 +1,5 @@
 import { API_LIMITS, guard } from "@/lib/api-guard";
+import { SentenceGuard } from "@/lib/ai-guard";
 import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
@@ -46,7 +47,8 @@ Use their first name occasionally if given. If they shared a money goal, you may
 You have a JSON summary of their money (net worth, this month, spending by category, allocation, their stocks with today's and overall % change, and today's news brief). Answer from it. If the answer isn't in the summary, say so plainly and suggest which Finlio screen would help (Dashboard, Holdings, Expenses, Assets & loans, Analytics).
 
 Rules:
-- Explain; never advise. Never say buy, sell, hold, or which product, stock or fund to choose. If asked, say Finlio explains rather than advises and offer to explain the factors instead.
+- Explain; never advise. Never say buy, sell, hold, or which product, stock or fund to choose. Don't suggest investing, moving money, or changing a portfolio, even indirectly or as "something to consider". If asked, say Finlio explains rather than advises and offer to explain the factors instead.
+- You are not a SEBI-registered adviser or research analyst. Don't predict prices or say whether something is a good investment.
 - Don't invent news or numbers. Only use the brief for reasons a stock moved.
 - Keep answers under 150 words unless asked for more.`;
 
@@ -77,10 +79,19 @@ export async function POST(request: Request) {
     return new Response(
       new ReadableStream({
         async start(controller) {
+          // Each sentence is checked before it's shown; see lib/ai-guard.ts.
+          const guard = new SentenceGuard();
+          const send = (text: string) => text && controller.enqueue(encoder.encode(text));
           try {
             for await (const chunk of stream) {
-              if (chunk.text) controller.enqueue(encoder.encode(chunk.text));
+              if (chunk.text) send(guard.push(chunk.text));
+              if (guard.blocked) {
+                console.warn("[chat] stopped a reply that sounded like a recommendation");
+                break;
+              }
             }
+            send(guard.finish());
+            if (guard.blocked) console.warn("[chat] stopped a reply that sounded like a recommendation");
           } catch (err) {
             console.error("[chat] stream failed:", err);
             controller.enqueue(encoder.encode("\n\n(Sorry, the answer was cut short. Please ask again.)"));

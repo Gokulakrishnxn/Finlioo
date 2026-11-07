@@ -15,8 +15,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           in plain words what changed and why.
         </p>
         <p>
-          Finlio is a proof of concept built for the Devpost &ldquo;Build With AI: Basics&rdquo; hackathon. Features
-          may change or stop working, and it is provided free of charge.
+          Finlio is in early access. Features may change or stop working, and it is currently free of charge.
         </p>
       </>
     ),
@@ -25,14 +24,23 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     title: "2. Finlio explains; it does not advise",
     body: (
       <>
-        <p>
-          Finlio gives general information and explanations only. It is <strong>not</strong> investment,
-          financial, tax or legal advice, and it never tells you to buy, sell or hold anything.
+        <p className="rounded-xl bg-sand p-4 font-medium text-ink">
+          Finlio is not a licensed or registered financial adviser. Nothing in Finlio is investment, financial, tax
+          or legal advice.
         </p>
         <p>
           Finlio is not registered as an investment adviser or research analyst with the Securities and Exchange
-          Board of India (SEBI) or the U.S. Securities and Exchange Commission (SEC), and is not a broker. Make
-          your own decisions and, where needed, talk to a qualified professional.
+          Board of India (SEBI) or the U.S. Securities and Exchange Commission (SEC), and is not a broker,
+          distributor or portfolio manager.
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Finlio shows and explains your own numbers. It does not tell you to buy, sell or hold anything, or which product to choose.</li>
+          <li>Goal figures are arithmetic based on what you enter. They are not a financial plan.</li>
+          <li>Finlio AI is told not to give recommendations, and its replies are checked for them, but AI can make mistakes and a check can miss one. If a reply sounds like a recommendation, do not treat it as advice.</li>
+        </ul>
+        <p>
+          Your financial decisions are your own. Before you act, check the numbers and, where needed, talk to a
+          SEBI-registered adviser or another qualified professional.
         </p>
       </>
     ),
@@ -53,11 +61,24 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          What you enter is encrypted on our servers and saved to your account, in a data centre in Mumbai, India. Finlio&apos;s
-          servers can decrypt it to show it to you; a copy of the database alone cannot. While you are signed in, this browser
-          keeps a working copy, which is removed when you log out. Use <em>Settings → Data controls → Export backup</em> to keep
-          your own copy. <em>Erase all data</em> removes your money data, and <em>Delete my account</em> removes your account too.
-          Deleted data stays in encrypted backups until those backups expire, up to 30 days later.
+          Your data is stored on Supabase, in a data centre in Mumbai, India, encrypted in transit and at rest. Finlio
+          also encrypts your money data before it is stored. Every request is checked against your account before any
+          data is read or changed.
+        </p>
+        <p>
+          Passwords are securely hashed, never stored in plain text. Your email address and name are stored with your
+          account in readable form, so we can sign you in and show them to you.
+        </p>
+        <p>
+          You can export all your data as CSV or JSON at any time, and delete your account and all your financial data,
+          from <em>Settings → Data controls</em>. <em>Erase all data</em> removes your money data and keeps your account.{" "}
+          <em>Delete my account</em> removes both. Deleted data stays in encrypted backups until those backups expire,
+          up to 30 days later.
+        </p>
+        <p>
+          Finlio&apos;s servers can decrypt your data in order to show it to you and run the features you use. A copy
+          of the database alone cannot be read. While you are signed in, your browser keeps a working copy, which is
+          removed when you log out.
         </p>
         <p id="your-data">
           To work, Finlio sends limited information to other services. Exactly what is sent:
@@ -78,6 +99,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
       <>
         <p>Finlio relies on services run by other companies, each under its own terms:</p>
         <ul className="list-disc space-y-1 pl-5">
+          <li>Supabase, for your account and stored data; Vercel, for running Finlio; and Resend, for account emails.</li>
           <li>Google Gemini and Google Search, for insights, chat and reading bank alerts.</li>
           <li>Upstox, for NSE stock prices, and NSE, for the list of stocks.</li>
           <li>Gmail, read-only and only if you choose to connect it, for bank and card alerts.</li>
@@ -154,8 +176,8 @@ export default function TermsPage() {
         </h1>
         <p className="mt-2 text-[14px] text-muted-foreground">Last updated {TERMS_UPDATED}</p>
         <p className="mt-4 rounded-2xl bg-warning-soft px-4 py-3 text-[13px] leading-relaxed text-warning">
-          Draft for a hackathon proof of concept, written in plain English. It has not been reviewed by a lawyer
-          and should be before Finlio is offered to the public.
+          Draft, written in plain English. It has not been reviewed by a lawyer and should be before Finlio is
+          offered to the public.
         </p>
       </header>
 

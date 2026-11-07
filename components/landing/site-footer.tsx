@@ -87,7 +87,7 @@ export function SiteFooter() {
         </div>
 
         <div className={styles.footerBottom} data-footer-reveal>
-          <p>© 2026 Finlio · Finlio is not a financial adviser</p>
+          <p>© 2026 Finlio · Finlio is not a SEBI-registered adviser and does not give investment advice</p>
         </div>
       </div>
     </footer>
