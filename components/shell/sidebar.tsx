@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowLeftRight,
   Briefcase,
   CreditCard,
   Landmark,
+  LogOut,
   Lightbulb,
   LayoutDashboard,
   PanelLeftClose,
@@ -214,12 +215,26 @@ function Avatar({ name, className }: { name?: string; className?: string }) {
   );
 }
 
+// Ends the Google session, then returns to the sign-in page. Saved data stays in this browser.
+function useLogout() {
+  const router = useRouter();
+  return async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Offline: still leave the app.
+    }
+    router.push("/sign-in");
+  };
+}
+
 // Who's using Finlio. Opens a small menu card above it, like ChatGPT's account menu.
 function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; collapsed: boolean }) {
   const [menu, setMenu] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { openSettings } = useSettings();
   const { setOpen: setChatOpen } = useChatUI();
+  const logout = useLogout();
 
   useEffect(() => {
     if (!menu) return;
@@ -267,7 +282,12 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
             <span className="flex-1">{t("Finlio chat")}</span>
             <kbd className="text-[11px] text-muted-foreground">⌘L</kbd>
           </button>
-                  </div>
+          <div className="my-1 h-px bg-line" />
+          <button role="menuitem" className={item} onClick={pick(logout)}>
+            <LogOut className="size-4" strokeWidth={1.75} />
+            {t("Log out")}
+          </button>
+        </div>
       )}
       <button
         onClick={() => setMenu((m) => !m)}
@@ -299,19 +319,30 @@ export function MobileNav() {
   const pathname = usePathname();
   const { profile } = useStore();
   const { openSettings } = useSettings();
+  const logout = useLogout();
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-card/95 px-4 pt-3 pb-2 backdrop-blur md:hidden">
       <div className="flex items-center justify-between">
         <Brand />
-        <button
-          onClick={() => openSettings("general")}
-          aria-label={t("Profile and settings")}
-          data-tour="profile"
-          className="rounded-full"
-        >
-          <Avatar name={profile?.name} className="size-8" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={logout}
+            aria-label={t("Log out")}
+            title={t("Log out")}
+            className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-sand hover:text-ink"
+          >
+            <LogOut className="size-4" strokeWidth={1.75} />
+          </button>
+          <button
+            onClick={() => openSettings("general")}
+            aria-label={t("Profile and settings")}
+            data-tour="profile"
+            className="rounded-full"
+          >
+            <Avatar name={profile?.name} className="size-8" />
+          </button>
+        </div>
       </div>
       <nav data-tour="nav" aria-label={t("Main navigation")} className="mt-3 flex justify-between gap-1">
         {ALL.map(({ href, label, icon: Icon }) => (
