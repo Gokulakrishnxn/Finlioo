@@ -9,18 +9,21 @@ import {
   Briefcase,
   CreditCard,
   Landmark,
+  Database,
+  FileUp,
+  Ellipsis,
   LogOut,
   Lightbulb,
   LayoutDashboard,
   PanelLeftClose,
   MessageCircle,
-  PanelLeftOpen,
   Settings2,
   UserRound,
   ChartNoAxesCombined,
   Target,
   type LucideIcon,
 } from "lucide-react";
+import { useQuickAdd } from "@/components/dashboard/quick-add";
 import { useChatUI } from "@/components/chat/chat-context";
 import { useSettings } from "@/components/settings/settings-dialog";
 import { usePreferences } from "@/lib/preferences";
@@ -31,30 +34,20 @@ import { t } from "@/lib/i18n";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
+// One flat list, in the order people reach for them.
 const SECTIONS: { title: string; items: NavItem[] }[] = [
   {
-    title: "Overview",
+    title: "",
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
-      { href: "/insights", label: "Insights", icon: Lightbulb },
-    ],
-  },
-  {
-    title: "Wealth",
-    items: [
+      { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
       { href: "/holdings", label: "Holdings", icon: Briefcase },
       { href: "/assets", label: "Assets", icon: Landmark },
       { href: "/liabilities", label: "Liabilities", icon: CreditCard },
+      { href: "/goals", label: "Goals", icon: Target },
+      { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
+      { href: "/insights", label: "Insights", icon: Lightbulb },
     ],
-  },
-  {
-    title: "Money",
-    items: [{ href: "/transactions", label: "Transactions", icon: ArrowLeftRight }],
-  },
-  {
-    title: "Planning",
-    items: [{ href: "/goals", label: "Goals", icon: Target }],
   },
 ];
 
@@ -86,6 +79,7 @@ export function Sidebar() {
   usePreferences();
   const pathname = usePathname();
   const { profile } = useStore();
+  const { openAdd, dialogs } = useQuickAdd();
   const { open: chatOpen } = useChatUI();
   const [preferCollapsed, setPreferCollapsed] = useState(false); // the saved choice
   const [expandedForChat, setExpandedForChat] = useState(false);
@@ -144,30 +138,39 @@ export function Sidebar() {
     >
       <div className={cn("flex items-center pt-6 pb-5", collapsed ? "flex-col gap-3 px-2" : "justify-between px-5")}>
         {collapsed ? (
-          <Link href="/dashboard" aria-label="Finlio">
+          <button
+            onClick={toggle}
+            aria-label={t("Open sidebar")}
+            title={t("Open sidebar")}
+            className="rounded-xl p-1.5 transition-colors hover:bg-sand focus-visible:outline-2 focus-visible:outline-ring"
+          >
             <Image src="/finlio-mark.png" alt="" width={1024} height={1024} className="size-8 mix-blend-multiply dark:mix-blend-screen dark:invert" />
-          </Link>
+          </button>
         ) : (
           <Brand />
         )}
-        <button
-          onClick={toggle}
-          aria-label={collapsed ? t("Open sidebar") : t("Close sidebar")}
-          title={collapsed ? t("Open sidebar") : t("Close sidebar")}
-          className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-sand hover:text-ink"
-        >
-          {collapsed ? <PanelLeftOpen className="size-[18px]" /> : <PanelLeftClose className="size-[18px]" />}
-        </button>
+        {!collapsed && (
+          <button
+            onClick={toggle}
+            aria-label={t("Close sidebar")}
+            title={t("Close sidebar")}
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-sand hover:text-ink"
+          >
+            <PanelLeftClose className="size-[18px]" />
+          </button>
+        )}
       </div>
 
       <nav data-tour="nav" className={cn("flex flex-1 flex-col overflow-y-auto", collapsed ? "gap-3 px-3" : "gap-6 px-3")}>
         {SECTIONS.map((section) => (
           <div key={section.title}>
-            {collapsed ? (
-              <div className="mx-auto mb-2 h-px w-6 bg-line" />
-            ) : (
-              <p className="eyebrow px-3 pb-2">{t(section.title)}</p>
-            )}
+            {section.title ? (
+              collapsed ? (
+                <div className="mx-auto mb-2 h-px w-6 bg-line" />
+              ) : (
+                <p className="eyebrow px-3 pb-2">{t(section.title)}</p>
+              )
+            ) : null}
             <ul className="flex flex-col gap-0.5">
               {section.items.map(({ href, label, icon: Icon }) => {
                 const active = isActive(pathname, href);
@@ -197,8 +200,60 @@ export function Sidebar() {
         ))}
       </nav>
 
+      <div className="mx-3 flex flex-col gap-2">
+        <ImportDataButton onClick={() => openAdd("import")} collapsed={collapsed} />
+        <DemoDataButton collapsed={collapsed} />
+      </div>
+      {dialogs}
       <ProfileChip name={profile?.name} city={profile?.city} collapsed={collapsed} />
     </aside>
+  );
+}
+
+// One switch for the whole sample household (stocks, assets, loans, spending, goals),
+// available on every page so any screen can be tried with data.
+function useDemoData() {
+  const { holdings, assets, entries, goals, addSample, removeSample } = useStore();
+  const has = [holdings, assets, entries, goals].some((list) => list?.some((x) => x.sample));
+  return { has, toggle: has ? removeSample : addSample };
+}
+
+function DemoDataButton({ collapsed, className }: { collapsed?: boolean; className?: string }) {
+  const { has, toggle } = useDemoData();
+  const label = has ? t("Remove demo data") : t("Load demo data");
+  return (
+    <button
+      onClick={toggle}
+      title={collapsed ? label : undefined}
+      aria-label={collapsed ? label : undefined}
+      className={cn(
+        "flex items-center gap-3 rounded-xl border border-dashed border-line py-2 text-[13px] font-medium text-body transition-colors hover:bg-sand hover:text-ink",
+        collapsed ? "justify-center px-0" : "px-3",
+        className,
+      )}
+    >
+      <Database className="size-[18px] shrink-0" strokeWidth={1.75} />
+      {!collapsed && label}
+    </button>
+  );
+}
+
+function ImportDataButton({ onClick, collapsed, className }: { onClick: () => void; collapsed?: boolean; className?: string }) {
+  const label = t("Import data");
+  return (
+    <button
+      onClick={onClick}
+      title={collapsed ? label : undefined}
+      aria-label={collapsed ? label : undefined}
+      className={cn(
+        "flex items-center gap-3 rounded-xl py-2 text-[14px] font-medium text-ink transition-colors hover:bg-sand",
+        collapsed ? "justify-center px-0" : "bg-sand/70 px-3",
+        className,
+      )}
+    >
+      <FileUp className="size-[18px] shrink-0" strokeWidth={1.75} />
+      {!collapsed && label}
+    </button>
   );
 }
 
@@ -313,52 +368,139 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
   );
 }
 
-// Small screens: logo on top, every section as an icon link.
+// Phones: a slim top bar and a fixed bottom tab bar, like a native app. Home, Money,
+// Ask, Holdings and More; everything else lives in the More sheet.
+const TABS_LEFT: NavItem[] = [
+  { href: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { href: "/transactions", label: "Money", icon: ArrowLeftRight },
+];
+const TABS_RIGHT: NavItem[] = [{ href: "/holdings", label: "Holdings", icon: Briefcase }];
+const MORE_ITEMS = ALL.filter((i) => ![...TABS_LEFT, ...TABS_RIGHT].some((tab) => tab.href === i.href));
+
 export function MobileNav() {
   usePreferences();
   const pathname = usePathname();
   const { profile } = useStore();
   const { openSettings } = useSettings();
+  const { setOpen: openChat } = useChatUI();
+  const { openAdd, dialogs } = useQuickAdd();
   const logout = useLogout();
+  const [more, setMore] = useState(false);
+  const moreActive = MORE_ITEMS.some((i) => isActive(pathname, i.href));
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMore(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!more) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMore(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [more]);
+
+  const tab = (item: NavItem) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      aria-current={isActive(pathname, item.href) ? "page" : undefined}
+      className={cn(
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[10.5px] font-medium text-muted-foreground transition-colors active:bg-muted",
+        isActive(pathname, item.href) && "text-success dark:text-ink",
+      )}
+    >
+      <item.icon className="size-[22px]" strokeWidth={isActive(pathname, item.href) ? 2.1 : 1.6} />
+      <span className="max-w-full truncate">{t(item.label)}</span>
+    </Link>
+  );
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-card/95 px-4 pt-3 pb-2 backdrop-blur md:hidden">
-      <div className="flex items-center justify-between">
+    <>
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-card/95 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2.5 backdrop-blur md:hidden">
         <Brand />
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => openSettings("general")}
+          aria-label={t("Profile and settings")}
+          data-tour="profile"
+          className="rounded-full"
+        >
+          <Avatar name={profile?.name} className="size-8" />
+        </button>
+      </header>
+
+      {more && (
+        <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true" aria-label={t("More")}>
+          <button aria-label={t("Close")} onClick={() => setMore(false)} className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-line bg-card px-4 pt-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] shadow-2xl">
+            <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-line" aria-hidden />
+            <ul className="grid grid-cols-3 gap-2">
+              {MORE_ITEMS.map(({ href, label, icon: Icon }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 rounded-2xl border border-line px-2 py-3.5 text-[12px] font-medium text-ink transition-colors active:bg-muted",
+                      isActive(pathname, href) && "border-success/40 bg-success-soft text-success dark:bg-muted dark:text-ink",
+                    )}
+                  >
+                    <Icon className="size-5" strokeWidth={1.7} />
+                    {t(label)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ImportDataButton
+              onClick={() => {
+                setMore(false);
+                openAdd("import");
+              }}
+              className="mt-3 w-full justify-center border border-line py-3"
+            />
+            <DemoDataButton className="mt-2 w-full justify-center py-3" />
+            <button
+              onClick={logout}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-line py-3 text-[13px] font-medium text-body transition-colors active:bg-muted"
+            >
+              <LogOut className="size-4" strokeWidth={1.75} />
+              {t("Log out")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {dialogs}
+      <nav
+        data-tour="nav"
+        aria-label={t("Main navigation")}
+        className="fixed inset-x-0 bottom-0 z-50 flex items-end border-t border-line bg-card/95 px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden"
+      >
+        {TABS_LEFT.map(tab)}
+        <div className="flex flex-1 justify-center">
           <button
-            onClick={logout}
-            aria-label={t("Log out")}
-            title={t("Log out")}
-            className="grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-sand hover:text-ink"
+            onClick={() => {
+              setMore(false);
+              openChat(true);
+            }}
+            aria-label={t("Ask Finlio")}
+            className="-mt-5 grid size-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-card transition-transform active:scale-95"
           >
-            <LogOut className="size-4" strokeWidth={1.75} />
-          </button>
-          <button
-            onClick={() => openSettings("general")}
-            aria-label={t("Profile and settings")}
-            data-tour="profile"
-            className="rounded-full"
-          >
-            <Avatar name={profile?.name} className="size-8" />
+            <MessageCircle className="size-5" />
           </button>
         </div>
-      </div>
-      <nav data-tour="nav" aria-label={t("Main navigation")} className="mt-3 flex justify-between gap-1">
-        {ALL.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            aria-label={t(label)}
-            className={cn(
-              "flex h-9 flex-1 items-center justify-center rounded-xl text-body transition-colors hover:bg-muted",
-              isActive(pathname, href) && "bg-success-soft text-success dark:bg-muted dark:text-ink",
-            )}
-          >
-            <Icon className="size-[18px]" strokeWidth={1.75} />
-          </Link>
-        ))}
+        {TABS_RIGHT.map(tab)}
+        <button
+          onClick={() => setMore((v) => !v)}
+          aria-expanded={more}
+          className={cn(
+            "flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1.5 text-[10.5px] font-medium text-muted-foreground transition-colors active:bg-muted",
+            (more || moreActive) && "text-success dark:text-ink",
+          )}
+        >
+          <Ellipsis className="size-[22px]" strokeWidth={1.6} />
+          {t("More")}
+        </button>
       </nav>
-    </header>
+    </>
   );
 }

@@ -428,7 +428,7 @@ export function ChatLauncher() {
         setOpen(true);
       }}
       data-tour="chat"
-      className="fixed right-5 bottom-5 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-[14px] font-medium text-primary-foreground shadow-lg transition-transform hover:scale-[1.03]"
+      className="fixed right-5 bottom-5 z-30 hidden items-center md:flex gap-2 rounded-full bg-primary px-4 py-3 text-[14px] font-medium text-primary-foreground shadow-lg transition-transform hover:scale-[1.03]"
     >
       <MessageCircle className="size-4" />
       {t("Ask Finlio")}
