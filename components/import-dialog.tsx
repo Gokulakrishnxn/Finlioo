@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { FileUp, Loader2 } from "lucide-react";
+import { Ellipsis, FileUp, Loader2 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
+import { InitialBadge } from "@/components/initial-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +15,7 @@ import {
 import { todayLocal, formatMoney } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Instrument } from "@/lib/types";
+import { BROKER_DOMAINS } from "@/lib/brands";
 import { BROKERS, parseHoldingsCsv, type CsvHolding } from "@/lib/broker-csv";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
@@ -117,24 +120,35 @@ export function ImportDialog({
         {!result && (
           <div>
             <p className="eyebrow mb-2">{t("Your broker")}</p>
-            <div role="radiogroup" aria-label={t("Your broker")} className="flex flex-wrap gap-1.5">
-              {BROKERS.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={b.id === brokerId}
-                  onClick={() => setBrokerId(b.id)}
-                  className={cn(
-                    "rounded-full border px-3 py-1.5 text-[13px] transition-colors",
-                    b.id === brokerId
-                      ? "border-success bg-success-soft font-medium text-success dark:text-ink"
-                      : "border-line text-body hover:bg-sand",
-                  )}
-                >
-                  {b.name === "Other broker" ? t("Other broker") : b.name}
-                </button>
-              ))}
+            <div role="radiogroup" aria-label={t("Your broker")} className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
+              {BROKERS.map((b) => {
+                const label = b.id === "other" ? t("Other broker") : b.name;
+                return (
+                  <button
+                    key={b.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={b.id === brokerId}
+                    aria-label={label}
+                    title={label}
+                    onClick={() => setBrokerId(b.id)}
+                    className={cn(
+                      "flex aspect-square items-center justify-center rounded-xl border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                      b.id === brokerId ? "border-success bg-success-soft ring-1 ring-success" : "border-line hover:bg-sand",
+                    )}
+                  >
+                    {b.id === "other" ? (
+                      <Ellipsis className="size-5 text-muted-foreground" aria-hidden />
+                    ) : (
+                      <BrandLogo
+                        domain={BROKER_DOMAINS[b.id]}
+                        className="size-9 rounded-lg ring-0"
+                        fallback={<InitialBadge symbol={b.name} className="size-9 rounded-lg text-[14px]" />}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
             <p className="mt-3 rounded-xl bg-sand/70 px-3.5 py-3 text-[13px] leading-relaxed text-body">
               {t(broker.steps, { broker: broker.name })}
