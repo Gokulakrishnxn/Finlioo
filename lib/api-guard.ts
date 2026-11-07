@@ -15,6 +15,9 @@ export const API_LIMITS = {
   signUp: { name: "sign-up", limit: 5 },
   forgot: { name: "forgot", limit: 3 },
   reset: { name: "reset", limit: 5 },
+  vaultPull: { name: "vault-pull", limit: 120 },
+  vaultPush: { name: "vault-push", limit: 120 },
+  accountDelete: { name: "account-delete", limit: 3 },
 } as const;
 
 type Limit = { name: string; limit: number; windowMs?: number };

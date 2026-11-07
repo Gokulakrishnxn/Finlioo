@@ -1,8 +1,8 @@
 import { disconnectGmail } from "@/lib/google-session";
 import { createClient } from "@/lib/supabase/server";
 
-// POST signs out everywhere this browser is signed in and stops any Gmail access.
-// Data saved in this browser (holdings, goals, etc.) is left untouched.
+// POST ends this browser's session and stops any Gmail access. The app removes its copy of
+// the account's data from the device before calling this.
 export async function POST() {
   try {
     const supabase = await createClient();
