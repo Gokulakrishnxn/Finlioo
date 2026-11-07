@@ -270,14 +270,18 @@ function Avatar({ name, className }: { name?: string; className?: string }) {
   );
 }
 
-// Ends the Google session, then returns to the sign-in page. Saved data stays in this browser.
+// Saves anything unsent, ends the session and removes this account's data from the device.
 function useLogout() {
+  const { flushChanges, forgetAccountData } = useStore();
   return async () => {
+    const saved = await flushChanges();
+    if (!saved && !window.confirm(t("Some recent changes haven't been saved to your account and will be lost. Log out anyway?"))) return;
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {
       // Offline: still leave the app.
     }
+    forgetAccountData();
     // A full page load, so nothing from the signed-in session stays in memory.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/sign-in");
@@ -321,7 +325,7 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
             <Avatar name={name} className="size-9" />
             <div className="min-w-0">
               <p className="truncate text-[14px] font-semibold text-ink">{name?.trim() || t("Finlio user")}</p>
-              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || t("Data stays in this browser")}</p>
+              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || t("Profile and settings")}</p>
             </div>
           </div>
           <div className="my-1 h-px bg-line" />

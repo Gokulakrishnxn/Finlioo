@@ -21,7 +21,7 @@ import { useSettings } from "@/components/settings/settings-dialog";
 import { useTour } from "@/components/tour/tour";
 import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
-import type { StoreData } from "@/lib/store";
+import { useStore, type StoreData } from "@/lib/store";
 import { PRESETS, type PresetId } from "@/lib/date-range";
 import { LANGUAGES, setPreferences, usePreferences, type Language } from "@/lib/preferences";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
@@ -445,12 +445,34 @@ export function DataCard({
   onErase: () => void;
 }) {
   const { closeSettings } = useSettings();
+  const { signedIn, syncState, forgetAccountData } = useStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [confirmingErase, setConfirmingErase] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteWord, setDeleteWord] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  // Erases this browser's Finlio data and stops any Gmail access, so nothing
-  // syncs back in. Finlio keeps no other copy, so this can't be undone.
+  // Deletes the account and everything saved in it, then leaves the app.
+  async function deleteAccount() {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch("/api/account/delete", { method: "POST" });
+      if (!res.ok) throw new Error(String(res.status));
+      forgetAccountData();
+      // A full page load, so nothing from the deleted account stays in memory.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/");
+    } catch {
+      setDeleteError(t("Couldn't delete your account. Please try again."));
+      setDeleting(false);
+    }
+  }
+
+  // Erases this person's Finlio data and stops any Gmail access, so nothing
+  // syncs back in. This can't be undone.
   function erase() {
     onErase();
     setConfirmingErase(false);
@@ -492,8 +514,15 @@ export function DataCard({
   return (
     <Card title={t("Your data")}>
       <p className="text-[14px] leading-relaxed text-body">
-        {t("Everything lives in this browser. Download a backup to move Finlio to another browser or keep a copy.")}
+        {signedIn
+          ? t("Your money data is encrypted and saved to your account, so it follows you to any device you sign in on. Download a copy any time.")
+          : t("Everything lives in this browser. Download a backup to move Finlio to another browser or keep a copy.")}
       </p>
+      {signedIn && syncState === "error" ? (
+        <p role="alert" className="mt-2 text-[13px] text-loss">
+          {t("Some recent changes haven't reached your account yet. Finlio will keep trying.")}
+        </p>
+      ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
         <Button variant="outline" onClick={exportData} className="h-10 rounded-xl">
           <Download className="size-4" />
@@ -519,7 +548,9 @@ export function DataCard({
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4">
         <div>
           <p className="text-[14px] font-medium text-ink">{t("Erase all data")}</p>
-          <p className="text-[13px] text-muted-foreground">{t("Permanently removes Finlio's data from this browser.")}</p>
+          <p className="text-[13px] text-muted-foreground">
+            {signedIn ? t("Permanently removes your money data. Your account stays open.") : t("Permanently removes Finlio's data from this browser.")}
+          </p>
         </div>
         <Button
           variant="destructive"
@@ -539,7 +570,9 @@ export function DataCard({
             </AlertDialogMedia>
             <AlertDialogTitle className="text-[18px] font-semibold tracking-tight">{t("Erase all data?")}</AlertDialogTitle>
             <AlertDialogDescription className="text-[14px] leading-relaxed">
-              {t("This erases your stocks, assets, loans, income, spending, history and profile from this browser, and disconnects Gmail if it's connected. Finlio keeps no other copy, so this can't be undone.")}
+              {signedIn
+                ? t("This erases your stocks, assets, loans, income, spending, history and profile from your account and this browser, and disconnects Gmail if it's connected. This can't be undone.")
+                : t("This erases your stocks, assets, loans, income, spending, history and profile from this browser, and disconnects Gmail if it's connected. Finlio keeps no other copy, so this can't be undone.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -559,6 +592,66 @@ export function DataCard({
             <Button variant="destructive" onClick={erase} className="h-10 rounded-xl px-4">
               <Trash2 className="size-4" />
               {t("Erase everything")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {signedIn ? (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4">
+          <div>
+            <p className="text-[14px] font-medium text-ink">{t("Delete my account")}</p>
+            <p className="text-[13px] text-muted-foreground">{t("Permanently removes your account and everything saved in it.")}</p>
+          </div>
+          <Button variant="destructive" onClick={() => setConfirmingDelete(true)} className="h-9 rounded-xl">
+            <Trash2 className="size-4" />
+            {t("Delete my account")}
+          </Button>
+        </div>
+      ) : null}
+
+      <AlertDialog
+        open={confirmingDelete}
+        onOpenChange={(open) => {
+          setConfirmingDelete(open);
+          if (!open) {
+            setDeleteWord("");
+            setDeleteError(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="gap-5 p-6 [--dialog-width:440px]">
+          <AlertDialogHeader className="place-items-start text-left">
+            <AlertDialogMedia className="size-11 rounded-full bg-danger-soft text-loss">
+              <Trash2 className="size-5" />
+            </AlertDialogMedia>
+            <AlertDialogTitle className="text-[18px] font-semibold tracking-tight">{t("Delete your account?")}</AlertDialogTitle>
+            <AlertDialogDescription className="text-[14px] leading-relaxed">
+              {t("This permanently deletes your account and all your saved money data. Copies in Finlio's backups are removed as those backups expire. This can't be undone.")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Button variant="outline" onClick={exportData} className="h-9 self-start rounded-xl">
+            <Download className="size-4" />
+            {t("Export backup")}
+          </Button>
+          <div>
+            <label htmlFor="delete-account-word" className="mb-1.5 block text-[13px] font-medium text-ink">
+              {t("Type DELETE to confirm")}
+            </label>
+            <input
+              id="delete-account-word"
+              value={deleteWord}
+              onChange={(e) => setDeleteWord(e.target.value)}
+              autoComplete="off"
+              className="h-10 w-full rounded-xl border border-line bg-card px-3 text-[14px] text-ink outline-none focus-visible:border-ring"
+            />
+          </div>
+          {deleteError ? <p role="alert" className="text-[13px] text-loss">{deleteError}</p> : null}
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-10 rounded-xl px-4">{t("Keep my account")}</AlertDialogCancel>
+            <Button variant="destructive" disabled={deleteWord !== "DELETE" || deleting} onClick={deleteAccount} className="h-10 rounded-xl px-4">
+              <Trash2 className="size-4" />
+              {deleting ? t("Deleting…") : t("Delete my account")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
