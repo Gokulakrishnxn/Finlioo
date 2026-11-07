@@ -9,7 +9,6 @@ import {
   Briefcase,
   CreditCard,
   Landmark,
-  Database,
   FileUp,
   Ellipsis,
   LogOut,
@@ -200,41 +199,12 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="mx-3 flex flex-col gap-2">
+      <div className="mx-3">
         <ImportDataButton onClick={() => openAdd("import")} collapsed={collapsed} />
-        <DemoDataButton collapsed={collapsed} />
       </div>
       {dialogs}
       <ProfileChip name={profile?.name} city={profile?.city} collapsed={collapsed} />
     </aside>
-  );
-}
-
-// One switch for the whole sample household (stocks, assets, loans, spending, goals),
-// available on every page so any screen can be tried with data.
-function useDemoData() {
-  const { holdings, assets, entries, goals, addSample, removeSample } = useStore();
-  const has = [holdings, assets, entries, goals].some((list) => list?.some((x) => x.sample));
-  return { has, toggle: has ? removeSample : addSample };
-}
-
-function DemoDataButton({ collapsed, className }: { collapsed?: boolean; className?: string }) {
-  const { has, toggle } = useDemoData();
-  const label = has ? t("Remove demo data") : t("Load demo data");
-  return (
-    <button
-      onClick={toggle}
-      title={collapsed ? label : undefined}
-      aria-label={collapsed ? label : undefined}
-      className={cn(
-        "flex items-center gap-3 rounded-xl border border-dashed border-line py-2 text-[13px] font-medium text-body transition-colors hover:bg-sand hover:text-ink",
-        collapsed ? "justify-center px-0" : "px-3",
-        className,
-      )}
-    >
-      <Database className="size-[18px] shrink-0" strokeWidth={1.75} />
-      {!collapsed && label}
-    </button>
   );
 }
 
@@ -462,7 +432,6 @@ export function MobileNav() {
               }}
               className="mt-3 w-full justify-center border border-line py-3"
             />
-            <DemoDataButton className="mt-2 w-full justify-center py-3" />
             <button
               onClick={logout}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-line py-3 text-[13px] font-medium text-body transition-colors active:bg-muted"
