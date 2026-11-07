@@ -1,4 +1,5 @@
 import { API_LIMITS, guard } from "@/lib/api-guard";
+import { containsRecommendation } from "@/lib/ai-guard";
 import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
     const points = (response.text ?? "")
       .split("\n")
       .map((l) => l.replace(/^[-•*]\s*/, "").trim())
+      .filter((l) => !containsRecommendation(l))
       .filter(Boolean)
       .slice(0, 6);
     return Response.json({ points, createdAt: new Date().toISOString() });
