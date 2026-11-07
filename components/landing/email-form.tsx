@@ -1,92 +1,164 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
 import styles from "./auth.module.css";
 
-type Mode = "sign-in" | "sign-up";
+export type AuthMode = "sign-in" | "sign-up" | "forgot" | "reset";
 
-const field = styles.field;
+const ENDPOINT: Record<AuthMode, string> = {
+  "sign-in": "/api/auth/sign-in",
+  "sign-up": "/api/auth/sign-up",
+  forgot: "/api/auth/forgot",
+  reset: "/api/auth/reset",
+};
 
-// UI only: there is no account store yet, so a valid submit explains that
-// instead of pretending to sign anyone in.
-export function EmailForm({ mode }: { mode: Mode }) {
+const SUBMIT: Record<AuthMode, { idle: string; busy: string }> = {
+  "sign-in": { idle: "Sign in", busy: "Signing in…" },
+  "sign-up": { idle: "Create account", busy: "Creating your account…" },
+  forgot: { idle: "Send reset link", busy: "Sending…" },
+  reset: { idle: "Save new password", busy: "Saving…" },
+};
+
+const SENT: Partial<Record<AuthMode, string>> = {
+  "sign-up": "Open the link we sent to finish creating your account. It may take a minute to arrive, so check your spam folder too.",
+  forgot: "If that address has a Finlio account, a link to reset your password is on its way. Check your spam folder too.",
+};
+
+export function EmailForm({ mode, next }: { mode: AuthMode; next?: string }) {
   const id = useId();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [notice, setNotice] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
-  function submit(event: React.FormEvent) {
+  const needsEmail = mode !== "reset";
+  const needsPassword = mode !== "forgot";
+  const newPassword = mode === "sign-up" || mode === "reset";
+
+  function validate() {
+    const found: typeof errors = {};
+    if (needsEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) found.email = "Enter a valid email address.";
+    if (needsPassword) {
+      if (newPassword && password.length < 8) found.password = "Use at least 8 characters.";
+      else if (newPassword && password.length > 72) found.password = "Use 72 characters or fewer.";
+      else if (!password) found.password = "Enter your password.";
+    }
+    setErrors(found);
+    return Object.keys(found).length === 0;
+  }
+
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
-    const next: typeof errors = {};
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = "Enter a valid email address.";
-    if (mode === "sign-up" ? password.length < 8 : password.length === 0)
-      next.password = mode === "sign-up" ? "Use at least 8 characters." : "Enter your password.";
-    setErrors(next);
-    setNotice(Object.keys(next).length === 0);
+    setFormError(null);
+    if (busy || !validate()) return;
+    setBusy(true);
+    try {
+      const res = await fetch(ENDPOINT[mode], {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...(needsEmail ? { email: email.trim() } : {}),
+          ...(needsPassword ? { password } : {}),
+          ...(mode === "sign-up" && next ? { next } : {}),
+        }),
+      });
+      const body = (await res.json().catch(() => ({}))) as { error?: string; needsConfirmation?: boolean };
+      if (!res.ok) {
+        setFormError(body.error ?? "Something went wrong. Please try again.");
+        setBusy(false);
+        return;
+      }
+      if (mode === "forgot" || (mode === "sign-up" && body.needsConfirmation)) {
+        setSentTo(email.trim());
+        setBusy(false);
+        return;
+      }
+      // A full page load, so the server sees the new session straight away.
+      window.location.assign(next ?? "/dashboard");
+    } catch {
+      setFormError("Couldn't reach Finlio. Check your connection and try again.");
+      setBusy(false);
+    }
+  }
+
+  if (sentTo) {
+    return (
+      <div role="status" className="rounded-xl border border-line bg-sand px-4 py-5 text-center">
+        <MailCheck className="mx-auto size-5 text-success" aria-hidden />
+        <p className="mt-2 text-[14px] font-medium text-ink">Check {sentTo}</p>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{SENT[mode]}</p>
+      </div>
+    );
   }
 
   return (
     <form onSubmit={submit} noValidate className={styles.emailForm}>
-      <div>
-        <label htmlFor={`${id}-email`} className="mb-1.5 block text-[13px] font-medium text-ink">Email</label>
-        <input
-          id={`${id}-email`}
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? `${id}-email-err` : undefined}
-          className={field}
-        />
-        {errors.email ? <p id={`${id}-email-err`} className="mt-1.5 text-[13px] text-destructive">{errors.email}</p> : null}
-      </div>
-
-      <div>
-        <div className="mb-1.5 flex items-center justify-between">
-          <label htmlFor={`${id}-pw`} className="text-[13px] font-medium text-ink">Password</label>
-          
-        </div>
-        <div className="relative">
+      {needsEmail && (
+        <div>
+          <label htmlFor={`${id}-email`} className="mb-1.5 block text-[13px] font-medium text-ink">Email</label>
           <input
-            id={`${id}-pw`}
-            type={show ? "text" : "password"}
-            autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
-            placeholder={mode === "sign-up" ? "At least 8 characters" : "Your password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            aria-invalid={Boolean(errors.password)}
-            aria-describedby={errors.password ? `${id}-pw-err` : undefined}
-            className={`${field} pr-12`}
+            id={`${id}-email`}
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? `${id}-email-err` : undefined}
+            className={styles.field}
           />
-          <button
-            type="button"
-            onClick={() => setShow((v) => !v)}
-            aria-label={show ? "Hide password" : "Show password"}
-            className="absolute inset-y-0 right-1.5 my-auto grid size-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-sand hover:text-ink focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            {show ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
-          </button>
+          {errors.email ? <p id={`${id}-email-err`} className="mt-1.5 text-[13px] text-destructive">{errors.email}</p> : null}
         </div>
-        {mode === "sign-up" && !errors.password ? <p className={styles.passwordHint}>Use at least 8 characters for your password.</p> : null}
-        {errors.password ? <p id={`${id}-pw-err`} className="mt-1.5 text-[13px] text-destructive">{errors.password}</p> : null}
-      </div>
+      )}
 
-      {notice ? (
-        <p role="status" className="rounded-xl border border-line bg-sand px-4 py-3 text-[14px] text-muted-foreground">
-          Email accounts aren&apos;t available yet. Please continue with Google for now.
-        </p>
-      ) : null}
+      {needsPassword && (
+        <div>
+          <div className="mb-1.5 flex items-center justify-between">
+            <label htmlFor={`${id}-pw`} className="text-[13px] font-medium text-ink">
+              {mode === "reset" ? "New password" : "Password"}
+            </label>
+            {mode === "sign-in" ? (
+              <Link href="/forgot-password" className="text-[12px] font-medium text-success hover:underline">
+                Forgot password?
+              </Link>
+            ) : null}
+          </div>
+          <div className="relative">
+            <input
+              id={`${id}-pw`}
+              type={show ? "text" : "password"}
+              autoComplete={newPassword ? "new-password" : "current-password"}
+              placeholder={newPassword ? "At least 8 characters" : "Your password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? `${id}-pw-err` : undefined}
+              className={`${styles.field} pr-12`}
+            />
+            <button
+              type="button"
+              onClick={() => setShow((v) => !v)}
+              aria-label={show ? "Hide password" : "Show password"}
+              className="absolute inset-y-0 right-1.5 my-auto grid size-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-sand hover:text-ink focus-visible:outline-2 focus-visible:outline-ring"
+            >
+              {show ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+            </button>
+          </div>
+          {newPassword && !errors.password ? <p className={styles.passwordHint}>Use at least 8 characters for your password.</p> : null}
+          {errors.password ? <p id={`${id}-pw-err`} className="mt-1.5 text-[13px] text-destructive">{errors.password}</p> : null}
+        </div>
+      )}
 
-      <button
-        type="submit"
-        className={styles.submit}
-      >
-        {mode === "sign-in" ? "Sign in" : "Continue"}
+      {formError ? <p role="alert" className={styles.error} style={{ marginBottom: 0 }}>{formError}</p> : null}
+
+      <button type="submit" disabled={busy} aria-busy={busy} className={`${styles.submit} gap-2 disabled:cursor-wait disabled:opacity-70`}>
+        {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+        {busy ? SUBMIT[mode].busy : SUBMIT[mode].idle}
       </button>
     </form>
   );

@@ -1,16 +1,36 @@
 import { type NextRequest } from "next/server";
-import { authorizationUrl, GoogleNotConfiguredError, safeNext } from "@/lib/google-session";
+import { safeNext } from "@/lib/auth/routes";
+import { authorizationUrl, GoogleNotConfiguredError } from "@/lib/google-session";
+import { createClient, isGoogleEnabled } from "@/lib/supabase/server";
 
-// /api/auth/google signs in; /api/auth/google?gmail=1 also asks for read-only Gmail.
+// /api/auth/google signs in through Supabase; /api/auth/google?gmail=1 connects read-only Gmail.
 export async function GET(request: NextRequest) {
   const { origin, searchParams } = request.nextUrl;
-  const gmail = searchParams.get("gmail") === "1";
-  const next = safeNext(searchParams.get("next"), gmail ? "/transactions?google=connected" : "/dashboard");
+  const next = searchParams.get("next");
+
+  if (searchParams.get("gmail") === "1") {
+    try {
+      const target = safeNext(next, "/transactions?google=connected");
+      return Response.redirect(await authorizationUrl(origin, { gmail: true, next: target }));
+    } catch (err) {
+      const reason = err instanceof GoogleNotConfiguredError ? "not-configured" : "failed";
+      return Response.redirect(new URL(`/transactions?google=${reason}`, origin));
+    }
+  }
+
+  const fail = (reason: string) => Response.redirect(new URL(`/sign-in?error=${reason}`, origin));
+  if (!(await isGoogleEnabled())) return fail("not-configured");
   try {
-    return Response.redirect(await authorizationUrl(origin, { gmail, next }));
-  } catch (err) {
-    const reason = err instanceof GoogleNotConfiguredError ? "not-configured" : "failed";
-    const back = gmail ? `/transactions?google=${reason}` : `/sign-in?error=${reason}`;
-    return Response.redirect(new URL(back, origin));
+    const callback = new URL("/api/auth/callback", origin);
+    callback.searchParams.set("next", safeNext(next));
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: callback.toString(), queryParams: { prompt: "select_account" } },
+    });
+    if (error || !data.url) return fail("failed");
+    return Response.redirect(data.url);
+  } catch {
+    return fail("failed");
   }
 }
