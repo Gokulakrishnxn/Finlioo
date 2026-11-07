@@ -1,3 +1,4 @@
+import { API_LIMITS, guard } from "@/lib/api-guard";
 import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
@@ -25,6 +26,8 @@ Write 4 to 6 short bullet points, each one sentence, starting with "- ".
 - If a number is zero or missing, don't comment on it.`;
 
 export async function POST(request: Request) {
+  const blocked = await guard(request, API_LIMITS.analytics);
+  if (blocked) return blocked;
   const parsed = AnalyticsRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Send your money totals." }, { status: 400 });
   const apiKey = process.env.GEMINI_API_KEY;

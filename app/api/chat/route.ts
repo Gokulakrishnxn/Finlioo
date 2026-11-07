@@ -1,3 +1,4 @@
+import { API_LIMITS, guard } from "@/lib/api-guard";
 import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
@@ -13,24 +14,24 @@ const ChatRequestSchema = z.object({
     .min(1)
     .max(30),
   context: z.object({
-    today: z.string(),
+    today: z.string().max(40),
     netWorth: z.number(),
     assets: z.number(),
     loans: z.number(),
     month: z.object({ income: z.number(), spent: z.number(), saved: z.number() }),
-    spendingByCategory: z.array(z.object({ category: z.string(), amount: z.number() })).max(20),
-    allocation: z.array(z.object({ label: z.string(), percent: z.number() })).max(10),
+    spendingByCategory: z.array(z.object({ category: z.string().max(60), amount: z.number() })).max(20),
+    allocation: z.array(z.object({ label: z.string().max(60), percent: z.number() })).max(10),
     stocks: z
       .array(
         z.object({
-          symbol: z.string(),
-          name: z.string(),
+          symbol: z.string().max(40),
+          name: z.string().max(200),
           dayChangePct: z.number().optional(),
           gainPct: z.number().optional(),
         }),
       )
       .max(50),
-    brief: z.array(z.string()).max(30),
+    brief: z.array(z.string().max(600)).max(30),
     profile: z
       .object({ name: z.string().max(80).optional(), goal: z.string().max(200).optional() })
       .optional(),
@@ -50,6 +51,8 @@ Rules:
 - Keep answers under 150 words unless asked for more.`;
 
 export async function POST(request: Request) {
+  const blocked = await guard(request, API_LIMITS.chat);
+  if (blocked) return blocked;
   const parsed = ChatRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Send a question." }, { status: 400 });
   const apiKey = process.env.GEMINI_API_KEY;

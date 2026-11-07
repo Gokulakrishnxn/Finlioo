@@ -1,3 +1,4 @@
+import { API_LIMITS, guard } from "@/lib/api-guard";
 import { z } from "zod";
 import { getQuotes, MissingTokenError } from "@/lib/upstox";
 
@@ -10,6 +11,8 @@ const QuotesRequestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const blocked = await guard(request, API_LIMITS.quotes);
+  if (blocked) return blocked;
   const parsed = QuotesRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return Response.json({ error: "Send a list of stock keys." }, { status: 400 });

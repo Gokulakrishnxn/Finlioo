@@ -1,3 +1,4 @@
+import { API_LIMITS, guard } from "@/lib/api-guard";
 import { type NextRequest } from "next/server";
 import { isAllowedLogoDomain } from "@/lib/brands";
 
@@ -48,6 +49,8 @@ async function bestLogo(domain: string): Promise<Logo | null> {
 }
 
 export async function GET(request: NextRequest) {
+  const blocked = await guard(request, API_LIMITS.logo);
+  if (blocked) return blocked;
   const domain = request.nextUrl.searchParams.get("d")?.toLowerCase() ?? "";
   if (!isAllowedLogoDomain(domain)) return new Response(null, { status: 404 });
   const logo = await bestLogo(domain);
