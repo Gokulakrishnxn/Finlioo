@@ -1,8 +1,11 @@
+import { API_LIMITS, guard } from "@/lib/api-guard";
 import { type NextRequest } from "next/server";
 import { searchEquities } from "@/lib/instruments";
 
 // NSE stock search: ?q=...
 export async function GET(request: NextRequest) {
+  const blocked = await guard(request, API_LIMITS.instruments);
+  if (blocked) return blocked;
   const q = request.nextUrl.searchParams.get("q") ?? "";
   try {
     return Response.json({ results: await searchEquities(q) });

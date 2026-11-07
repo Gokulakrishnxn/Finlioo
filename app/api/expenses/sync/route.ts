@@ -1,3 +1,4 @@
+import { API_LIMITS, guard } from "@/lib/api-guard";
 import { extractExpenses } from "@/lib/expense-extract";
 import { readAlertEmails } from "@/lib/gmail";
 import {
@@ -6,12 +7,14 @@ import {
   NotSignedInError,
 } from "@/lib/google-session";
 
-export async function POST() {
+export async function POST(request: Request) {
+  const blocked = await guard(request, API_LIMITS.expenses);
+  if (blocked) return blocked;
   try {
     const session = await activeSession();
     const emails = await readAlertEmails(session.accessToken);
     // Only these alerts' sender, subject and preview text go to Gemini.
-    console.info(`[expenses] read ${emails.length} alert emails for ${session.email}`);
+    console.info(`[expenses] read ${emails.length} alert emails`);
     const expenses = await extractExpenses(emails);
     return Response.json({
       account: session.email,
