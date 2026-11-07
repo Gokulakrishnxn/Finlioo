@@ -168,7 +168,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open http://localhost:3000 for the landing page, or http://localhost:3000/dashboard for the app. Choose **Try a sample portfolio** on the dashboard to explore with 14 months of example data.
+Open http://localhost:3000 for the landing page, or http://localhost:3000/dashboard for the app.
 
 The app runs without any API keys. Features that need a key show a clear message until one is added.
 

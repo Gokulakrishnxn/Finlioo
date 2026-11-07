@@ -50,7 +50,7 @@ export const FEATURES = [
 export const FAQS = [
   {
     q: "Where does my data actually live?",
-    a: "Your financial data stays in this browser. Finlio has no database storing it.",
+    a: "In your Finlio account. It is encrypted before it is saved, on servers in Mumbai, and a copy of the database alone can't reveal your numbers. Finlio's servers can decrypt it to serve you.",
   },
   {
     q: "Does Finlio tell me what to buy?",
@@ -78,7 +78,7 @@ export const FAQS = [
   },
   {
     q: "Do I need an account?",
-    a: "No. Finlio has no accounts or passwords. It opens in your browser, and Google is used only if you choose to connect Gmail.",
+    a: "Yes. A free account keeps your data safe and lets you use Finlio on any device. Sign up with your email and a password.",
   },
 ] as const;
 

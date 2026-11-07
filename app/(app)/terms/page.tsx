@@ -49,12 +49,15 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
-    title: "4. Your data stays with you",
+    title: "4. Your data",
     body: (
       <>
         <p>
-          Finlio currently has no database: what you enter is stored in your own browser on your device. Clearing your
-          browser data, or choosing <em>Settings → Data controls → Erase all data</em>, deletes it, and we cannot recover it. Use <em>Settings → Data controls → Export backup</em> to keep a copy.
+          What you enter is encrypted on our servers and saved to your account, in a data centre in Mumbai, India. Finlio&apos;s
+          servers can decrypt it to show it to you; a copy of the database alone cannot. While you are signed in, this browser
+          keeps a working copy, which is removed when you log out. Use <em>Settings → Data controls → Export backup</em> to keep
+          your own copy. <em>Erase all data</em> removes your money data, and <em>Delete my account</em> removes your account too.
+          Deleted data stays in encrypted backups until those backups expire, up to 30 days later.
         </p>
         <p id="your-data">
           To work, Finlio sends limited information to other services. Exactly what is sent:
@@ -113,7 +116,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
       <p>
         Finlio is provided &ldquo;as is&rdquo; and &ldquo;as available&rdquo;, without warranties of any kind, to
         the extent the law allows. We are not liable for losses or decisions made from information shown in
-        Finlio, or for data lost from your browser. Nothing in these Terms limits rights you have that cannot be
+        Finlio, or for data lost through events outside our reasonable control. Nothing in these Terms limits rights you have that cannot be
         limited under the law, including consumer protection laws in India.
       </p>
     ),

@@ -9,7 +9,6 @@ import {
   Briefcase,
   CreditCard,
   Landmark,
-  Database,
   FileUp,
   Ellipsis,
   LogOut,
@@ -200,41 +199,12 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="mx-3 flex flex-col gap-2">
+      <div className="mx-3">
         <ImportDataButton onClick={() => openAdd("import")} collapsed={collapsed} />
-        <DemoDataButton collapsed={collapsed} />
       </div>
       {dialogs}
       <ProfileChip name={profile?.name} city={profile?.city} collapsed={collapsed} />
     </aside>
-  );
-}
-
-// One switch for the whole sample household (stocks, assets, loans, spending, goals),
-// available on every page so any screen can be tried with data.
-function useDemoData() {
-  const { holdings, assets, entries, goals, addSample, removeSample } = useStore();
-  const has = [holdings, assets, entries, goals].some((list) => list?.some((x) => x.sample));
-  return { has, toggle: has ? removeSample : addSample };
-}
-
-function DemoDataButton({ collapsed, className }: { collapsed?: boolean; className?: string }) {
-  const { has, toggle } = useDemoData();
-  const label = has ? t("Remove demo data") : t("Load demo data");
-  return (
-    <button
-      onClick={toggle}
-      title={collapsed ? label : undefined}
-      aria-label={collapsed ? label : undefined}
-      className={cn(
-        "flex items-center gap-3 rounded-xl border border-dashed border-line py-2 text-[13px] font-medium text-body transition-colors hover:bg-sand hover:text-ink",
-        collapsed ? "justify-center px-0" : "px-3",
-        className,
-      )}
-    >
-      <Database className="size-[18px] shrink-0" strokeWidth={1.75} />
-      {!collapsed && label}
-    </button>
   );
 }
 
@@ -270,14 +240,18 @@ function Avatar({ name, className }: { name?: string; className?: string }) {
   );
 }
 
-// Ends the Google session, then returns to the sign-in page. Saved data stays in this browser.
+// Saves anything unsent, ends the session and removes this account's data from the device.
 function useLogout() {
+  const { flushChanges, forgetAccountData } = useStore();
   return async () => {
+    const saved = await flushChanges();
+    if (!saved && !window.confirm(t("Some recent changes haven't been saved to your account and will be lost. Log out anyway?"))) return;
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {
       // Offline: still leave the app.
     }
+    forgetAccountData();
     // A full page load, so nothing from the signed-in session stays in memory.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/sign-in");
@@ -321,7 +295,7 @@ function ProfileChip({ name, city, collapsed }: { name?: string; city?: string; 
             <Avatar name={name} className="size-9" />
             <div className="min-w-0">
               <p className="truncate text-[14px] font-semibold text-ink">{name?.trim() || t("Finlio user")}</p>
-              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || t("Data stays in this browser")}</p>
+              <p className="truncate text-[12px] text-muted-foreground">{city?.trim() || t("Profile and settings")}</p>
             </div>
           </div>
           <div className="my-1 h-px bg-line" />
@@ -458,7 +432,6 @@ export function MobileNav() {
               }}
               className="mt-3 w-full justify-center border border-line py-3"
             />
-            <DemoDataButton className="mt-2 w-full justify-center py-3" />
             <button
               onClick={logout}
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-line py-3 text-[13px] font-medium text-body transition-colors active:bg-muted"

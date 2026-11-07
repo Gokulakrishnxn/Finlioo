@@ -8,7 +8,7 @@ import { usePositions } from "@/lib/use-positions";
 
 // Everything the dashboard and analytics show, derived from this browser's data.
 export function useMoney({ record = false }: { record?: boolean } = {}) {
-  const { ready, assets, entries, expenses, snapshots, recordSnapshot } = useStore();
+  const { ready, holdings, assets, entries, expenses, snapshots, recordSnapshot } = useStore();
   const positions = usePositions();
   const worth = useMemo(() => netWorth(positions, assets), [positions, assets]);
   const items = useMemo(() => activity(expenses, entries), [expenses, entries]);
@@ -18,10 +18,12 @@ export function useMoney({ record = false }: { record?: boolean } = {}) {
 
   // Today's point on the net-worth line, once there is something to measure.
   const hasData = positions.length > 0 || (assets?.length ?? 0) > 0;
+  // A figure that includes sample data is marked as sample, so it never reaches the account.
+  const includesSample = holdings.some((h) => h.sample) || (assets ?? []).some((a) => a.sample);
   useEffect(() => {
     if (!record || !ready || !hasData) return;
-    recordSnapshot({ date: todayLocal(), netWorth: Math.round(worth.netWorth) });
-  }, [record, ready, hasData, worth.netWorth, recordSnapshot]);
+    recordSnapshot({ date: todayLocal(), netWorth: Math.round(worth.netWorth), ...(includesSample ? { sample: true } : {}) });
+  }, [record, ready, hasData, worth.netWorth, includesSample, recordSnapshot]);
 
   return { positions, worth, items, thisMonth, month, snapshots: snapshots ?? [], hasData };
 }

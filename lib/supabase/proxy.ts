@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { gateDecision } from "@/lib/auth/routes";
-import { supabaseConfig } from "@/lib/supabase/config";
+import { sessionCookieOptions, supabaseConfig } from "@/lib/supabase/config";
 
 // Refreshes the session cookie on each page request and sends people to the right page.
 export async function updateSession(request: NextRequest) {
@@ -20,6 +20,7 @@ export async function updateSession(request: NextRequest) {
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(config.url, config.key, {
+    cookieOptions: sessionCookieOptions,
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll(toSet, headers) {

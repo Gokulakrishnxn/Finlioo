@@ -3,9 +3,9 @@ import { Reveal } from "./reveal";
 import styles from "./lower-sections.module.css";
 
 const CONTROLS = [
-  { icon: Monitor, title: "Stored on your device", body: "Your holdings and transactions stay in this browser." },
+  { icon: Monitor, title: "Encrypted in your account", body: "Your holdings and transactions are encrypted before they are saved." },
   { icon: Mail, title: "Connect on your terms", body: "Gmail access is optional, read-only and revocable." },
-  { icon: ArrowDownToLine, title: "Take a copy with you", body: "Download a backup before clearing your browser." },
+  { icon: ArrowDownToLine, title: "Yours to take or delete", body: "Download a copy any time, or delete your account and its data." },
 ];
 
 export function Privacy() {

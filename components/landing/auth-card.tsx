@@ -79,7 +79,7 @@ export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string
                 </li>
               ))}
             </ol>
-            <p className={styles.storyFooter}><ShieldCheck className="size-3.5" aria-hidden /> Your money data stays in your browser.</p>
+            <p className={styles.storyFooter}><ShieldCheck className="size-3.5" aria-hidden /> Your money data is encrypted in your account.</p>
           </div>
         </aside>
 

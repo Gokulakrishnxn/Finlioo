@@ -21,7 +21,7 @@ const STEPS: Step[] = [
   {
     target: "quickadd",
     title: "Add anything in a tap",
-    body: "Log an expense or income, add a stock, or add an account or loan. It all stays in this browser.",
+    body: "Log an expense or income, add a stock, or add an account or loan. It's all saved securely to your account.",
   },
   {
     target: "nav",

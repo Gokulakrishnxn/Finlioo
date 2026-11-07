@@ -130,9 +130,30 @@ const MERCHANTS: [string, string][] = [
   ["ikea", "ikea.com"],
 ];
 
+// Broker id → company website, for the import picker.
+export const BROKER_DOMAINS: Record<string, string> = {
+  zerodha: "zerodha.com",
+  groww: "groww.in",
+  upstox: "upstox.com",
+  angelone: "angelone.in",
+  icici: "icicidirect.com",
+  hdfc: "hdfcsky.com",
+  kotak: "kotaksecurities.com",
+  "5paisa": "5paisa.com",
+  dhan: "dhan.co",
+  paytm: "paytmmoney.com",
+  motilal: "motilaloswal.com",
+  sharekhan: "sharekhan.com",
+  iifl: "iiflcapital.com",
+  axis: "axisdirect.in",
+  sbi: "sbisecurities.in",
+  fyers: "fyers.in",
+};
+
 const ALLOWED = new Set([
   ...Object.values(STOCKS),
   ...MERCHANTS.map(([, d]) => d),
+  ...Object.values(BROKER_DOMAINS),
 ]);
 
 export function isAllowedLogoDomain(domain: string) {

@@ -102,7 +102,7 @@ export function CookieNotice() {
           <X className="size-4" strokeWidth={1.75} />
         </button>
         <p id={descriptionId} className="mt-3 text-[14px] leading-[1.6] text-[#5d5b56]">
-          Finlio saves your money data and preferences in this browser. There are no advertising or analytics trackers. Connecting Gmail uses a secure session cookie.
+          Finlio uses a secure cookie to keep you signed in, and saves your preferences and a working copy of your data in this browser. There are no advertising or analytics trackers.
         </p>
 
         {details && (

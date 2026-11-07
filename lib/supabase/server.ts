@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { supabaseConfig } from "@/lib/supabase/config";
+import { sessionCookieOptions, supabaseConfig } from "@/lib/supabase/config";
 
 export class SupabaseNotConfiguredError extends Error {}
 
@@ -11,6 +11,7 @@ export async function createClient() {
   if (!config) throw new SupabaseNotConfiguredError("Accounts aren't set up yet.");
   const store = await cookies();
   return createServerClient(config.url, config.key, {
+    cookieOptions: sessionCookieOptions,
     cookies: {
       getAll: () => store.getAll(),
       setAll(toSet) {

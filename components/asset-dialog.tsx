@@ -80,7 +80,7 @@ export function AssetDialog({
             {editing ? t("Edit {name}", { name: editing.name }) : fixedSide ? (side === "asset" ? t("Add an asset") : t("Add a liability")) : t("Add an asset or liability")}
           </DialogTitle>
           <DialogDescription>
-            {t("Anything you own or owe outside the stock market. Saved only in this browser.")}
+            {t("Anything you own or owe outside the stock market. Saved securely to your account.")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
