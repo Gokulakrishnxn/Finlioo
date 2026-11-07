@@ -179,7 +179,8 @@ export function EmailForm({ mode, next }: { mode: AuthMode; next?: string }) {
         <div>
           <h1>Check your email</h1>
           <p className={styles.lead} style={{ marginBottom: 0 }}>
-            We sent a code to <strong className="font-medium text-ink">{email}</strong>. It may take a minute, so check your spam folder too.
+            {mode === "sign-up" ? "If this email is new to Finlio, we've sent a code to " : "We've sent a code to "}
+            <strong className="font-medium text-ink">{email}</strong>. It may take a minute, so check your spam folder too.
           </p>
         </div>
         <div>
@@ -210,6 +211,13 @@ export function EmailForm({ mode, next }: { mode: AuthMode; next?: string }) {
             {wait > 0 ? `Resend in ${wait}s` : "Resend code"}
           </button>
         </div>
+        {mode === "sign-up" ? (
+          <p className="text-center text-[12px] leading-relaxed text-muted-foreground">
+            Already have an account? We won&apos;t send a code.{" "}
+            <Link href="/sign-in" className="font-medium text-success hover:underline">Sign in</Link> or{" "}
+            <Link href="/forgot-password" className="font-medium text-success hover:underline">reset your password</Link>.
+          </p>
+        ) : null}
       </form>
     );
   }
