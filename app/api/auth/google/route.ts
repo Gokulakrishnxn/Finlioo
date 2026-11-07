@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return Response.redirect(await authorizationUrl(origin, { gmail, next }));
   } catch (err) {
     const reason = err instanceof GoogleNotConfiguredError ? "not-configured" : "failed";
-    const back = gmail ? `/transactions?google=${reason}` : "/dashboard";
+    const back = gmail ? `/transactions?google=${reason}` : `/sign-in?error=${reason}`;
     return Response.redirect(new URL(back, origin));
   }
 }

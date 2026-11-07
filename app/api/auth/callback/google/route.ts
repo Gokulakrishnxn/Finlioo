@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const pending = await pendingSignIn();
   // Failures go back to where the person started: Transactions for Gmail, else the dashboard.
   const fail = (status: string) =>
-    Response.redirect(new URL(pending?.gmail ? `/transactions?google=${status}` : "/dashboard", origin));
+    Response.redirect(new URL(pending?.gmail ? `/transactions?google=${status}` : `/sign-in?error=${status}`, origin));
 
   // The person pressed Cancel on Google's consent screen.
   if (searchParams.get("error") || !code || !state) return fail("denied");
