@@ -3,9 +3,9 @@ import { Reveal } from "./reveal";
 import styles from "./lower-sections.module.css";
 
 const CONTROLS = [
-  { icon: Monitor, title: "Encrypted in your account", body: "Your holdings and transactions are encrypted before they are saved." },
+  { icon: Monitor, title: "Encrypted in your account", body: "Stored on Supabase, encrypted in transit and at rest. Every request is checked against your account." },
   { icon: Mail, title: "Connect on your terms", body: "Gmail access is optional, read-only and revocable." },
-  { icon: ArrowDownToLine, title: "Yours to take or delete", body: "Download a copy any time, or delete your account and its data." },
+  { icon: ArrowDownToLine, title: "Yours to take or delete", body: "Export all your data as CSV or JSON any time, or delete your account and financial data from Settings." },
 ];
 
 export function Privacy() {
@@ -20,10 +20,10 @@ export function Privacy() {
         </Reveal>
         <Reveal delay={0.08}>
           <div className={styles.device}>
-            <div className={styles.deviceHead}><Monitor size={18} /><span>Your device</span><LockKeyhole size={15} /></div>
+            <div className={styles.deviceHead}><Monitor size={18} /><span>Your account</span><LockKeyhole size={15} /></div>
             <div className={styles.privateRows}>
               {["Holdings", "Assets & loans", "Transactions"].map((name) => (
-                <div key={name}><span>{name}</span><span><Check size={13} /> Stays here</span></div>
+                <div key={name}><span>{name}</span><span><Check size={13} /> Encrypted</span></div>
               ))}
             </div>
             <div className={styles.shared}>

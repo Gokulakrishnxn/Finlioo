@@ -50,11 +50,11 @@ export const FEATURES = [
 export const FAQS = [
   {
     q: "Where does my data actually live?",
-    a: "In your Finlio account. It is encrypted before it is saved, on servers in Mumbai, and a copy of the database alone can't reveal your numbers. Finlio's servers can decrypt it to serve you.",
+    a: "Your data is stored on Supabase, in Mumbai, encrypted in transit and at rest, and every request is checked against your account. Passwords are securely hashed, never stored in plain text. Finlio's servers can decrypt your data to show it to you. You can export it as CSV or JSON any time, or delete your account and financial data from Settings.",
   },
   {
     q: "Does Finlio tell me what to buy?",
-    a: "No. Finlio explains changes in your finances. It does not recommend buying, selling or holding.",
+    a: "No. Finlio explains changes in your finances. It does not recommend buying, selling or holding. It is not a SEBI-registered adviser, and nothing in it is investment advice.",
   },
   {
     q: "What leaves my device?",
