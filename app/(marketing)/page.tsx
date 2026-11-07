@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Finlio — Know why your money moved",
     description:
-      "Your money stays in your browser. Finlio explains what changed in plain language, and never advises.",
+      "Your money, encrypted in your account. Finlio explains what changed in plain language, and never advises.",
     type: "website",
     url: "/",
     images: [{ url: "/finlio-mark.png", width: 1024, height: 1024, alt: "Finlio" }],

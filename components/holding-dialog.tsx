@@ -171,7 +171,7 @@ export function HoldingDialog({
           </DialogTitle>
           <DialogDescription>
             {picked
-              ? t("Finlio uses this to work out your gain or loss. It stays in this browser.")
+              ? t("Finlio uses this to work out your gain or loss. It's saved securely to your account.")
               : `Search ${activeLocale().market} by company name or symbol.`}
           </DialogDescription>
         </DialogHeader>

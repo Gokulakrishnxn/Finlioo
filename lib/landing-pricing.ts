@@ -30,7 +30,7 @@ export const PLANS: readonly Plan[] = [
       "Holdings, expenses, assets and loans",
       "Analytics and goals",
       "Built for India: NSE, EPF, PPF and NPS",
-      "Local-only storage, JSON backups",
+      "Encrypted cloud storage, JSON backups",
     ],
   },
   {

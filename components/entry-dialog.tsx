@@ -51,7 +51,7 @@ export function EntryDialog({
           <DialogTitle className="text-lg font-semibold tracking-tight">
             {type === "income" ? t("Add income") : t("Add an expense")}
           </DialogTitle>
-          <DialogDescription>{t("Saved only in this browser.")}</DialogDescription>
+          <DialogDescription>{t("Saved securely to your account.")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={save} className="flex flex-col gap-4" noValidate>
           <div className="grid grid-cols-2 gap-3">

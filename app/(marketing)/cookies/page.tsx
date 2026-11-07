@@ -5,10 +5,15 @@ import { CookiePreferencesButton } from "@/components/landing/cookie-notice";
 
 export const metadata: Metadata = {
   title: "Cookies & local storage · Finlio",
-  description: "What Finlio saves in your browser, how its optional Google connection uses cookies, and how to manage your data.",
+  description: "What Finlio saves in your browser, how its cookies keep you signed in, and how to manage your data.",
 };
 
 const COOKIES = [
+  {
+    name: "sb-…-auth-token",
+    purpose: "Keeps you signed in to your Finlio account. It is hidden from page scripts.",
+    duration: "Until you log out, or your session expires",
+  },
   {
     name: "finlio_oauth_state",
     purpose: "Checks that a Google response belongs to the Gmail connection you started.",
@@ -22,7 +27,8 @@ const COOKIES = [
 ];
 
 const LOCAL_STORAGE = [
-  { name: "finlio:v1", detail: "Your holdings, assets, loans, income, expenses, history and profile." },
+  { name: "finlio:vault:…", detail: "A working copy of your holdings, assets, loans, income, expenses, history and profile, plus any changes not yet saved. Removed when you log out." },
+  { name: "finlio:v1", detail: "Data from before you had an account, until you move it to your account or delete it." },
   { name: "Interface preferences", detail: "Your theme, sidebar and company-logo choices." },
   { name: "finlio:cookie-notice", detail: "The version of this notice you acknowledged and when you saw it." },
 ];
@@ -47,7 +53,7 @@ export default function CookiesPage() {
         <p className="mt-6 text-[12px] font-semibold tracking-[0.14em] text-[#9a6818] uppercase">Your browser, your data</p>
         <h1 className="mt-3 text-[clamp(2rem,6vw,3rem)] leading-[1.1] font-medium tracking-[-0.04em]">Cookies & local storage</h1>
         <p className="mt-5 text-[17px] leading-relaxed text-[#68655f]">
-          Finlio remembers your money in this browser. It uses no advertising or analytics trackers. Here is what is saved and how you can manage it.
+          Finlio saves your money data to your account, encrypted, and uses this browser to keep you signed in and work quickly. It uses no advertising or analytics trackers. Here is what is saved and how you can manage it.
         </p>
 
         <section aria-labelledby="cookies-heading" className="mt-12 border-t border-[#ecebe7] pt-8">
@@ -74,7 +80,7 @@ export default function CookiesPage() {
             <HardDrive className="size-5 text-[#716f6b]" strokeWidth={1.75} aria-hidden /> Saved on this device
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            Local storage is separate from cookies. It stays in this browser until you clear it; it is not automatically attached to web requests. Finlio currently has no database or server copy of your portfolio.
+            Local storage is separate from cookies. It is not automatically attached to web requests. While you are signed in, Finlio keeps a working copy of your data here, and removes it when you log out. Your saved copy is encrypted in your account.
           </p>
           <dl className="mt-5 space-y-4 rounded-2xl bg-[#f6f4ef] p-5">
             {LOCAL_STORAGE.map((item) => (
@@ -92,17 +98,17 @@ export default function CookiesPage() {
         <section aria-labelledby="signin-heading" className="mt-10 border-t border-[#ecebe7] pt-8">
           <h2 id="signin-heading" className="text-[22px] font-medium tracking-tight">About connecting Google</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            Finlio has no account or password. Google is used only if you connect Gmail, which gives Finlio your name and email and read-only access to bank, card and payment alerts.
+            Google is used only if you choose it to sign in or connect Gmail. Connecting Gmail gives Finlio your name and email and read-only access to bank, card and payment alerts.
           </p>
         </section>
 
         <section aria-labelledby="manage-heading" className="mt-10 border-t border-[#ecebe7] pt-8">
           <h2 id="manage-heading" className="text-[22px] font-medium tracking-tight">Manage what is saved</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            Export a backup from Settings before clearing browser storage if you want to keep your data. The app&apos;s Clear all data control removes your financial data; browser site settings can also remove cookies and saved preferences.
+            Export a backup from Settings any time. Erase all data removes your money data, and Delete my account removes your account too. Browser site settings can remove cookies and saved preferences, which signs you out on this device.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-[#68655f]">
-            If your browser blocks storage, Finlio can keep some choices for the current page session, but they may not survive a reload. Connecting Gmail needs its session cookies to work.
+            If your browser blocks storage, Finlio can keep some choices for the current page session, but they may not survive a reload. Signing in and connecting Gmail need their cookies to work.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-[14px]">
             <CookiePreferencesButton className={linkClass} />

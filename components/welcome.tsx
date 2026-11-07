@@ -16,7 +16,7 @@ export function Welcome({ onAdd }: { onAdd: () => void }) {
             {t("All your money in one place.")}
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-body">
-            {t("Add the stocks you own and see them next to your savings, loans and spending. Your portfolio stays in this browser.")}
+            {t("Add the stocks you own and see them next to your savings, loans and spending. Your portfolio is saved securely to your account.")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
