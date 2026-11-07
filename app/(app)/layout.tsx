@@ -3,6 +3,7 @@ import { ChatLauncher, FinlioChat } from "@/components/chat/finlio-chat";
 import { DateRangeProvider } from "@/lib/date-range-context";
 import { PreferencesBoundary } from "@/components/preferences-boundary";
 import { MoveDataPrompt } from "@/components/move-data-prompt";
+import { NameSetupPrompt } from "@/components/name-setup-prompt";
 import { MobileNav, Sidebar } from "@/components/shell/sidebar";
 
 // The app shell: sidebar, page card and the Finlio chat.
@@ -22,6 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <ChatLauncher />
         <MoveDataPrompt />
+        <NameSetupPrompt />
       </DateRangeProvider>
     </AppGate>
   );

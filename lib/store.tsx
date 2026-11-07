@@ -29,6 +29,8 @@ export type StoreData = {
 
 export type NewHolding = Omit<Holding, "id">;
 
+export type Account = { userId: string; email?: string; name?: string; provider?: string };
+
 type Store = StoreData & {
   ready: boolean;
   addHolding: (holding: NewHolding) => void;
@@ -53,6 +55,7 @@ type Store = StoreData & {
   clearAll: () => void;
   // Whether this device is working with a signed-in account, and how its saving is going.
   signedIn: boolean;
+  account: Account | null;
   syncState: SyncState;
   // Real items this browser holds from before accounts, waiting for the person's decision.
   localItemsToMove: number;
@@ -90,11 +93,12 @@ function load(key: string): StoreData {
 }
 
 // The signed-in person, or the last known one when offline.
-async function findUserId(): Promise<string | null> {
+async function findAccount(): Promise<Account | null> {
   try {
     const res = await fetch("/api/auth/session", { cache: "no-store" });
     if (!res.ok) throw new Error(String(res.status));
-    const { userId } = (await res.json()) as { userId?: string | null };
+    const { account } = (await res.json()) as { account?: Account | null };
+    const userId = account?.userId;
     const last = readStored<string>(LAST_USER_KEY);
     if (userId) writeStored(LAST_USER_KEY, userId);
     else if (last) {
@@ -102,9 +106,10 @@ async function findUserId(): Promise<string | null> {
       dropCacheIfClean(last);
       removeStored(LAST_USER_KEY);
     }
-    return userId ?? null;
+    return account ?? null;
   } catch {
-    return readStored<string>(LAST_USER_KEY);
+    const userId = readStored<string>(LAST_USER_KEY);
+    return userId ? { userId } : null;
   }
 }
 
@@ -112,6 +117,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<StoreData>({ holdings: [] });
   const [ready, setReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [account, setAccount] = useState<Account | null>(null);
   const [syncState, setSyncState] = useState<SyncState>("idle");
   const [localItemsToMove, setLocalItemsToMove] = useState(0);
   const dataRef = useRef<StoreData>(data);
@@ -128,15 +134,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const userId = await findUserId();
+      const found = await findAccount();
       if (cancelled) return;
-      if (!userId) {
+      if (!found) {
         const local = load(LOCAL_DATA_KEY);
         dataRef.current = local;
         setData(local);
         setReady(true);
         return;
       }
+      const { userId, name } = found;
       const sync = new VaultSync(userId, {
         getData: () => dataRef.current,
         apply: (value) => commit(value as StoreData),
@@ -144,6 +151,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       });
       syncRef.current = sync;
       setSignedIn(true);
+      setAccount(found);
       const cached = readStored<StoreData>(cacheKey(userId));
       if (cached) {
         const value = load(cacheKey(userId));
@@ -154,6 +162,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       await sync.pull();
       if (cancelled) return;
       if (sync.pending > 0) void sync.flush();
+      // A new account brings the name given at sign-up, or by Google, into the profile.
+      if (name && !dataRef.current.profile?.name) {
+        const prev = dataRef.current;
+        const next = { ...prev, profile: { ...prev.profile, name } };
+        commit(next);
+        sync.queue(prev, next);
+      }
       setLocalItemsToMove(countLocalItems(load(LOCAL_DATA_KEY)));
       setReady(true);
     })();
@@ -196,6 +211,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     dataRef.current = { holdings: [] };
     setData({ holdings: [] });
     setSignedIn(false);
+    setAccount(null);
   }, []);
 
   // Moves a browser's data from before accounts into the account, then clears the old copy.
@@ -461,6 +477,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         removeContribution,
         clearAll,
         signedIn,
+        account,
         syncState,
         localItemsToMove,
         moveLocalData,

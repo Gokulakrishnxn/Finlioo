@@ -102,7 +102,9 @@ function TabBody({ tab }: { tab: SettingsTab }) {
   const store = useStore();
   if (tab === "general") return <Preferences />;
   if (tab === "profile")
-    return <ProfileCard key={store.profile?.name ?? "new"} initial={store.profile} onSave={store.setProfile} />;
+    return (
+      <ProfileCard key={store.profile?.name ?? "new"} initial={store.profile} account={store.account} onSave={store.setProfile} />
+    );
   if (tab === "accounts") return <Accounts />;
   return <DataCard data={snapshotOf(store)} onRestore={store.replaceAll} onErase={store.clearAll} />;
 }

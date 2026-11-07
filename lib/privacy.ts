@@ -1,6 +1,6 @@
 // What leaves the person's device, to whom and why. Shown in the Terms.
 export const SHARING: { who: string; why: string; what: string }[] = [
-  { who: "Supabase (Mumbai)", why: "Your account and saved data", what: "Your email, a hashed password and your money data, encrypted before it is saved" },
+  { who: "Supabase (Mumbai)", why: "Your account and saved data", what: "Your email, name and a hashed password, plus your money data, which is encrypted before it is saved" },
   { who: "Vercel", why: "Running Finlio", what: "Your requests pass through its servers, where your data is encrypted and decrypted" },
   { who: "Resend", why: "Account emails", what: "Your email address and the message, such as a password reset link" },
   { who: "Upstox", why: "Live NSE prices", what: "NSE codes of your stocks" },

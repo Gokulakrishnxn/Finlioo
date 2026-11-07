@@ -3,7 +3,7 @@
 // The sections of the Settings window (opened from the profile menu).
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarRange, Download, EyeOff, ImageIcon, IndianRupee, Languages, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, Sun, Trash2, Upload } from "lucide-react";
+import { CalendarRange, Download, EyeOff, ImageIcon, IndianRupee, Languages, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, ShieldCheck, Sun, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -21,7 +21,8 @@ import { useSettings } from "@/components/settings/settings-dialog";
 import { useTour } from "@/components/tour/tour";
 import { useTheme } from "@/components/theme-root";
 import { todayLocal } from "@/lib/format";
-import { useStore, type StoreData } from "@/lib/store";
+import { saveAccountName } from "@/lib/account";
+import { useStore, type Account, type StoreData } from "@/lib/store";
 import { PRESETS, type PresetId } from "@/lib/date-range";
 import { LANGUAGES, setPreferences, usePreferences, type Language } from "@/lib/preferences";
 import { COLLAPSE_KEY, logosOn, setLogosOn, SIDEBAR_EVENT } from "@/lib/ui-prefs";
@@ -41,72 +42,105 @@ function Card({ title, children, className }: { title: string; children: React.R
 
 export function ProfileCard({
   initial,
+  account,
   onSave,
 }: {
   initial?: StoreData["profile"];
+  account: Account | null;
   onSave: (p: NonNullable<StoreData["profile"]>) => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [city, setCity] = useState(initial?.city ?? "");
   const [saved, setSaved] = useState(false);
-  const initialLetter = (name.trim()[0] ?? "F").toUpperCase();
+  const email = account?.email;
+  const initialLetter = ((name.trim() || email || "F")[0] ?? "F").toUpperCase();
+  const signInMethod = account?.provider === "google" ? t("Signed in with Google") : t("Signed in with email and password");
 
   function save(e: React.FormEvent) {
     e.preventDefault();
-    onSave({
-      name: name.trim() || undefined,
-      city: city.trim() || undefined,
-    });
+    const trimmed = name.trim();
+    onSave({ name: trimmed || undefined, city: city.trim() || undefined });
+    if (account) saveAccountName(trimmed);
     setSaved(true);
   }
 
   return (
-    <Card title={t("Profile")}>
-      <div className="mb-5 flex items-center gap-4">
-        <span className="flex size-14 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#7ee29a,#34c759_55%,#1f7a3a)] text-[22px] font-semibold text-[#102b18]">
+    <section>
+      <div className="flex items-center gap-4 pr-8">
+        <span
+          aria-hidden
+          className="flex size-16 shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#7ee29a,#34c759_55%,#1f7a3a)] text-[26px] font-semibold text-[#102b18]"
+        >
           {initialLetter}
         </span>
-        <div>
-          <p className="text-[17px] font-semibold text-ink">{name.trim() || "Your name"}</p>
-          <p className="text-[13px] text-muted-foreground">{city.trim() || "Where you live"}</p>
+        <div className="min-w-0">
+          <h3 className="truncate text-[20px] font-semibold tracking-tight text-ink">{name.trim() || t("Add your name")}</h3>
+          {email ? <p className="truncate text-[14px] text-muted-foreground">{email}</p> : null}
         </div>
       </div>
-      <form onSubmit={save} className="flex flex-col gap-4" noValidate>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field id="profile-name" label={t("Name")}>
-            <Input
-              id="profile-name"
-              value={name}
-              placeholder={t("e.g. Gokulakrishnan")}
-              onChange={(e) => {
-                setName(e.target.value);
-                setSaved(false);
-              }}
-              className="h-11 rounded-xl"
-            />
-          </Field>
-          <Field id="profile-city" label={t("City (optional)")}>
-            <Input
-              id="profile-city"
-              value={city}
-              placeholder={t("e.g. Chennai")}
-              onChange={(e) => {
-                setCity(e.target.value);
-                setSaved(false);
-              }}
-              className="h-11 rounded-xl"
-            />
-          </Field>
+
+      {account ? (
+        <div className="mt-6">
+          <p className="eyebrow mb-2">{t("Account")}</p>
+          <div className="rounded-xl border border-line bg-sand/40 p-4">
+            <div className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-card text-muted-foreground ring-1 ring-line">
+                <Mail className="size-4" strokeWidth={1.75} aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12px] text-muted-foreground">{t("Email")}</p>
+                <p className="text-[14px] font-medium [overflow-wrap:anywhere] text-ink">{email ?? t("Not available offline")}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                  <ShieldCheck className="size-3.5 shrink-0 text-success" strokeWidth={1.75} aria-hidden />
+                  {signInMethod}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="text-[12px] text-muted-foreground">{t("Your name personalises the greeting.")}</p>
+      ) : null}
+
+      <form onSubmit={save} className="mt-6 flex flex-col gap-4" noValidate>
+        <div>
+          <p className="eyebrow mb-3">{t("Personal details")}</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field id="profile-name" label={t("Name")}>
+              <Input
+                id="profile-name"
+                value={name}
+                maxLength={80}
+                autoComplete="name"
+                placeholder={t("Your name")}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setSaved(false);
+                }}
+                className="h-11 rounded-xl"
+              />
+            </Field>
+            <Field id="profile-city" label={t("City (optional)")}>
+              <Input
+                id="profile-city"
+                value={city}
+                placeholder={t("e.g. Chennai")}
+                onChange={(e) => {
+                  setCity(e.target.value);
+                  setSaved(false);
+                }}
+                className="h-11 rounded-xl"
+              />
+            </Field>
+          </div>
+          <p className="mt-2 text-[12px] text-muted-foreground">{t("Your name personalises the greeting.")}</p>
+        </div>
         <div className="flex items-center gap-3">
           <Button type="submit" className="h-10 rounded-xl px-5">
             {t("Save profile")}
           </Button>
-          {saved && <span className="text-[13px] text-success">{t("Saved")}</span>}
+          {saved && <span role="status" className="text-[13px] text-success">{t("Saved")}</span>}
         </div>
       </form>
-    </Card>
+    </section>
   );
 }
 
