@@ -2,12 +2,10 @@ import Link from "next/link";
 import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
 
 import { Wordmark } from "./site-nav";
-import { EmailForm } from "./email-form";
+import { EmailForm, type AuthMode } from "./email-form";
 import styles from "./auth.module.css";
 
-type Mode = "sign-in" | "sign-up";
-
-const COPY: Record<Mode, { title: string; lead: string; cta: string; altText: string; altLabel: string; altHref: string }> = {
+const COPY: Record<AuthMode, { title: string; lead: string; cta?: string; altText?: string; altLabel?: string; altHref?: string }> = {
   "sign-in": {
     title: "Welcome back",
     lead: "Sign in to see where your money moved.",
@@ -24,12 +22,24 @@ const COPY: Record<Mode, { title: string; lead: string; cta: string; altText: st
     altLabel: "Sign in",
     altHref: "/sign-in",
   },
+  forgot: {
+    title: "Reset your password",
+    lead: "Enter your email and we'll send you a link to choose a new one.",
+    altText: "Remembered it?",
+    altLabel: "Back to sign in",
+    altHref: "/sign-in",
+  },
+  reset: {
+    title: "Choose a new password",
+    lead: "You'll stay signed in on this device.",
+  },
 };
 
 const ERRORS: Record<string, string> = {
   denied: "Google sign-in was cancelled. You can try again whenever you're ready.",
   failed: "Something went wrong while signing you in. Please try again.",
-  "not-configured": "Google sign-in isn't set up on this server yet.",
+  "not-configured": "This sign-in option isn't set up yet. Please use your email and password.",
+  link: "That link has expired or was opened in a different browser. Please try signing in, or request a new link.",
 };
 
 function GoogleMark() {
@@ -45,7 +55,7 @@ function GoogleMark() {
 
 const STEPS = ["Add your money in one place", "See what changed this month", "Understand why it moved"];
 
-export function AuthCard({ mode, error, next }: { mode: Mode; error?: string; next?: string }) {
+export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string; next?: string }) {
   const c = COPY[mode];
   const href = `/api/auth/google${next ? `?next=${encodeURIComponent(next)}` : ""}`;
   const message = error ? (ERRORS[error] ?? ERRORS.failed) : null;
@@ -83,14 +93,20 @@ export function AuthCard({ mode, error, next }: { mode: Mode; error?: string; ne
               <p className={styles.lead}>{c.lead}</p>
               {message ? <p role="alert" className={styles.error}>{message}</p> : null}
 
-              <EmailForm mode={mode} />
+              <EmailForm mode={mode} next={next} />
 
-              <div className={styles.divider} role="separator"><span /> or continue with <span /></div>
-              <a href={href} className={styles.google}><GoogleMark /> {c.cta}</a>
+              {c.cta ? (
+                <>
+                  <div className={styles.divider} role="separator"><span /> or continue with <span /></div>
+                  <a href={href} className={styles.google}><GoogleMark /> {c.cta}</a>
+                </>
+              ) : null}
 
-              <p className={styles.switch}>
-                {c.altText} <Link href={c.altHref}>{c.altLabel}</Link>
-              </p>
+              {c.altHref ? (
+                <p className={styles.switch}>
+                  {c.altText} <Link href={c.altHref}>{c.altLabel}</Link>
+                </p>
+              ) : null}
               <p className={styles.legal}>
                 By continuing you agree to the <Link href="/terms">Terms</Link> and <Link href="/cookies">Cookie notice</Link>. Gmail is never read unless you connect it later.
               </p>

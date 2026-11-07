@@ -1,10 +1,10 @@
 import "server-only";
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
+import { safeNext } from "@/lib/auth/routes";
 
-// Sign in with Google. Signing in asks only for name, email and photo; Transactions
-// asks separately for read-only Gmail. Tokens live in an encrypted httpOnly
-// cookie in the user's browser; Finlio keeps no database.
+// Read-only Gmail for Transactions. Accounts and sign-in live in Supabase (lib/supabase);
+// this only holds the separate Gmail grant, in an encrypted httpOnly cookie in the browser.
 
 export const SESSION_COOKIE = "finlio_google";
 // Lets a copy without Google keys (e.g. a judge's clone) still open the app.
@@ -72,11 +72,6 @@ const cookieOptions = {
 
 export function redirectUri(origin: string) {
   return `${origin}/api/auth/callback/google`;
-}
-
-// Only same-site paths, so the sign-in can't be bounced to another website.
-export function safeNext(next: string | null | undefined, fallback = "/dashboard") {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
 }
 
 type Pending = { state: string; gmail: boolean; next: string };

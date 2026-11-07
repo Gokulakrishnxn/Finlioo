@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   ArrowLeftRight,
   Briefcase,
@@ -272,14 +272,15 @@ function Avatar({ name, className }: { name?: string; className?: string }) {
 
 // Ends the Google session, then returns to the sign-in page. Saved data stays in this browser.
 function useLogout() {
-  const router = useRouter();
   return async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {
       // Offline: still leave the app.
     }
-    router.push("/sign-in");
+    // A full page load, so nothing from the signed-in session stays in memory.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/sign-in");
   };
 }
 
