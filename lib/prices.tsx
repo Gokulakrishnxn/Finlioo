@@ -41,7 +41,8 @@ export function PricesProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ keys: keys.split(",") }),
       });
       const body = await res.json();
-      setUnconfigured(res.status === 503);
+      // Nothing to retry until prices are set up or the person signs in (a fresh page load).
+      setUnconfigured(res.status === 503 || res.status === 401);
       if (!res.ok) throw new Error(body.error);
       // Keep last known prices for anything missing from this response.
       setQuotes((prev) => ({ ...prev, ...body.quotes }));
