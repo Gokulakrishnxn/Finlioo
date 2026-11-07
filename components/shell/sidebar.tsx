@@ -216,7 +216,7 @@ function ImportDataButton({ onClick, collapsed, className }: { onClick: () => vo
       title={collapsed ? label : undefined}
       aria-label={collapsed ? label : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-xl py-2 text-[14px] font-medium text-ink transition-colors hover:bg-sand",
+        "flex w-full items-center gap-3 rounded-xl py-2 text-[14px] font-medium text-ink transition-colors hover:bg-sand",
         collapsed ? "justify-center px-0" : "bg-sand/70 px-3",
         className,
       )}

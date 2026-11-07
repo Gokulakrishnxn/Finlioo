@@ -82,7 +82,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="relative min-h-0 flex-1 overflow-y-auto p-6">
-            <DialogDescription className="sr-only">{t("Finlio settings, saved only in this browser.")}</DialogDescription>
+            <DialogDescription className="sr-only">{t("Your Finlio profile, preferences and data controls.")}</DialogDescription>
             <button
               onClick={() => setOpen(false)}
               aria-label={t("Close settings")}
