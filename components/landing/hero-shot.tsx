@@ -248,10 +248,6 @@ export function HeroShot() {
           </div>
         </aside>
       </div>
-
-      <p className="relative mx-auto mb-5 mt-2 w-fit rounded-full bg-card px-3 py-1.5 text-center text-[11.5px] font-medium text-ink">
-        Finlio dashboard · Sample data
-      </p>
     </div>
   );
 }

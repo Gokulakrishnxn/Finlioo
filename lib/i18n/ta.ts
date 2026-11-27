@@ -239,7 +239,6 @@ const ta: Record<string, string> = {
   "All your money in one place.": "உங்கள் பணம் அனைத்தும் ஒரே இடத்தில்.",
   "Add the stocks you own and see them next to your savings, loans and spending. Your portfolio stays in this browser.": "உங்கள் பங்குகளைச் சேர்த்து, சேமிப்பு, கடன், செலவுகளுடன் சேர்த்துப் பாருங்கள். உங்கள் போர்ட்ஃபோலியோ இந்த உலாவியிலேயே இருக்கும்.",
   "Add your first stock": "உங்கள் முதல் பங்கைச் சேர்",
-  "Try a sample portfolio": "மாதிரி போர்ட்ஃபோலியோவை முயற்சிக்கவும்",
   "Analytics": "பகுப்பாய்வு",
   "Your money, measured over time.": "காலப்போக்கில் உங்கள் பணத்தின் கணக்கு.",
   "Nothing to measure yet": "அளவிட இன்னும் எதுவும் இல்லை",

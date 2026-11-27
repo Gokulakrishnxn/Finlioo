@@ -19,7 +19,7 @@ describe("gateDecision", () => {
   });
 
   it("leaves public pages alone", () => {
-    for (const path of ["/", "/terms", "/cookies", "/sign-in", "/reset-password"]) {
+    for (const path of ["/", "/terms", "/cookies", "/sign-in"]) {
       expect(gateDecision(path, "", false)).toBeNull();
     }
   });
@@ -36,6 +36,5 @@ describe("gateDecision", () => {
 
   it("lets signed-in people reach the app and the reset page", () => {
     expect(gateDecision("/holdings", "", true)).toBeNull();
-    expect(gateDecision("/reset-password", "", true)).toBeNull();
   });
 });

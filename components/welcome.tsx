@@ -16,12 +16,10 @@ export function Welcome({ onAdd }: { onAdd: () => void }) {
             {t("Add the stocks you own and see them next to your savings, loans and spending. Your portfolio is saved securely to your account.")}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={onAdd} className="h-11 rounded-xl px-5 text-[15px]">
-            <Plus className="size-4" />
-            {t("Add your first stock")}
-          </Button>
-        </div>
+        <Button onClick={onAdd} className="h-11 rounded-xl px-5 text-[15px]">
+          <Plus className="size-4" />
+          {t("Add your first stock")}
+        </Button>
       </div>
     </section>
   );

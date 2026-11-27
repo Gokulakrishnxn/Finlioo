@@ -1,7 +1,7 @@
 // Which pages need an account, and where people go after signing in.
 
 const PROTECTED = ["/dashboard", "/transactions", "/holdings", "/assets", "/liabilities", "/goals", "/analytics", "/insights"];
-const SIGNED_OUT_ONLY = ["/sign-in", "/sign-up", "/forgot-password"];
+const SIGNED_OUT_ONLY = ["/sign-in", "/sign-up"];
 
 const matches = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`);
 

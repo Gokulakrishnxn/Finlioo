@@ -1,0 +1,25 @@
+{
+  "name": "finlio-launch-film",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "music": "node scripts/music.mjs",
+    "render": "node scripts/music.mjs && remotion render src/index.ts Launch out/finlio-launch.mp4 --codec h264 --crf 16",
+    "render:vertical": "remotion render src/index.ts LaunchVertical out/finlio-launch-vertical.mp4 --codec h264 --crf 18"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.8.2",
+    "@remotion/cli": "4.0.547",
+    "@remotion/google-fonts": "4.0.547",
+    "@remotion/three": "4.0.547",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.547",
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/three": "0.187.0",
+    "typescript": "5.9.3"
+  }
+}

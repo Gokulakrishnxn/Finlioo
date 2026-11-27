@@ -3,8 +3,8 @@ import { Reveal } from "./reveal";
 import styles from "./lower-sections.module.css";
 
 const CONTROLS = [
-  { icon: Monitor, title: "Encrypted in your account", body: "Stored on Supabase, encrypted in transit and at rest. Every request is checked against your account." },
-  { icon: Mail, title: "Connect on your terms", body: "Gmail access is optional, read-only and revocable." },
+  { icon: Monitor, title: "Encrypted in your account", body: "Stored on Google Cloud, encrypted in transit and at rest. Every request is checked against your account." },
+  { icon: Mail, title: "Your inbox stays yours", body: "Google is used only to sign you in. Finlio never reads your email." },
   { icon: ArrowDownToLine, title: "Yours to take or delete", body: "Export all your data as CSV or JSON any time, or delete your account and financial data from Settings." },
 ];
 
@@ -28,7 +28,7 @@ export function Privacy() {
             </div>
             <div className={styles.shared}>
               <p>Shared when needed</p>
-              <span>NSE codes for prices. Totals and percentages for Insights and chat. Bank alert details, only if you connect Gmail.</span>
+              <span>NSE codes for prices. Totals and percentages for Insights and chat.</span>
             </div>
           </div>
         </Reveal>

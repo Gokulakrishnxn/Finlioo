@@ -1,35 +1,17 @@
 import { type NextRequest } from "next/server";
 import { safeNext } from "@/lib/auth/routes";
-import { authorizationUrl, GoogleNotConfiguredError } from "@/lib/google-session";
-import { createClient, isGoogleEnabled } from "@/lib/supabase/server";
+import { authConfigured } from "@/lib/auth/session";
+import { authorizationUrl } from "@/lib/auth/google";
+import { publicOrigin } from "@/lib/public-origin";
 
-// /api/auth/google signs in through Supabase; /api/auth/google?gmail=1 connects read-only Gmail.
+// Starts "Continue with Google".
 export async function GET(request: NextRequest) {
-  const { origin, searchParams } = request.nextUrl;
-  const next = searchParams.get("next");
-
-  if (searchParams.get("gmail") === "1") {
-    try {
-      const target = safeNext(next, "/transactions?google=connected");
-      return Response.redirect(await authorizationUrl(origin, { gmail: true, next: target }));
-    } catch (err) {
-      const reason = err instanceof GoogleNotConfiguredError ? "not-configured" : "failed";
-      return Response.redirect(new URL(`/transactions?google=${reason}`, origin));
-    }
-  }
-
+  const { searchParams } = request.nextUrl;
+  const origin = publicOrigin(request.nextUrl.origin);
   const fail = (reason: string) => Response.redirect(new URL(`/sign-in?error=${reason}`, origin));
-  if (!(await isGoogleEnabled())) return fail("not-configured");
+  if (!authConfigured()) return fail("not-configured");
   try {
-    const callback = new URL("/api/auth/callback", origin);
-    callback.searchParams.set("next", safeNext(next));
-    const supabase = await createClient();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: callback.toString(), queryParams: { prompt: "select_account" } },
-    });
-    if (error || !data.url) return fail("failed");
-    return Response.redirect(data.url);
+    return Response.redirect(await authorizationUrl(origin, safeNext(searchParams.get("next"))));
   } catch {
     return fail("failed");
   }

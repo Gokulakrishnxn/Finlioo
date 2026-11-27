@@ -239,7 +239,6 @@ const mr: Record<string, string> = {
   "All your money in one place.": "तुमचे सर्व पैसे एकाच ठिकाणी.",
   "Add the stocks you own and see them next to your savings, loans and spending. Your portfolio stays in this browser.": "तुमचे शेअर्स जोडा आणि बचत, कर्जे व खर्चासोबत पहा. तुमचा पोर्टफोलिओ याच ब्राउझरमध्ये राहतो.",
   "Add your first stock": "तुमचा पहिला शेअर जोडा",
-  "Try a sample portfolio": "नमुना पोर्टफोलिओ वापरून पहा",
   "Analytics": "अॅनालिटिक्स",
   "Your money, measured over time.": "काळानुसार तुमच्या पैशांचा हिशोब.",
   "Nothing to measure yet": "मोजण्यासाठी अजून काही नाही",
