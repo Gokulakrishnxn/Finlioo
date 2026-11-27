@@ -28,4 +28,10 @@ describe("Finlio chat instructions", () => {
     expect(example).not.toBe("");
     for (const sentence of example.split(/(?<=[.!?])\s+/)) expect(containsRecommendation(sentence)).toBe(false);
   });
+
+  it("keep greetings to one short line and say the chat runs on Gemini", () => {
+    expect(CHAT_SYSTEM_PROMPT).toMatch(/# Greetings and small talk/);
+    expect(CHAT_SYSTEM_PROMPT).toMatch(/one short, friendly sentence/);
+    expect(CHAT_SYSTEM_PROMPT).toMatch(/runs on Google's Gemini/);
+  });
 });
