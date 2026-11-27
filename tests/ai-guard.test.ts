@@ -68,3 +68,11 @@ describe("SentenceGuard", () => {
     expect(guard.finish()).toBe(ADVICE_STOPPED_MESSAGE);
   });
 });
+
+describe("refusals in Indian languages", () => {
+  it("lets a refusal through but still stops the advice", () => {
+    expect(containsRecommendation("मैं आपको यह नहीं बता सकता कि कौन सा शेयर खरीदें।")).toBe(false);
+    expect(containsRecommendation("Infosys के शेयर खरीदें।")).toBe(true);
+    expect(containsRecommendation("कोणते शेअर खरेदी करा हे मी सांगू शकत नाही.")).toBe(false);
+  });
+});

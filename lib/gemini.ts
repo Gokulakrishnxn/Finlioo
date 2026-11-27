@@ -3,7 +3,10 @@ import { GoogleGenAI } from "@google/genai";
 
 // Free Google AI Studio keys have small quotas. List up to two keys; when one is out of quota
 // or briefly failing, the next one answers instead.
-export const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
+// Gemini 3.5 Flash-Lite: Google's small, low-cost stable model (free tier in AI Studio; paid at
+// $0.30 in / $2.50 out per 1M tokens as of November 2026). Plenty for short explanations of totals.
+// Override with GEMINI_MODEL, for example "gemini-3.1-flash-lite" for cheaper output tokens.
+export const GEMINI_MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash-lite";
 
 export const geminiKeys = () =>
   [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2].map((k) => k?.trim()).filter((k): k is string => Boolean(k));

@@ -1,9 +1,10 @@
 import { API_LIMITS, guard } from "@/lib/api-guard";
 import { SentenceGuard } from "@/lib/ai-guard";
-import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
+import { AI_LANGUAGE_CODES } from "@/lib/ai-locale";
+import { chatSystemInstruction } from "@/lib/chat-prompt";
+import { ThinkingLevel } from "@google/genai";
 import { GEMINI_MODEL, geminiKeys, withGemini } from "@/lib/gemini";
 import { z } from "zod";
-
 
 // The browser sends a summary of the person's money: totals, percentages and
 // today's brief, never transactions, merchants or share quantities.
@@ -38,19 +39,6 @@ const ChatRequestSchema = z.object({
   }),
 });
 
-const SYSTEM = `You are Finlio, a calm, friendly assistant inside a personal-finance app for people in India.
-You explain the person's own money in plain English, in short paragraphs or a few "- " bullets. This person lives in ${MONEY_STYLE}
-
-Use their first name occasionally if given. If they shared a money goal, you may relate numbers to it, but never tell them what to do to reach it.
-
-You have a JSON summary of their money (net worth, this month, spending by category, allocation, their stocks with today's and overall % change, and today's news brief). Answer from it. If the answer isn't in the summary, say so plainly and suggest which Finlio screen would help (Dashboard, Holdings, Expenses, Assets & loans, Analytics).
-
-Rules:
-- Explain; never advise. Never say buy, sell, hold, or which product, stock or fund to choose. Don't suggest investing, moving money, or changing a portfolio, even indirectly or as "something to consider". If asked, say Finlio explains rather than advises and offer to explain the factors instead.
-- You are not a SEBI-registered adviser or research analyst. Don't predict prices or say whether something is a good investment.
-- Don't invent news or numbers. Only use the brief for reasons a stock moved.
-- Keep answers under 150 words unless asked for more.`;
-
 export async function POST(request: Request) {
   const blocked = await guard(request, API_LIMITS.chat);
   if (blocked) return blocked;
@@ -68,7 +56,12 @@ export async function POST(request: Request) {
         parts: [{ text: m.content }],
       })),
       config: {
-        systemInstruction: `${SYSTEM}\n\nTheir money right now:\n${JSON.stringify(context)}${languageRule(language)}`,
+        systemInstruction: chatSystemInstruction(context, language),
+        // Short, factual answers: little sampling freedom, minimal thinking, and a hard cap on
+        // length so one reply can never cost much (Indian-language replies use more tokens).
+        temperature: 0.3,
+        maxOutputTokens: 800,
+        thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL },
       },
     }));
 
