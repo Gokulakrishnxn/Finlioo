@@ -325,9 +325,20 @@ gcloud run deploy finlio --region=asia-south1 --allow-unauthenticated \
   --set-secrets=AUTH_SECRET=auth-secret:latest,VAULT_MASTER_KEY=vault-master-key:latest,GEMINI_API_KEY=gemini-api-key:latest
 ```
 
+**Then clear the edge cache.** Firebase Hosting caches the pages Next.js
+prerenders (the landing page among them) for up to a year, so after each
+deploy it would keep serving the previous build. A new Hosting release clears
+that cache; [scripts/release-hosting.sh](scripts/release-hosting.sh) publishes
+one with only `gcloud`:
+
+```bash
+scripts/release-hosting.sh YOUR_PROJECT_ID
+```
+
 **Custom domain.** [firebase.json](firebase.json) sends every path on the
-Firebase Hosting site to the `finlio` service. Connect the domain under
-Firebase Hosting and add the DNS records it lists at your registrar.
+Firebase Hosting site to the `finlio` service; the release script publishes
+the same rule. Connect the domain under Firebase Hosting and add the DNS
+records it lists at your registrar.
 
 [docs/gcp-setup.md](docs/gcp-setup.md) covers the rest of the Google Cloud
 setup (Firebase Auth, send-only email) and hosting on Vercel instead.
@@ -336,7 +347,8 @@ setup (Firebase Auth, send-only email) and hosting on Vercel instead.
 
 - **Logs.** Cloud Run sends server logs to Cloud Logging. AI routes log a
   warning each time the advice filter stops a reply.
-- **Releases.** Each deploy is a new Cloud Run revision. Rolling back is
+- **Releases.** Each deploy is a new Cloud Run revision, followed by a Hosting
+  release that clears the edge cache. Rolling back is
   moving traffic to the previous revision.
 - **Scaling.** The service scales to zero when idle and up to five instances.
   Request limits are counted in each instance's memory, which stops one
