@@ -4,7 +4,6 @@
 export const NAV_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#privacy", label: "Privacy" },
-  { href: "#pricing", label: "Plans" },
   { href: "#faq", label: "FAQ" },
 ] as const;
 
@@ -88,7 +87,6 @@ export const FOOTER_COLUMNS = [
     links: [
       { label: "Features", href: "#features" },
       { label: "Privacy", href: "#privacy" },
-      { label: "Plans", href: "#pricing" },
       { label: "FAQ", href: "#faq" },
     ],
   },
