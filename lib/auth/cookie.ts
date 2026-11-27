@@ -4,7 +4,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 // session (who, until when) lives in Firestore, so signing out or deleting an account ends it
 // immediately. Pure functions, so the proxy can use them to gate pages without a database call.
 
-export const SESSION_COOKIE = "finlio_session";
+// "__session" is the only cookie Firebase Hosting passes through to Cloud Run, so the name is fixed.
+export const SESSION_COOKIE = "__session";
 export const SESSION_DAYS = 30;
 
 const sign = (id: string, secret: string) => createHmac("sha256", secret).update(id).digest("base64url");

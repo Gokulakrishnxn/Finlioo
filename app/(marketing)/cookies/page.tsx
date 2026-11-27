@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const COOKIES = [
   {
-    name: "finlio_session",
+    name: "__session",
     purpose: "Keeps you signed in. It holds only a random, signed session id; the session itself is stored on Google Cloud. It is hidden from page scripts.",
     duration: "Up to 30 days, or until you log out",
   },
