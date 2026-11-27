@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Faq } from "@/components/landing/faq";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
-import { Pricing } from "@/components/landing/pricing";
 import { Privacy } from "@/components/landing/privacy";
 import { Showcase } from "@/components/landing/showcase";
 import { SiteFooter } from "@/components/landing/site-footer";
@@ -44,7 +43,6 @@ export default function LandingPage() {
         <Features />
         <Showcase />
         <Privacy />
-        <Pricing />
         <Faq />
       </main>
       <SiteFooter />

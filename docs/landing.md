@@ -14,7 +14,7 @@ Part 3 lists the assets. The built page lives at `/` (`app/(marketing)/page.tsx`
 >
 > **Objective.** Design and build the landing page for **Finlio**, a private,
 > AI-assisted money dashboard for India. One page, six
-> sections: Hero, Features, Privacy, Subscription, FAQ, Footer — plus a floating
+> sections: Hero, Features, Privacy, FAQ, Footer — plus a floating
 > navigation with centred links and an Open Finlio button.
 >
 > **The product, in its own words.** Finlio adds up everything you have and owe,
@@ -43,7 +43,7 @@ Part 3 lists the assets. The built page lives at `/` (`app/(marketing)/page.tsx`
   thin rules instead of boxes, shadows only where something is physically
   lifted (a window, a card).
 - Borrow structure from a marketplace landing page (floating pill nav, centred
-  hero, bento feature grid, a dark pricing band, a clean FAQ column, a wide
+  hero, bento feature grid, a clean FAQ column, a wide
   footer) and content from the product itself. Do not borrow its clutter,
   stock photography or testimonial theatre.
 - No stock photos of phones, coins, charts or people at laptops. No 3D coins.
@@ -71,7 +71,6 @@ Part 3 lists the assets. The built page lives at `/` (`app/(marketing)/page.tsx`
 | line | `#ECEBE7` | 1px rules and card edges |
 | green | `#21803D` | accent: gains, the one CTA state, the source dot |
 | mint | `#EEF8F1` | soft accent fills |
-| night | `#141312` | the subscription band |
 
 Type: Geist Sans only, with Geist Mono (`.nums`, tabular) for figures. Display
 `clamp(2.6rem, 6.9vw, 5.4rem)`, weight 600, line-height 0.96, tracking −0.045em.
@@ -138,11 +137,11 @@ Animate only transform, opacity, filter and clip-path. Never hijack touch scroll
 
 **Nav.** Floating pill, 1120px, blur and a hairline shadow after 16px of scroll.
 Left: mark + wordmark. **Centre (true optical centring):** Features · Privacy ·
-Pricing · FAQ. Right: "Open Finlio" (ink pill). Mobile: wordmark, Open Finlio,
-menu; a full-screen sheet with the four links and the same action. A 2px green progress line runs along the
+FAQ. Right: "Open Finlio" (ink pill). Mobile: wordmark, Open Finlio,
+menu; a full-screen sheet with the three links and the same action. A 2px green progress line runs along the
 top edge of the page. Anchor jumps glide with Lenis and land 88px below the nav.
 
-Hero, principles strip, features, product, privacy, subscription, FAQ and
+Hero, principles strip, features, product, privacy, FAQ and
 footer are written out in Part 2.
 
 ### Accessibility and performance
@@ -155,7 +154,7 @@ footer are written out in Part 2.
   from screen readers; the FAQ uses `aria-expanded` / `aria-controls`.
 - Tap targets ≥ 44px; no horizontal overflow at 320–1440px.
 - Copy is server-rendered and readable with JavaScript disabled.
-- Only the islands are client components: nav, hero shot, privacy, pricing,
+- Only the islands are client components: nav, hero shot, privacy,
   FAQ, and the reveal wrappers. No layout shift from fonts or images
   (`next/font`, explicit image sizes).
 
@@ -176,7 +175,7 @@ footer are written out in Part 2.
 
 ### Navigation
 
-`Finlio` · Features · Privacy · Pricing · FAQ · **Open Finlio**
+`Finlio` · Features · Privacy · FAQ · **Open Finlio**
 
 ### Hero
 
@@ -260,31 +259,6 @@ drawn from the product's own surfaces — no stock art, no mascots.
 
 > ## Finlio explains. It never advises.
 
-### Subscription
-
-> **Pricing**
->
-> ## Clarity starts free.
->
-> Choose Pro for AI summaries and chat. Max adds your preferred AI.
->
-> Monthly / Yearly
-
-**Free · ₹0 forever** — Everything you need to see the whole picture.
-Net worth and quarterly bars · Holdings, expenses, assets and loans · Analytics
-and goals · Built for India: NSE, EPF, PPF and NPS · Local-only storage, JSON
-backups.
-**Start free**
-
-**Pro · ₹199 a month (₹1,999 a year)** — AI summaries, chat and automatic
-spending sync.
-Everything in Free · Plain-language AI summaries in Insights · Finlio chat (⌘L),
-answered from your totals · Read-only Gmail spending sync.
-**Start 14 days free**
-
-*Cancel any time. Your data is yours either way. Prices are examples while
-Finlio is in early access.*
-
 ### FAQ
 
 > ## A few things you might ask.
@@ -320,7 +294,7 @@ Finlio is in early access.*
 > **Finlio** — Know why your money moved. A private, AI-assisted money dashboard
 > for India. **Get started**
 >
-> Product: Features · Privacy · Pricing · FAQ
+> Product: Features · Privacy · FAQ
 > The app: Dashboard · Holdings · Transactions · Analytics · Goals
 > Legal: Terms · Your data · Cookies
 > Elsewhere: GitHub · gokulakrishnan.dev
@@ -343,9 +317,6 @@ Finlio is in early access.*
 
 Assumptions worth knowing:
 
-- **Prices are placeholders.** Finlio has not published pricing; the numbers
-  live in `lib/landing-pricing.ts`, the copy says they are examples, and they
-  should be replaced before a real launch.
 - **Open Finlio goes straight to `/dashboard`.** Finlio has no accounts. Add Log
   in and Sign up only once accounts exist.
 - **Copy is English-only.** The app's six languages cover the product, not the

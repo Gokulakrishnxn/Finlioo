@@ -333,37 +333,6 @@ html[data-demo] nextjs-portal {
 /* Marketing landing page                                                     */
 /* ------------------------------------------------------------------------- */
 
-/* The pricing section is dark inside a page that is always light. `dark:` is
-   scoped away from .marketing-theme on purpose, so the section re-declares the
-   tokens it needs instead of switching the whole appearance. */
-.marketing-dark {
-  color-scheme: dark;
-  --background: #141312;
-  --foreground: #f4f2ee;
-  --card: #1c1b19;
-  --card-foreground: #f4f2ee;
-  --popover: #232120;
-  --popover-foreground: #f4f2ee;
-  --primary: #f4f2ee;
-  --primary-foreground: #141312;
-  --secondary: #211f1d;
-  --secondary-foreground: #f4f2ee;
-  --muted: #262421;
-  --muted-foreground: #a9a397;
-  --accent: #2a2724;
-  --accent-foreground: #f4f2ee;
-  --border: #2d2a26;
-  --input: #8a8378;
-  --ring: #7dd79b;
-  --body: #cdc7bd;
-  --success: #7dd79b;
-  --success-soft: #1c2a21;
-  --gain: #5fd47f;
-  --destructive: #ff9a8f;
-  --danger-soft: #2c2020;
-  --card-shadow: 0 1px 3px rgb(0 0 0 / 35%);
-}
-
 /* Lenis smooth scrolling. Mounted only while the browser allows motion. */
 html.lenis,
 html.lenis body {

@@ -24,10 +24,6 @@
 .productStage > div { border-radius: 12px 12px 0 0; border: 1px solid #d8dfd3; overflow: hidden; box-shadow: 0 20px 45px -25px #30432c55; }
 .productStage img { width: 100%; height: auto; display: block; }
 .productCaption { font-size: 11px; color: var(--muted-foreground); text-align: center; margin-top: 16px; }
-.pricing { padding: 72px 24px; scroll-margin-top: 90px; }
-.pricingGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 36px auto 0; max-width: 1120px; }
-.plan { height: 100%; padding: 32px; border: 1px solid #e1e4dc; border-radius: 22px; background: #fff; color: #283026; }
-.proPlan { background: #eef2ea; border-color: #bfcdb5; }
 .faq { max-width: 1120px; margin: 0 auto; padding: 64px 0 80px; border-top: 1px solid var(--border); }
 .faqList { display: grid; gap: 10px; }
 .faqItem { border: 1px solid var(--border); border-radius: 14px; padding: 0 20px; background: var(--card); }
@@ -42,12 +38,10 @@
  .showcaseHeading { display: block; }
  .showcaseHeading > p { margin-top: 18px; }
  .productStage { padding: 16px 16px 0; }
- .pricingGrid { grid-template-columns: 1fr; }
- .plan { padding: 26px; }
  .faq { padding: 40px 0; }
  .closing { padding: 32px 24px 100px; margin-bottom: 40px; }
 }
-.privacy > *, .controls > *, .pricingGrid > * { min-width: 0; }
+.privacy > *, .controls > * { min-width: 0; }
 @media (min-width: 768px) and (max-width: 1023px) {
  .privacy { padding: 32px; gap: 28px; }
  .device { padding: 18px; }
@@ -59,12 +53,6 @@
  .privateRows > div { font-size: 11px; }
  .privateRows > div > span:last-child { font-size: 10px; }
  .closing { padding-left: 22px; padding-right: 22px; }
-}
-
-.maxPlan { background: #f1eee7; border-color: #d6cdbb; }
-@media (min-width: 768px) and (max-width: 1023px) {
- .pricingGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
- .pricingGrid > :last-child { grid-column: 1 / -1; }
 }
 
 .footerBody { max-width: 1120px; margin: auto; border-top: 1px solid var(--border); padding-top: 36px; }
