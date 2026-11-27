@@ -28,10 +28,12 @@ const RECOMMENDATION_PATTERNS = [
 
 // Saying what Finlio won't do, or describing what someone already did, isn't advice.
 const NOT_ADVICE = /\b(?:can't|cannot|can not|won't|will not|don't|do not|doesn't|does not|never|not able|rather than|instead of|whether|if you)\b/i;
+// The same refusals in Hindi and Marathi ("नहीं", "नाही"), Tamil, Telugu and Kannada ("can't", "not").
+const NOT_ADVICE_INDIC = /नहीं|नाही|முடியாது|இல்லை|లేను|కాదు|ಸಾಧ್ಯವಿಲ್ಲ|ಹೇಳಲಾರೆ|ಇಲ್ಲ/;
 
 export function containsRecommendation(text: string) {
   const sentence = text.trim();
-  if (!sentence || NOT_ADVICE.test(sentence)) return false;
+  if (!sentence || NOT_ADVICE.test(sentence) || NOT_ADVICE_INDIC.test(sentence)) return false;
   return RECOMMENDATION_PATTERNS.some((pattern) => pattern.test(sentence));
 }
 
