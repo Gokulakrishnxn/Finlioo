@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { CloserLook } from "@/components/landing/closer-look";
 import { Faq } from "@/components/landing/faq";
-import { Features } from "@/components/landing/features";
-import { Hero } from "@/components/landing/hero";
 import { Pricing } from "@/components/landing/pricing";
 import { Privacy } from "@/components/landing/privacy";
-import { Showcase } from "@/components/landing/showcase";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteNav } from "@/components/landing/site-nav";
+import { VideoTour } from "@/components/landing/video-tour";
+import { WarmHero } from "@/components/landing/warm-hero";
+import { WhyFinlio } from "@/components/landing/why-finlio";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.finlio.app"),
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-dvh bg-cream">
+    <div className="fl-warm relative min-h-dvh bg-cream text-ink">
       <a
         href="#main"
         className="sr-only rounded-full bg-primary px-4 py-2 text-[13px] font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80]"
@@ -40,9 +41,10 @@ export default function LandingPage() {
       </a>
       <SiteNav />
       <main id="main">
-        <Hero />
-        <Features />
-        <Showcase />
+        <WarmHero />
+        <WhyFinlio />
+        <VideoTour />
+        <CloserLook />
         <Privacy />
         <Pricing />
         <Faq />

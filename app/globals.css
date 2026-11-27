@@ -599,3 +599,27 @@ html.lenis body {
 @media (max-width: 767px) {
   .fl-stage .ss-window__side { display: none; }
 }
+
+/* Warm landing palette: cream paper, cocoa buttons. Scoped to the landing
+   page so sign-in, terms and the app keep the standard marketing palette. */
+.fl-warm {
+  --background: #f6efe4;
+  --foreground: #2a1c15;
+  --card: #fdf9f3;
+  --card-foreground: #2a1c15;
+  --popover: #fdf9f3;
+  --popover-foreground: #2a1c15;
+  --primary: #77422e;
+  --primary-foreground: #fdf9f3;
+  --secondary: #efe3d1;
+  --secondary-foreground: #2a1c15;
+  --muted: #efe3d1;
+  --muted-foreground: #85695a;
+  --accent: #efe3d1;
+  --accent-foreground: #2a1c15;
+  --border: #e6d7c2;
+  --ring: #77422e;
+  --body: #5b4537;
+  --success: #4f7a3a;
+  --success-soft: #edf3e4;
+}

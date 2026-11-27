@@ -3,6 +3,7 @@
 
 export const NAV_LINKS = [
   { href: "#features", label: "Features" },
+  { href: "#tour", label: "Tour" },
   { href: "#privacy", label: "Privacy" },
   { href: "#pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
@@ -47,6 +48,26 @@ export const FEATURES = [
   },
 ] as const;
 
+// The product tour video. Drop the files into public/marketing/ with these
+// names (an MP4 is enough; WebM is optional and smaller). Until a file is
+// there, the player shows the poster and a "coming soon" note instead.
+export const TOUR_VIDEO = {
+  sources: [
+    { src: "/marketing/finlio-tour.webm", type: "video/webm" },
+    { src: "/marketing/finlio-tour.mp4", type: "video/mp4" },
+  ],
+  poster: "/marketing/dashboard.webp",
+  /** Optional WebVTT captions, e.g. "/marketing/finlio-tour.en.vtt". */
+  captions: null as string | null,
+  length: "1:30",
+  chapters: [
+    { at: 0, label: "Your whole picture", body: "Net worth, assets and loans in one view." },
+    { at: 25, label: "Spending, sorted", body: "Bank and UPI alerts become clear categories." },
+    { at: 50, label: "Goals with a pace", body: "What to set aside each month, and when you get there." },
+    { at: 70, label: "Ask Finlio", body: "Plain-language answers from your own totals." },
+  ],
+} as const;
+
 export const FAQS = [
   {
     q: "Where does my data actually live?",
@@ -87,6 +108,7 @@ export const FOOTER_COLUMNS = [
     title: "Product",
     links: [
       { label: "Features", href: "#features" },
+      { label: "Product tour", href: "#tour" },
       { label: "Privacy", href: "#privacy" },
       { label: "Pricing", href: "#pricing" },
       { label: "FAQ", href: "#faq" },

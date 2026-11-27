@@ -98,6 +98,18 @@ const PREVIEWS = {
   chat: ChatPreview,
 };
 
+export type PreviewId = keyof typeof PREVIEWS;
+
+/** One product preview on its tinted stage, for reuse in other sections. */
+export function FeaturePreview({ id, className }: { id: PreviewId; className?: string }) {
+  const Preview = PREVIEWS[id];
+  return (
+    <div className={`${styles.stage} ${className ?? ""}`} data-scene={id}>
+      <Preview />
+    </div>
+  );
+}
+
 export function Features() {
   return (
     <section id="features" className="scroll-mt-24 px-5 py-20 sm:px-8 lg:py-28">
