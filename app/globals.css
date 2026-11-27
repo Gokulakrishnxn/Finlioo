@@ -569,22 +569,6 @@ html.lenis body {
   background: linear-gradient(150deg, #e3eceb, #edf0df 60%, #d2ddca);
 }
 
-[data-feature="picture"] {
-  background: radial-gradient(ellipse at 80% 100%, #96c4ac, transparent 76%), linear-gradient(#f6faf6, #c9e2db);
-}
-
-[data-feature="moved"] {
-  background: linear-gradient(140deg, #edf6fc, #dce9f5);
-}
-
-[data-feature="ledger"] {
-  background: linear-gradient(145deg, #fcf5ed, #f5e7e6);
-}
-
-[data-feature="chat"] {
-  background: radial-gradient(ellipse at 75% 110%, #c8e6eb, transparent 72%), var(--card);
-}
-
 /* Marketing uses native scrolling and a stationary, wrapping principles list. */
 .marketing-theme .fl-marquee { mask-image: none; }
 .marketing-theme .fl-marquee__track {

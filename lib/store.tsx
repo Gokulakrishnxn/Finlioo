@@ -1,7 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { todayLocal } from "@/lib/format";
 import { lotsOf, withLots } from "@/lib/portfolio";
+import { sampleAssets, sampleEntries, sampleGoals, sampleHoldings, sampleSnapshots } from "@/lib/sample";
 import type { Asset, Brief, Entry, ExpenseSnapshot, Goal, GoalContribution, Holding, Profile, Snapshot } from "@/lib/types";
 import {
   cacheKey,
@@ -38,6 +40,7 @@ type Store = StoreData & {
   updateHolding: (id: string, changes: Partial<NewHolding>) => void;
   removeHolding: (id: string) => void;
   removeLot: (holdingId: string, lotId: string) => void;
+  addSample: () => void;
   removeSample: () => void;
   setBrief: (brief: Brief) => void;
   setExpenses: (expenses: ExpenseSnapshot | undefined) => void;
@@ -301,7 +304,43 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [update],
   );
 
-  // Removes every sample item and keeps everything the person added themselves.
+  // The whole demo household: stocks, assets, loans, fourteen months of income and
+  // spending, and net-worth history. Added once; everything is tagged `sample`.
+  const addSample = useCallback(
+    () =>
+      update((prev) => {
+        const id = () => crypto.randomUUID();
+        const today = todayLocal();
+        const owned = new Set(prev.holdings.map((h) => h.instrumentKey));
+        const holdings = [
+          ...prev.holdings,
+          ...sampleHoldings().filter((s) => !owned.has(s.instrumentKey)).map((s) => ({ ...s, id: id() })),
+        ];
+        const hasSample = (list?: { sample?: boolean }[]) => list?.some((x) => x.sample) ?? false;
+        const assets = hasSample(prev.assets)
+          ? prev.assets!
+          : [...(prev.assets ?? []), ...sampleAssets().map((a) => ({ ...a, id: id() }))];
+        const entries = hasSample(prev.entries)
+          ? prev.entries!
+          : [...(prev.entries ?? []), ...sampleEntries(today).map((e) => ({ ...e, id: id() }))];
+        // Scale the history to today's net worth (stocks at cost) so the chart ends where the card starts.
+        const current =
+          holdings.reduce((sum, h) => sum + h.quantity * h.buyPrice, 0) +
+          assets.reduce((sum, a) => sum + (a.side === "asset" ? a.amount : -a.amount), 0);
+        const realDays = new Set((prev.snapshots ?? []).filter((s) => !s.sample).map((s) => s.date));
+        const snapshots = hasSample(prev.snapshots)
+          ? prev.snapshots!
+          : [...(prev.snapshots ?? []), ...sampleSnapshots(today, current).filter((s) => !realDays.has(s.date))].sort(
+              (a, b) => a.date.localeCompare(b.date),
+            );
+        const goals = hasSample(prev.goals)
+          ? prev.goals!
+          : [...(prev.goals ?? []), ...sampleGoals(today).map((g) => ({ ...g, id: id() }))];
+        return { ...prev, holdings, assets, entries, snapshots, goals };
+      }),
+    [update],
+  );
+
   const saveGoal = useCallback<Store["saveGoal"]>(
     (goal) =>
       update((prev) => {
@@ -351,6 +390,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [update],
   );
 
+  // Removes every sample item and keeps everything the person added themselves.
   const removeSample = useCallback(
     () =>
       update((prev) => ({
@@ -461,6 +501,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         updateHolding,
         removeHolding,
         removeLot,
+        addSample,
         removeSample,
         setBrief,
         setExpenses,

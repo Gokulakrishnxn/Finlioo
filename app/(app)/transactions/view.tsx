@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, LogOut, Mail, Plus, RefreshCw, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountUp } from "@/components/count-up";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -9,7 +9,7 @@ import { ActivityRow } from "@/components/dashboard/recent-activity";
 import { EntryDialog } from "@/components/entry-dialog";
 import { PageHeader } from "@/components/page-header";
 import { PageSkeleton } from "@/components/page-skeleton";
-import { formatMoney, formatTime } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import { inRange, rangeLabel } from "@/lib/date-range";
 import { useDateRange } from "@/lib/date-range-context";
 import { compactMoney, rangeTotals, spendingByCategory } from "@/lib/networth";
@@ -32,13 +32,11 @@ const MESSAGES: Record<string, string> = {
 const BAR_COLORS = ["var(--chart-gain)", "#3784f4", "#ff9f43", "#9553f9", "#ffbe4c", "var(--chart-loss)", "#14b8a6", "#a8a29e", "var(--chart-muted)"];
 
 export default function TransactionsPage() {
-  const { ready, expenses, setExpenses, removeEntry } = useStore();
+  const { ready, removeEntry } = useStore();
   const { items } = useMoney();
   const { range, previous } = useDateRange();
   const [session, setSession] = useState<Session | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [syncing, setSyncing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState<"income" | "expense" | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [match, setMatch] = useState<{ kind: "category" | "merchant"; value: string } | null>(null);
@@ -72,32 +70,6 @@ export default function TransactionsPage() {
       (filter === "all" || i.type === filter) &&
       (!match || (match.kind === "category" ? i.category === match.value : i.title === match.value)),
   );
-
-  async function sync() {
-    setSyncing(true);
-    setError(null);
-    setNotice(null);
-    try {
-      const res = await fetch("/api/expenses/sync", {
-        method: "POST",
-      });
-      const body = await res.json();
-      if (res.status === 401) setSession((s) => (s ? { ...s, gmail: false } : s));
-      if (!res.ok) throw new Error(body.error);
-      setExpenses({ account: body.account, syncedAt: body.syncedAt, expenses: body.expenses });
-      if (!body.expenses.length) setNotice(`Read ${body.scanned} alert emails but found no spends.`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't read your bank alerts.");
-    } finally {
-      setSyncing(false);
-    }
-  }
-
-  async function disconnect() {
-    await fetch("/api/auth/gmail", { method: "DELETE" });
-    setSession((s) => (s ? { ...s, gmail: false } : s));
-    setExpenses(undefined);
-  }
 
   if (!ready || !session) return <PageSkeleton />;
   const max = byCategory[0]?.amount ?? 1;
@@ -184,32 +156,6 @@ export default function TransactionsPage() {
       </div>
 
       <div className="mt-4 empty:hidden">
-        {session.gmail && (
-          <section className="card-surface flex flex-wrap items-center justify-between gap-4 px-6 py-4">
-            <div className="flex items-center gap-3 text-[14px] text-body">
-              <span className="flex size-8 items-center justify-center rounded-full bg-sand">
-                <Mail className="size-4 text-ink" />
-              </span>
-              <span>
-                {t("Gmail ·")} <span className="font-medium text-ink">{session.email}</span>
-                {expenses?.syncedAt && (
-                  <span className="text-muted-foreground"> · {t("Synced {time}", { time: formatTime(expenses.syncedAt) })}</span>
-                )}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={sync} disabled={syncing} className="h-9 rounded-xl px-4">
-                {syncing ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-                {syncing ? t("Reading your alerts…") : expenses ? t("Sync again") : t("Sync bank alerts")}
-              </Button>
-              <Button variant="ghost" onClick={disconnect} className="h-9 rounded-xl text-muted-foreground">
-                <LogOut className="size-4" />
-                {t("Disconnect")}
-              </Button>
-            </div>
-          </section>
-        )}
-        {error &&<p className="mt-3 rounded-2xl bg-card px-5 py-3 text-[14px] text-loss ring-1 ring-line">{error}</p>}
       </div>
 
       <section className="card-surface mt-4 px-6 pt-5 pb-3">
@@ -270,7 +216,7 @@ export default function TransactionsPage() {
           </ul>
         ) : (
           <p className="py-6 text-[14px] text-body">
-            {session.gmail ? t("Nothing in this period. Choose other dates, add an expense or income, or sync your bank alerts.") : t("Nothing in this period. Choose other dates, or add an expense or income.")}
+            {t("Nothing in this period. Choose other dates, or add an expense or income.")}
           </p>
         )}
       </section>

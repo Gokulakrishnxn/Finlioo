@@ -61,7 +61,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          Your data is stored on Supabase, in a data centre in Mumbai, India, encrypted in transit and at rest. Finlio
+          Your data is stored on Google Cloud (Firestore), encrypted in transit and at rest. Finlio
           also encrypts your money data before it is stored. Every request is checked against your account before any
           data is read or changed.
         </p>
@@ -99,10 +99,9 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
       <>
         <p>Finlio relies on services run by other companies, each under its own terms:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>Supabase, for your account and stored data; Vercel, for running Finlio; and Resend, for account emails.</li>
-          <li>Google Gemini and Google Search, for insights, chat and reading bank alerts.</li>
+          <li>Google Cloud, for sign-in and your stored data; Vercel, for running Finlio; and Gmail, for account emails.</li>
+          <li>Google Gemini and Google Search, for insights and chat.</li>
           <li>Upstox, for NSE stock prices, and NSE, for the list of stocks.</li>
-          <li>Gmail, read-only and only if you choose to connect it, for bank and card alerts.</li>
           <li>icon.horse and Google&apos;s favicon service, for company logos (can be turned off).</li>
         </ul>
         <p>
@@ -113,13 +112,20 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     ),
   },
   {
-    title: "6. Connecting Gmail",
+    title: "6. Signing in",
     body: (
-      <p>
-        If you connect Google, you allow Finlio read-only access to your Gmail so it can find bank, card and
-        payment alerts. Finlio never sends email or changes your mailbox. You can disconnect at any time in
-        Finlio or in your Google Account, which revokes access.
-      </p>
+      <>
+        <p>
+          You can sign in with Google, or with an email address and password. Finlio uses your Google account only to
+          sign you in and to send you account emails from Finlio&apos;s own address. It never reads your Gmail, your
+          bank messages or any other mail, and it asks Google only for your name, email address and profile picture.
+        </p>
+        <p className="mt-3">
+          If you use an email and password, Google&apos;s Firebase Authentication stores and checks your password;
+          Finlio&apos;s servers never receive or store it. You must verify your email address before you can sign in,
+          and password reset links come from Firebase.
+        </p>
+      </>
     ),
   },
   {

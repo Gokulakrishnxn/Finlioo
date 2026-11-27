@@ -1,22 +1,26 @@
 import { type NextRequest } from "next/server";
-import { completeSignIn, pendingSignIn } from "@/lib/google-session";
+import { completeSignIn } from "@/lib/auth/google";
+import { startSession } from "@/lib/auth/session";
+import { publicOrigin } from "@/lib/public-origin";
+import { sendWelcomeEmail } from "@/lib/welcome-email";
 
 export async function GET(request: NextRequest) {
-  const { origin, searchParams } = request.nextUrl;
+  const { searchParams } = request.nextUrl;
+  const origin = publicOrigin(request.nextUrl.origin);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
-  const pending = await pendingSignIn();
-  // Failures go back to where the person started: Transactions for Gmail, else the dashboard.
-  const fail = (status: string) =>
-    Response.redirect(new URL(pending?.gmail ? `/transactions?google=${status}` : `/sign-in?error=${status}`, origin));
+  const fail = (status: string) => Response.redirect(new URL(`/sign-in?error=${status}`, origin));
 
   // The person pressed Cancel on Google's consent screen.
   if (searchParams.get("error") || !code || !state) return fail("denied");
   try {
-    const { next } = await completeSignIn(origin, code, state);
+    const { profile, next } = await completeSignIn(origin, code, state);
+    const { isNew } = await startSession(profile);
+    // Waited for, because serverless hosting can pause work left over after the response. It never blocks sign-in.
+    if (isNew && profile.email) await sendWelcomeEmail({ to: profile.email, name: profile.name, appUrl: origin });
     return Response.redirect(new URL(next, origin));
   } catch (err) {
-    console.error("[google] sign-in failed:", err);
+    console.error("[auth] google sign-in failed:", err instanceof Error ? err.message : "unknown");
     return fail("failed");
   }
 }

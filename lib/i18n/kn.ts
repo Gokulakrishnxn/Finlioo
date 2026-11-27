@@ -239,7 +239,6 @@ const kn: Record<string, string> = {
   "All your money in one place.": "ನಿಮ್ಮ ಎಲ್ಲಾ ಹಣ ಒಂದೇ ಕಡೆ.",
   "Add the stocks you own and see them next to your savings, loans and spending. Your portfolio stays in this browser.": "ನಿಮ್ಮ ಷೇರುಗಳನ್ನು ಸೇರಿಸಿ, ಉಳಿತಾಯ, ಸಾಲ ಮತ್ತು ಖರ್ಚಿನ ಜೊತೆ ನೋಡಿ. ನಿಮ್ಮ ಪೋರ್ಟ್‌ಫೋಲಿಯೊ ಈ ಬ್ರೌಸರ್‌ನಲ್ಲೇ ಇರುತ್ತದೆ.",
   "Add your first stock": "ನಿಮ್ಮ ಮೊದಲ ಷೇರು ಸೇರಿಸಿ",
-  "Try a sample portfolio": "ಮಾದರಿ ಪೋರ್ಟ್‌ಫೋಲಿಯೊ ಪ್ರಯತ್ನಿಸಿ",
   "Analytics": "ವಿಶ್ಲೇಷಣೆ",
   "Your money, measured over time.": "ಕಾಲಕ್ರಮೇಣ ನಿಮ್ಮ ಹಣದ ಲೆಕ್ಕ.",
   "Nothing to measure yet": "ಅಳೆಯಲು ಇನ್ನೂ ಏನೂ ಇಲ್ಲ",

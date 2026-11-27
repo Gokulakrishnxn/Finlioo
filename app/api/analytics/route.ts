@@ -1,10 +1,9 @@
 import { API_LIMITS, guard } from "@/lib/api-guard";
 import { containsRecommendation } from "@/lib/ai-guard";
 import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
-import { GoogleGenAI } from "@google/genai";
+import { GEMINI_MODEL, geminiKeys, withGemini } from "@/lib/gemini";
 import { z } from "zod";
 
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 // Totals only: no transactions, merchants, account names or stock quantities.
 const AnalyticsRequestSchema = z.object({
@@ -31,16 +30,14 @@ export async function POST(request: Request) {
   if (blocked) return blocked;
   const parsed = AnalyticsRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Send your money totals." }, { status: 400 });
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return Response.json({ error: "Analytics explanations aren't set up yet (no Gemini key)." }, { status: 503 });
+  if (!geminiKeys().length) return Response.json({ error: "Analytics explanations aren't set up yet (no Gemini key)." }, { status: 503 });
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-      model: MODEL,
+    const response = await withGemini((ai) => ai.models.generateContent({
+      model: GEMINI_MODEL,
       contents: JSON.stringify(parsed.data),
       config: { systemInstruction: `${SYSTEM}${languageRule(parsed.data.language)}` },
-    });
+    }));
     const points = (response.text ?? "")
       .split("\n")
       .map((l) => l.replace(/^[-•*]\s*/, "").trim())

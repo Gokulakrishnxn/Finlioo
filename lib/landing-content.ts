@@ -4,7 +4,7 @@
 export const NAV_LINKS = [
   { href: "#features", label: "Features" },
   { href: "#privacy", label: "Privacy" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "#pricing", label: "Plans" },
   { href: "#faq", label: "FAQ" },
 ] as const;
 
@@ -50,7 +50,7 @@ export const FEATURES = [
 export const FAQS = [
   {
     q: "Where does my data actually live?",
-    a: "Your data is stored on Supabase, in Mumbai, encrypted in transit and at rest, and every request is checked against your account. Passwords are securely hashed, never stored in plain text. Finlio's servers can decrypt your data to show it to you. You can export it as CSV or JSON any time, or delete your account and financial data from Settings.",
+    a: "Your data is stored on Google Cloud, encrypted in transit and at rest, and every request is checked against your account. You sign in with Google, or with an email and password that Firebase Auth holds and checks, so Finlio's servers never see or store your password. Finlio's servers can decrypt your data to show it to you. You can export it as CSV or JSON any time, or delete your account and financial data from Settings.",
   },
   {
     q: "Does Finlio tell me what to buy?",
@@ -58,11 +58,11 @@ export const FAQS = [
   },
   {
     q: "What leaves my device?",
-    a: "Only what each feature needs: NSE codes for prices, totals and percentages for Insights and chat, and company web addresses for logos, which you can turn off. If you connect Gmail, the sender, subject and preview of bank alerts are read to find your spending. The Terms list all of it.",
+    a: "Only what each feature needs: NSE codes for prices, totals and percentages for Insights and chat, and company web addresses for logos, which you can turn off. The Terms list all of it.",
   },
   {
-    q: "Why would I connect Gmail?",
-    a: "Only if you want spending tracked. It is a separate, optional, read-only grant that turns bank and UPI alerts into categories. You can disconnect it at any time in Settings.",
+    q: "Does Finlio read my Gmail?",
+    a: "No. Google is used only to sign you in, and Finlio sends account emails from its own address. It never reads your inbox or your bank messages.",
   },
   {
     q: "Who is Finlio for?",
@@ -88,7 +88,7 @@ export const FOOTER_COLUMNS = [
     links: [
       { label: "Features", href: "#features" },
       { label: "Privacy", href: "#privacy" },
-      { label: "Pricing", href: "#pricing" },
+      { label: "Plans", href: "#pricing" },
       { label: "FAQ", href: "#faq" },
     ],
   },

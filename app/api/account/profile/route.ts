@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { API_LIMITS, guard } from "@/lib/api-guard";
-import { createClient } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/auth/session";
+import { db } from "@/lib/gcp/firestore";
 
 const Body = z.object({ name: z.string().trim().max(80) });
 
@@ -11,11 +12,9 @@ export async function POST(request: Request) {
   const body = Body.safeParse(await request.json().catch(() => null));
   if (!body.success) return Response.json({ error: "Please use a shorter name." }, { status: 400 });
   try {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getClaims();
-    if (!data?.claims?.sub) return Response.json({ error: "Please sign in to continue." }, { status: 401 });
-    const { error } = await supabase.auth.updateUser({ data: { full_name: body.data.name || null } });
-    if (error) throw new Error(error.code);
+    const userId = await currentUserId();
+    if (!userId) return Response.json({ error: "Please sign in to continue." }, { status: 401 });
+    await db().collection("users").doc(userId).set({ name: body.data.name || null }, { merge: true });
     return Response.json({ saved: true });
   } catch (err) {
     console.error("[account] profile:", err instanceof Error ? err.message : "unknown");

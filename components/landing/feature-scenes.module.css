@@ -1,0 +1,228 @@
+/* The feature-card scenes. Each sits on a 360 × 200 stage whose ground is the
+   card's own glow, so the stage itself stays transparent. */
+
+.stage { color: var(--ss-text-strong); }
+
+.strong { font-size: 12.5px; font-weight: 600; color: var(--ss-text-strong); letter-spacing: -0.01em; }
+.muted { font-size: 11.5px; color: var(--ss-text); }
+.faint { font-size: 10.5px; color: var(--ss-text-faint); }
+.value { font-size: 12px; font-weight: 600; color: var(--ss-text-strong); font-variant-numeric: tabular-nums; }
+.figure { display: block; margin-top: 2px; font-size: 22px; font-weight: 600; letter-spacing: -0.04em; color: var(--ss-text-strong); font-variant-numeric: tabular-nums; }
+.answer { font-size: 17px; font-weight: 600; letter-spacing: -0.03em; color: var(--ss-text-strong); }
+
+.surface {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: var(--ss-shadow-satellite);
+}
+
+/* Placeholder neighbours: blurred and faded, the card's edge takes them. */
+.ghost {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 70%);
+  box-shadow: 0 0 0 1px rgb(31 36 51 / 4%);
+  filter: blur(0.6px);
+  opacity: 0.75;
+}
+
+/* 1. Picture */
+.picture { position: absolute; inset: 0; }
+.pictureGhostTop { left: 44px; top: 22px; opacity: 0.5; }
+.pictureGhostBottom { left: 92px; bottom: 18px; opacity: 0.5; }
+.strip {
+  composes: surface;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 78px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+}
+.segment {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  box-shadow: 0 0 0 1px var(--ss-line);
+  color: var(--ss-text);
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.segment svg { flex: none; color: var(--ss-icon); }
+.total {
+  margin-left: auto;
+  flex: none;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: var(--ss-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 2. Goals */
+.goals { position: absolute; inset: 0; }
+.goalsGhost { left: 70px; right: 70px; top: 14px; opacity: 0.55; }
+.goalCard {
+  composes: surface;
+  position: absolute;
+  left: 48px;
+  right: 48px;
+  top: 54px;
+  padding: 14px;
+}
+.goalHead { display: flex; align-items: center; gap: 8px; }
+.goalHead > :last-child { margin-left: auto; }
+.goalIcon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #f6f4ef;
+  color: #57534e;
+}
+.goalMeter { display: block; margin-top: 12px; }
+.goalFoot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.pace {
+  composes: surface;
+  position: absolute;
+  right: 28px;
+  top: 142px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+
+/* 3. Analytics */
+.analytics { position: absolute; inset: 0; }
+.chartCard {
+  composes: surface;
+  position: absolute;
+  left: 40px;
+  right: 40px;
+  top: 26px;
+  padding: 14px 14px 0;
+  height: 190px;
+}
+.chartHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.chartHead .faint { display: block; }
+.bars { display: flex; align-items: flex-end; gap: 8px; height: 84px; margin-top: 14px; }
+.bar {
+  flex: 1;
+  border-radius: 5px 5px 0 0;
+  background: #cfeed8;
+  transition: height 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bar[data-last] { background: var(--ss-accent); }
+
+/* 4. Spending */
+.spending { position: absolute; inset: 0; }
+.links { position: absolute; inset: 0; width: 100%; height: 100%; }
+.links path { fill: none; stroke: #dcd9d0; stroke-width: 1.25; }
+.links circle { fill: var(--ss-accent); }
+.source {
+  position: absolute;
+  left: 50px;
+  top: 82px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f6f4ef;
+  color: #57534e;
+  box-shadow: 0 0 0 1px #ecebe7;
+}
+.category {
+  composes: surface;
+  position: absolute;
+  left: 162px;
+  width: 160px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px;
+  border-radius: 9px;
+}
+.spendGhostTop { left: 196px; top: -14px; opacity: 0.45; }
+.spendGhostBottom { left: 196px; bottom: -14px; opacity: 0.45; }
+
+/* 5. Ledger */
+.ledger { position: absolute; inset: 0; }
+.ledgerCard {
+  composes: surface;
+  position: absolute;
+  left: 64px;
+  right: 64px;
+  top: 16px;
+  padding: 4px 12px;
+  height: 200px;
+}
+.ledgerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--ss-line);
+}
+.ledgerRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  transition: opacity 300ms ease;
+}
+.ledgerRow > :last-child { margin-left: auto; }
+.ledgerRow[data-off] { opacity: 0.45; }
+.ledgerTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-top: 1px solid var(--ss-line);
+}
+
+/* 6. Chat */
+.chat { position: absolute; inset: 0; }
+.chatCard {
+  composes: surface;
+  position: absolute;
+  left: 52px;
+  right: 52px;
+  top: 26px;
+  overflow: hidden;
+}
+.chatHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ss-line);
+  color: var(--ss-icon);
+}
+.chatHead svg { flex: none; }
+.chatBody { display: flex; flex-direction: column; gap: 4px; padding: 12px; }
+.chatMeter { display: block; margin-top: 8px; }
+.chatFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-top: 1px solid var(--ss-line);
+}

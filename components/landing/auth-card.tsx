@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 import { Wordmark } from "./site-nav";
-import { EmailForm, type AuthMode } from "./email-form";
+import { EmailSignIn } from "./email-sign-in";
+import { GoogleSignIn } from "./google-sign-in";
+
+export type AuthMode = "sign-in" | "sign-up";
 import styles from "./auth.module.css";
 
-const COPY: Record<AuthMode, { title: string; lead: string; cta?: string; altText?: string; altLabel?: string; altHref?: string }> = {
+const COPY: Record<AuthMode, { title: string; lead: string; cta: string; altText?: string; altLabel?: string; altHref?: string }> = {
   "sign-in": {
     title: "Welcome back",
     lead: "Sign in to see where your money moved.",
@@ -22,24 +25,12 @@ const COPY: Record<AuthMode, { title: string; lead: string; cta?: string; altTex
     altLabel: "Sign in",
     altHref: "/sign-in",
   },
-  forgot: {
-    title: "Reset your password",
-    lead: "Enter your email and we'll send you a link to choose a new one.",
-    altText: "Remembered it?",
-    altLabel: "Back to sign in",
-    altHref: "/sign-in",
-  },
-  reset: {
-    title: "Choose a new password",
-    lead: "You'll stay signed in on this device.",
-  },
 };
 
 const ERRORS: Record<string, string> = {
   denied: "Google sign-in was cancelled. You can try again whenever you're ready.",
   failed: "Something went wrong while signing you in. Please try again.",
-  "not-configured": "This sign-in option isn't set up yet. Please use your email and password.",
-  link: "That link has expired or was opened in a different browser. Please try signing in, or request a new link.",
+  "not-configured": "This sign-in option isn't set up yet. Please try again later.",
 };
 
 function GoogleMark() {
@@ -57,7 +48,6 @@ const STEPS = ["Add your money in one place", "See what changed this month", "Un
 
 export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string; next?: string }) {
   const c = COPY[mode];
-  const href = `/api/auth/google${next ? `?next=${encodeURIComponent(next)}` : ""}`;
   const message = error ? (ERRORS[error] ?? ERRORS.failed) : null;
 
   return (
@@ -68,7 +58,7 @@ export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string
             <Wordmark className="flex items-center gap-2" />
           </Link>
           <div className={styles.storyContent}>
-            <span className={styles.eyebrow}><Sparkles className="size-3.5" aria-hidden /> Know why your money moved</span>
+            <span className={styles.eyebrow}>Know why your money moved</span>
             <h2>Your money, in one view.</h2>
             <p>Understand what changed and why, without handing over your bank logins.</p>
             <ol className={styles.steps}>
@@ -93,14 +83,11 @@ export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string
               <p className={styles.lead}>{c.lead}</p>
               {message ? <p role="alert" className={styles.error}>{message}</p> : null}
 
-              <EmailForm mode={mode} next={next} />
+              <EmailSignIn mode={mode} next={next} />
 
-              {c.cta ? (
-                <>
-                  <div className={styles.divider} role="separator"><span /> or continue with <span /></div>
-                  <a href={href} className={styles.google}><GoogleMark /> {c.cta}</a>
-                </>
-              ) : null}
+              <div className={styles.divider} aria-hidden><span />or<span /></div>
+
+              <GoogleSignIn label={c.cta} next={next}><GoogleMark /></GoogleSignIn>
 
               {c.altHref ? (
                 <p className={styles.switch}>
@@ -108,7 +95,7 @@ export function AuthCard({ mode, error, next }: { mode: AuthMode; error?: string
                 </p>
               ) : null}
               <p className={styles.legal}>
-                By continuing you agree to the <Link href="/terms">Terms</Link> and <Link href="/cookies">Cookie notice</Link>. Gmail is never read unless you connect it later.
+                By continuing you agree to the <Link href="/terms">Terms</Link> and <Link href="/cookies">Cookie notice</Link>. Your password is held by Firebase Auth, never by Finlio, and Finlio never reads your email.
               </p>
             </div>
           </main>

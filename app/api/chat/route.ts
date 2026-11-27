@@ -1,10 +1,9 @@
 import { API_LIMITS, guard } from "@/lib/api-guard";
 import { SentenceGuard } from "@/lib/ai-guard";
 import { AI_LANGUAGE_CODES, languageRule, MONEY_STYLE } from "@/lib/ai-locale";
-import { GoogleGenAI } from "@google/genai";
+import { GEMINI_MODEL, geminiKeys, withGemini } from "@/lib/gemini";
 import { z } from "zod";
 
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
 
 // The browser sends a summary of the person's money: totals, percentages and
 // today's brief, never transactions, merchants or share quantities.
@@ -57,15 +56,13 @@ export async function POST(request: Request) {
   if (blocked) return blocked;
   const parsed = ChatRequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Send a question." }, { status: 400 });
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return Response.json({ error: "Chat isn't set up yet (no Gemini key)." }, { status: 503 });
+  if (!geminiKeys().length) return Response.json({ error: "Chat isn't set up yet (no Gemini key)." }, { status: 503 });
 
   const { messages, context, language } = parsed.data;
-  const ai = new GoogleGenAI({ apiKey });
 
   try {
-    const stream = await ai.models.generateContentStream({
-      model: MODEL,
+    const stream = await withGemini((ai) => ai.models.generateContentStream({
+      model: GEMINI_MODEL,
       contents: messages.map((m) => ({
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text: m.content }],
@@ -73,7 +70,7 @@ export async function POST(request: Request) {
       config: {
         systemInstruction: `${SYSTEM}\n\nTheir money right now:\n${JSON.stringify(context)}${languageRule(language)}`,
       },
-    });
+    }));
 
     const encoder = new TextEncoder();
     return new Response(

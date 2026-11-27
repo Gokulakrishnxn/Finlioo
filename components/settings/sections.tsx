@@ -3,7 +3,7 @@
 // The sections of the Settings window (opened from the profile menu).
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarRange, Download, EyeOff, ImageIcon, IndianRupee, Languages, LogOut, Mail, Monitor, Moon, PanelLeftClose, Rows3, ShieldCheck, Sun, Trash2, Upload } from "lucide-react";
+import { CalendarRange, Download, EyeOff, ImageIcon, IndianRupee, Languages, Mail, Monitor, Moon, PanelLeftClose, Rows3, ShieldCheck, Sun, Trash2, Upload } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -429,12 +429,6 @@ export function Accounts() {
       .catch(() => setSession({ configured: false }));
   }, []);
 
-  // Stops Gmail reading.
-  async function disconnectGmail() {
-    await fetch("/api/auth/gmail", { method: "DELETE" });
-    setSession((s) => (s ? { ...s, gmail: false } : s));
-  }
-
   return (
     <Card title={t("Connected accounts")}>
       <div className="flex items-center gap-3">
@@ -442,29 +436,12 @@ export function Accounts() {
           <Mail className="size-4 text-ink" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-medium text-ink">{t("Gmail, read-only")}</p>
-          <p className="truncate text-[13px] text-muted-foreground">
-            {!session ? t("Checking…") : session.gmail ? (session.email ?? t("Connected")) : session.configured ? t("Not connected") : t("Not available yet")}
-          </p>
+          <p className="text-[14px] font-medium text-ink">{t("Google sign-in")}</p>
+          <p className="truncate text-[13px] text-muted-foreground">{session?.email ?? t("Checking…")}</p>
         </div>
-        {session?.gmail ? (
-          <Button variant="outline" onClick={disconnectGmail} className="h-9 rounded-xl">
-            <LogOut className="size-4" />
-            {t("Disconnect")}
-          </Button>
-        ) : (
-          session?.configured && (
-            <a
-              href="/api/auth/google?gmail=1"
-              className="inline-flex h-9 items-center rounded-xl px-3 text-[14px] font-medium text-ink ring-1 ring-line hover:bg-sand"
-            >
-              {t("Connect")}
-            </a>
-          )
-        )}
       </div>
       <p className="mt-4 text-[12px] leading-relaxed text-muted-foreground">
-        {t("Gmail is used only to read bank and UPI alerts for Transactions. Disconnecting removes Finlio's access in your Google account.")}
+        {t("Finlio uses your Google account only to sign you in. It never reads your email.")}
       </p>
     </Card>
   );
@@ -506,18 +483,11 @@ export function DataCard({
     }
   }
 
-  // Erases this person's Finlio data and stops any Gmail access, so nothing
-  // syncs back in. This can't be undone.
+  // Erases this person's Finlio data from this device. This can't be undone.
   function erase() {
     onErase();
     setConfirmingErase(false);
     closeSettings();
-    fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((s: { gmail?: boolean }) => {
-        if (s.gmail) return fetch("/api/auth/gmail", { method: "DELETE" });
-      })
-      .catch(() => undefined);
   }
 
   function exportData() {
@@ -560,7 +530,7 @@ export function DataCard({
     <Card title={t("Your data")}>
       <p className="text-[14px] leading-relaxed text-body">
         {signedIn
-          ? t("Your data is stored on Supabase, encrypted in transit and at rest, and every request is checked against your account. Export all your data as CSV or JSON any time, or delete your account and financial data below.")
+          ? t("Your data is stored on Google Cloud, encrypted in transit and at rest, and every request is checked against your account. Export all your data as CSV or JSON any time, or delete your account and financial data below.")
           : t("Everything lives in this browser. Download a backup to move Finlio to another browser or keep a copy.")}
       </p>
       {signedIn && syncState === "error" ? (
@@ -620,8 +590,8 @@ export function DataCard({
             <AlertDialogTitle className="text-[18px] font-semibold tracking-tight">{t("Erase all data?")}</AlertDialogTitle>
             <AlertDialogDescription className="text-[14px] leading-relaxed">
               {signedIn
-                ? t("This erases your stocks, assets, loans, income, spending, history and profile from your account and this browser, and disconnects Gmail if it's connected. This can't be undone.")
-                : t("This erases your stocks, assets, loans, income, spending, history and profile from this browser, and disconnects Gmail if it's connected. Finlio keeps no other copy, so this can't be undone.")}
+                ? t("This erases your stocks, assets, loans, income, spending, history and profile from your account and this browser. This can't be undone.")
+                : t("This erases your stocks, assets, loans, income, spending, history and profile from this browser. Finlio keeps no other copy, so this can't be undone.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 

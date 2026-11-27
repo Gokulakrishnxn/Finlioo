@@ -239,7 +239,6 @@ const te: Record<string, string> = {
   "All your money in one place.": "మీ డబ్బు అంతా ఒకే చోట.",
   "Add the stocks you own and see them next to your savings, loans and spending. Your portfolio stays in this browser.": "మీ షేర్లను జోడించి, పొదుపు, రుణాలు, ఖర్చులతో కలిపి చూడండి. మీ పోర్ట్‌ఫోలియో ఈ బ్రౌజర్‌లోనే ఉంటుంది.",
   "Add your first stock": "మీ మొదటి షేరును జోడించండి",
-  "Try a sample portfolio": "నమూనా పోర్ట్‌ఫోలియో ప్రయత్నించండి",
   "Analytics": "విశ్లేషణ",
   "Your money, measured over time.": "కాలక్రమేణా మీ డబ్బు లెక్క.",
   "Nothing to measure yet": "కొలవడానికి ఇంకా ఏమీ లేదు",

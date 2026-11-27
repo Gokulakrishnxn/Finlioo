@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "components/landing/stage-kit/**",
     // Installed agent skills, not application source.
     ".agents/**",
+    // The launch film (its own Remotion package).
+    "video/**",
   ]),
 ]);
 
