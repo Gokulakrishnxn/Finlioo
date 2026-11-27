@@ -1,0 +1,18 @@
+# Builds the Finlio image for Cloud Run. The Firebase values are public browser settings,
+# baked into the build; pass them as substitutions (see README "Deploy").
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - asia-south1-docker.pkg.dev/$PROJECT_ID/finlio/web:latest
+      - --build-arg=NEXT_PUBLIC_FIREBASE_API_KEY=${_FB_API_KEY}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${_FB_AUTH_DOMAIN}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_PROJECT_ID=${_FB_PROJECT_ID}
+      - --build-arg=NEXT_PUBLIC_FIREBASE_APP_ID=${_FB_APP_ID}
+      - .
+images:
+  - asia-south1-docker.pkg.dev/$PROJECT_ID/finlio/web:latest
+options:
+  machineType: E2_HIGHCPU_8
+timeout: 1800s

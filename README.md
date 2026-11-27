@@ -7,7 +7,7 @@ lakhs and crores across the April–March financial year. Its chat answers
 questions about that money in six languages. It explains. It never tells
 anyone what to buy, sell or hold.
 
-Next.js 16 · Gemini 3.5 Flash-Lite · Firestore on Google Cloud · Firebase Auth · Private source
+Next.js 16 · Gemini 3.5 Flash-Lite · Cloud Run and Firestore on Google Cloud · Firebase Auth · Private source
 
 | If you want to… | Start here |
 |---|---|
@@ -149,7 +149,8 @@ Each change raises a revision counter, so a device asks only for what changed
 since it last synced, and the newest edit wins when two devices disagree.
 Anyone can export all their data as CSV or JSON, or delete their account and
 its data, from Settings. The server holds no service-account key file: on
-Vercel it reaches Firestore through Workload Identity Federation.
+Cloud Run it reaches Firestore as the service's own Google identity, and on
+Vercel through Workload Identity Federation.
 
 Google sign-in shares a name, an email address and a profile picture.
 With email and password, Firebase Auth stores and checks the password, and
@@ -166,18 +167,40 @@ never reads anyone's mailbox.
 
 ## Deploy
 
-[docs/gcp-setup.md](docs/gcp-setup.md) walks through the full setup: a Google
-Cloud project with Firestore, Google sign-in, Firebase Auth, send-only email,
-Gemini keys, and keyless access from Vercel. Vercel runs the app.
+Finlio runs on Cloud Run in Mumbai (`asia-south1`), next to its Firestore
+database. On Cloud Run the server reaches Firestore as the service's own
+Google identity, so there is no key file. Secrets live in Secret Manager.
 
-To run it on Cloud Run instead, build the included Dockerfile:
+**Once per project.** Turn on the services, make an image repository, and
+store the three secrets (each `printf` takes the value from your `.env.local`):
 
 ```bash
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/finlio
-gcloud run deploy finlio --image gcr.io/YOUR_PROJECT_ID/finlio --region asia-south1
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com firestore.googleapis.com
+gcloud artifacts repositories create finlio --repository-format=docker --location=asia-south1
+printf '%s' "$AUTH_SECRET" | gcloud secrets create auth-secret --data-file=-
+printf '%s' "$VAULT_MASTER_KEY" | gcloud secrets create vault-master-key --data-file=-
+printf '%s' "$GEMINI_API_KEY" | gcloud secrets create gemini-api-key --data-file=-
 ```
 
-Set the same environment variables as `.env.example` on the service.
+Give the Cloud Run service account the Secret Manager Secret Accessor role on
+each secret, and add the service's `run.app` domain to Firebase
+Authentication's authorized domains after the first deploy.
+
+**Every release.** Build with [cloudbuild.yaml](cloudbuild.yaml), which bakes
+the four public Firebase values into the browser code, then deploy:
+
+```bash
+gcloud builds submit --config=cloudbuild.yaml --region=asia-south1 \
+  --substitutions=_FB_API_KEY=...,_FB_AUTH_DOMAIN=...,_FB_PROJECT_ID=...,_FB_APP_ID=...
+gcloud run deploy finlio --region=asia-south1 --allow-unauthenticated \
+  --image=asia-south1-docker.pkg.dev/YOUR_PROJECT_ID/finlio/web:latest \
+  --set-env-vars=GCP_PROJECT_ID=YOUR_PROJECT_ID,APP_URL=https://YOUR_SERVICE_URL \
+  --set-secrets=AUTH_SECRET=auth-secret:latest,VAULT_MASTER_KEY=vault-master-key:latest,GEMINI_API_KEY=gemini-api-key:latest
+```
+
+[docs/gcp-setup.md](docs/gcp-setup.md) covers the rest of the Google Cloud
+setup (Firebase Auth, send-only email) and hosting on Vercel instead, with
+keyless access through Workload Identity Federation.
 
 ## Development
 
