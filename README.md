@@ -11,78 +11,216 @@ explains. It never tells anyone what to buy, sell or hold.
 
 | If you want to… | Start here |
 |---|---|
-| Understand the whole system on one page | [Architecture at a glance](#architecture-at-a-glance) |
-| See how the AI is designed, bounded and kept from giving advice | [AI architecture](#ai-architecture) |
-| Know exactly where money data is stored and who can read it | [Data architecture](#data-architecture) |
+| Understand the whole system on one page | [System context](#1-system-context) |
+| See what runs where in Google Cloud | [Deployment architecture](#2-deployment-architecture) |
+| Follow one request from the domain to the database | [Request lifecycle](#4-request-lifecycle) |
+| See how the AI is designed, bounded and kept from giving advice | [AI architecture](#5-ai-architecture) |
+| Know exactly where money data is stored and who can read it | [Data architecture](#7-data-architecture) |
 | Run Finlio on your machine in five minutes | [Run it locally](#run-it-locally) |
-| Ship a release to Google Cloud | [Deploy](#deploy) |
-| Change what the chat is allowed to say | [lib/chat-prompt.ts](lib/chat-prompt.ts) and [lib/ai-guard.ts](lib/ai-guard.ts) |
+| Ship a release | [Deploy](#deploy) |
 
-## Architecture at a glance
+## Contents
 
-Finlio is one Next.js application on Cloud Run in Mumbai (`asia-south1`).
-Firebase Hosting gives it the `finlio.app` domain and certificate and passes
-every request through. The server is the only component that talks to the
-database, the model and the market-data provider; the browser talks only to
-Finlio and to Firebase Auth.
+1. [System context](#1-system-context)
+2. [Deployment architecture](#2-deployment-architecture)
+3. [Application architecture](#3-application-architecture)
+4. [Request lifecycle](#4-request-lifecycle)
+5. [AI architecture](#5-ai-architecture)
+6. [Identity and sessions](#6-identity-and-sessions)
+7. [Data architecture](#7-data-architecture)
+8. [Market data](#8-market-data)
+9. [Security architecture](#9-security-architecture)
+10. [Delivery pipeline](#10-delivery-pipeline)
+11. [Quality attributes](#11-quality-attributes)
+
+Then: [Built for India](#built-for-how-money-is-held-in-india) ·
+[Measurements](#what-the-numbers-show) · [Run it locally](#run-it-locally) ·
+[Deploy](#deploy) · [Operations](#operations) ·
+[Repository map](#repository-map) · [Development](#development)
+
+## Architecture decisions
+
+| Decision | Why |
+|---|---|
+| **One Next.js application** for pages and APIs | One codebase, one deployable, one security boundary. Every API sits next to the screen that uses it. |
+| **Cloud Run in Mumbai** (`asia-south1`) | Close to the people it serves and to the database; scales to zero; each deploy is a revision that can be rolled back instantly. |
+| **Firebase Hosting in front** | Free managed certificate and custom domain for a region where Cloud Run domain mapping is not offered. |
+| **Server-side encryption** of every money record | A copy of the database alone reveals nothing, while the server can still show people their own numbers and support multiple devices. |
+| **The model sees totals, never records** | The cheapest data to protect is data never sent. The app does the arithmetic; the model only explains it. |
+| **A small model** (Gemini 3.5 Flash-Lite) | Explaining numbers the app has already calculated needs fluency, not deep reasoning. Low latency, low cost per answer. |
+| **Explain, never advise** as an enforced rule | Enforced twice: by the prompt and by a filter that checks every sentence before anyone sees it. |
+
+## 1. System context
+
+Who and what Finlio talks to. The browser talks only to Finlio and to
+Firebase Auth; everything else is reached by Finlio's server.
 
 ```mermaid
 flowchart LR
-    Person(["Person<br/>browser or phone"])
+    Person(["Person in India<br/>browser or phone"])
+    Finlio["Finlio<br/>finlio.app"]
+    Auth["Firebase Auth<br/>Google and email sign-in"]
+    Gemini["Google Gemini API<br/>explanations and chat"]
+    Upstox["Upstox<br/>NSE prices and instrument list"]
+    Mail["Gmail API<br/>send-only account emails"]
 
-    subgraph Edge["Edge"]
-        Hosting["Firebase Hosting<br/>finlio.app, TLS"]
-    end
-
-    subgraph Run["Cloud Run · asia-south1"]
-        direction TB
-        Pages["Next.js 16 pages<br/>proxy gates signed-in screens"]
-        API["API routes<br/>session check, rate limit,<br/>schema validation"]
-        AIsvc["AI services<br/>/api/chat, /api/analytics"]
-        Vault["Vault service<br/>seal and open, sync"]
-        Market["Market service<br/>/api/quotes, /api/instruments"]
-        Pages --- API
-        API --> AIsvc
-        API --> Vault
-        API --> Market
-    end
-
-    subgraph Google["Google Cloud and Firebase"]
-        direction TB
-        Auth["Firebase Auth<br/>Google and email sign-in"]
-        Store[("Cloud Firestore<br/>users, sessions, vault")]
-        Secrets[/"Secret Manager<br/>AUTH_SECRET, VAULT_MASTER_KEY,<br/>GEMINI_API_KEY"/]
-        Gemini["Gemini API<br/>gemini-3.5-flash-lite"]
-    end
-
-    Upstox["Upstox<br/>NSE prices and<br/>instrument list"]
-
-    Person -- "HTTPS" --> Hosting --> Pages
-    Person -. "sign in, ID token" .-> Auth
-    API -- "verify ID token" --> Auth
-    Vault -- "ciphertext only" --> Store
-    API -- "session lookup" --> Store
-    Secrets -. "mounted at start" .-> Run
-    AIsvc -- "totals, never raw records" --> Gemini
-    Market -- "read-only token" --> Upstox
+    Person -- "uses the app over HTTPS" --> Finlio
+    Person -. "signs in" .-> Auth
+    Finlio -- "verifies sign-in tokens" --> Auth
+    Finlio -- "totals and questions" --> Gemini
+    Finlio -- "read-only market data" --> Upstox
+    Finlio -. "welcome email, optional" .-> Mail
 ```
 
-| Layer | Technology | Responsibility |
+| External system | What Finlio uses it for | What Finlio sends |
 |---|---|---|
-| Edge | Firebase Hosting | Custom domain, managed certificate, rewrite of every path to Cloud Run |
-| Application | Next.js 16 (App Router, React 19, Turbopack), Node 22 container | Pages, API routes, server-side rendering, security headers |
-| Identity | Firebase Auth, `jose` | Google and email-and-password sign-in; the server verifies Google-signed ID tokens and issues its own session |
-| AI | Gemini API through `@google/genai` | Streaming chat and short written summaries of a person's totals |
-| Data | Cloud Firestore (Native mode) | Accounts, hashed sessions, and each person's encrypted vault |
-| Secrets | Secret Manager | Session signing key, vault master key, Gemini key, injected as environment variables |
-| Market data | Upstox analytics API | Live NSE quotes and the daily instrument list, read-only |
-| Delivery | Cloud Build, Artifact Registry, Cloud Run | Reproducible image builds from [cloudbuild.yaml](cloudbuild.yaml), revisions with instant rollback |
+| Firebase Auth | Account sign-in with Google or email and password | Nothing; the browser signs in and Finlio verifies the resulting token |
+| Gemini API | Chat answers and Analytics summaries | Totals, percentages, the question and recent turns, never raw records |
+| Upstox | Live NSE prices and the list of NSE equities | Instrument keys only |
+| Gmail API | A welcome email from a send-only account, when configured | The recipient's address and name |
 
-## AI architecture
+## 2. Deployment architecture
+
+Everything runs in one Google Cloud project, in Mumbai where a region applies.
+
+```mermaid
+flowchart TB
+    DNS["DNS at the registrar<br/>A record and TXT verification"]
+
+    subgraph Firebase["Firebase"]
+        Hosting["Hosting CDN<br/>finlio.app, www redirect,<br/>managed TLS certificate"]
+        FAuth["Firebase Auth"]
+    end
+
+    subgraph Region["Google Cloud · asia-south1 (Mumbai)"]
+        subgraph Run["Cloud Run service: finlio"]
+            Rev["Revision N<br/>Node 22 container, 1 vCPU, 1 GiB<br/>0 to 5 instances"]
+        end
+        Store[("Cloud Firestore<br/>Native mode")]
+        Registry[("Artifact Registry<br/>finlio/web image")]
+    end
+
+    subgraph Global["Google Cloud · global"]
+        Secrets[/"Secret Manager<br/>auth-secret, vault-master-key,<br/>gemini-api-key"/]
+        SA["Service account<br/>Cloud Run identity"]
+        Build["Cloud Build"]
+    end
+
+    DNS --> Hosting
+    Hosting -- "every path rewritten" --> Rev
+    Rev -- "runs as" --> SA
+    SA -- "reads secrets" --> Secrets
+    SA -- "reads and writes" --> Store
+    Build -- "pushes image" --> Registry
+    Registry -- "deployed as a revision" --> Rev
+    Rev -. "verifies tokens" .-> FAuth
+```
+
+| Resource | Setting |
+|---|---|
+| Cloud Run service | `finlio`, `asia-south1`, public, port 8080, 1 vCPU, 1 GiB, scales 0–5 |
+| Container | Node 22 on Alpine, multi-stage build, runs as an unprivileged user |
+| Database | Firestore Native mode, `(default)` database, `asia-south1` |
+| Secrets | Three secrets in Secret Manager, mounted as environment variables at revision start |
+| Identity | Cloud Run's service account reaches Firestore and Secret Manager; no key files anywhere |
+| Edge | Firebase Hosting site rewrites `**` to the Cloud Run service; `www.finlio.app` redirects permanently to `finlio.app` |
+| Images | Artifact Registry repository `finlio` in `asia-south1` |
+
+## 3. Application architecture
+
+Inside the one application: what runs in the browser, what runs on the server,
+and the modules each depends on.
+
+```mermaid
+flowchart LR
+    subgraph Client["Browser (React 19)"]
+        direction TB
+        Screens["Screens<br/>Dashboard, Holdings, Transactions,<br/>Assets and loans, Analytics, Goals, Insights"]
+        Store["Money store<br/>one context for all records"]
+        Prices["Price provider<br/>refreshes every 60 s"]
+        Sync["Vault client<br/>outbox, save after 0.8 s,<br/>retry after 30 s"]
+        Chat["Finlio chat<br/>builds the money summary"]
+        Screens --> Store
+        Screens --> Prices
+        Store --> Sync
+        Chat --> Store
+    end
+
+    subgraph Server["Server (Next.js 16 on Node 22)"]
+        direction TB
+        Proxy["proxy.ts<br/>gates signed-in pages"]
+        Guard["api-guard<br/>session, rate limit"]
+        R1["/api/auth/*"]
+        R2["/api/vault/sync"]
+        R3["/api/chat, /api/analytics"]
+        R4["/api/quotes, /api/instruments, /api/logo"]
+        R5["/api/account/*"]
+        Lib["Domain libraries<br/>auth, vault, gemini, ai-guard,<br/>upstox, instruments"]
+        Guard --> R2 & R3 & R4 & R5
+        R1 & R2 & R3 & R4 & R5 --> Lib
+    end
+
+    Sync -- "push and pull changes" --> R2
+    Chat -- "question and summary" --> R3
+    Prices -- "instrument keys" --> R4
+```
+
+| Server route | Purpose | Limit per minute |
+|---|---|---|
+| `POST /api/auth/firebase` | Exchange a Firebase ID token for a Finlio session | 10 per address, same-site only |
+| `GET /api/auth/session`, `POST /api/auth/logout` | Read or end the session | none / session |
+| `GET, POST /api/vault/sync` | Pull changes after a revision, push changes | 120 each, per person |
+| `POST /api/chat` | Streamed chat answer | 20 per person |
+| `POST /api/analytics` | Four to six bullet points about the Analytics screen | 5 per person |
+| `POST /api/quotes` | Live prices for up to 50 instruments | 60 per person |
+| `GET /api/instruments` | Search NSE equities | 300 per person |
+| `GET /api/logo` | Company logo from an allow-list of domains | 300 per person |
+| `POST /api/account/profile`, `POST /api/account/delete` | Update the profile, delete the account and its data | 20 and 3 per person |
+
+The client is built from Base UI primitives, Tailwind CSS 4, Motion and
+Lucide icons, in Geist Sans and Geist Mono. The interface is translated into
+six languages in [lib/i18n](lib/i18n).
+
+## 4. Request lifecycle
+
+One authenticated API call, from the domain to the database and back.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant H as Firebase Hosting
+    participant R as Cloud Run (Next.js)
+    participant G as api-guard
+    participant F as Firestore
+
+    B->>H: HTTPS request to finlio.app, __session cookie
+    H->>R: Rewrite to the finlio service (only __session is forwarded)
+    alt Page under the app
+        R->>R: proxy.ts checks the cookie signature
+        R-->>B: Page, or redirect to /sign-in
+    else API route
+        R->>G: guard(request, limit)
+        G->>F: Look up the hashed session id
+        F-->>G: Session and its owner
+        G->>G: Per-person rate limit
+        G-->>R: Carry on, or 401 / 429
+        R->>R: Validate the body with Zod
+        R->>F: Read or write that person's data
+        F-->>R: Result
+        R-->>B: JSON or a text stream, Cache-Control: no-store
+    end
+```
+
+Pages are gated by a signature check only, which needs no database call. Every
+API route checks the session in Firestore before touching data, so signing out
+or deleting an account takes effect on the next request.
+
+## 5. AI architecture
 
 Finlio uses AI for two jobs: answering questions in the chat, and writing a
 few sentences that explain the Analytics screen. Both follow the same four
-design principles.
+principles.
 
 | Principle | How it is enforced |
 |---|---|
@@ -91,7 +229,37 @@ design principles.
 | **Treat data as data.** | The person's numbers go to the model inside a marked `<money_summary>` block that the prompt says never to obey |
 | **Bound the cost of every call.** | A small model, low temperature, minimal thinking, a hard output cap and per-person rate limits |
 
-### How a chat question is answered
+### 5.1 The AI pipeline
+
+```mermaid
+flowchart LR
+    subgraph Device["Browser"]
+        Records[("Full records<br/>transactions, quantities,<br/>account names")]
+        Summary["Money summary<br/>totals and percentages"]
+        Records -- "reduced on the device" --> Summary
+    end
+
+    subgraph Server["/api/chat on Cloud Run"]
+        Gate["Session and<br/>20 a minute"]
+        Schema["Zod schema<br/>30 turns, 50 stocks max"]
+        Prompt["System prompt<br/>rules, worked refusal,<br/>reply language"]
+        Filter{"Advice filter<br/>each finished sentence"}
+    end
+
+    Model["Gemini 3.5 Flash-Lite<br/>temperature 0.3, 800 tokens,<br/>thinking MINIMAL"]
+    Backup["Second key<br/>if the first is out of quota"]
+    Answer["Answer streams in"]
+    Notice["Stream stops<br/>with a short notice"]
+
+    Summary --> Gate --> Schema --> Prompt --> Model
+    Model -. "429 or 5xx" .-> Backup
+    Model -- "streamed text" --> Filter
+    Backup -- "streamed text" --> Filter
+    Filter -- "explains" --> Answer
+    Filter -- "recommends" --> Notice
+```
+
+### 5.2 How a chat question is answered
 
 ```mermaid
 sequenceDiagram
@@ -121,24 +289,25 @@ sequenceDiagram
     B-->>P: Answer appears as it is written
 ```
 
+### 5.3 The two AI features
+
 | | Chat | Analytics summary |
 |---|---|---|
 | Route | [app/api/chat/route.ts](app/api/chat/route.ts) | [app/api/analytics/route.ts](app/api/analytics/route.ts) |
-| Input | Up to 30 turns, plus totals, category spending, allocation, each stock's daily and overall percentage change, and an optional goal | Net worth, assets, loans, period totals, category spending, allocation |
+| Input | Up to 30 turns, plus totals, category spending, allocation, each stock's daily and overall percentage change, an optional news brief and goal | Net worth, assets, loans, period totals, previous period's spending, category spending, allocation |
 | Never sent | Transactions, merchants, account numbers, share quantities | Same |
-| Output | Streamed text, under 120 words by default | Four to six one-sentence bullet points |
+| Output | Streamed text, under 120 words by default; greetings get one short line | Four to six one-sentence bullet points |
 | Guardrails | Prompt rules, data block, streaming sentence filter | Prompt rules, filter on every bullet |
 | Limit | 20 requests a minute per person | 5 requests a minute per person |
 
-### Guardrails in depth
+### 5.4 Guardrails in depth
 
 1. **The prompt** ([lib/chat-prompt.ts](lib/chat-prompt.ts)) forbids
    recommending any action with money, naming or ranking a product,
    predicting prices, and inventing numbers or reasons. It shows the model how
    to decline: say Finlio explains rather than advises, explain the person's
    own numbers instead, and point to a SEBI-registered investment adviser.
-   Greetings get a single short line, and the chat says it runs on Gemini if
-   asked.
+   Greetings get one short line, and the chat says it runs on Gemini if asked.
 2. **The data boundary.** The person's figures arrive inside
    `<money_summary>` tags and are declared to be data, so a news headline or
    a goal that reads like an instruction is not followed.
@@ -151,7 +320,7 @@ sequenceDiagram
    [tests/ai-guard.test.ts](tests/ai-guard.test.ts) pin the rules and check
    that the prompt's own example refusal passes the filter.
 
-### Model choice and cost controls
+### 5.5 Model choice and cost controls
 
 | Control | Setting | Where |
 |---|---|---|
@@ -166,16 +335,29 @@ Flash-Lite is enough because every answer is an explanation of numbers the
 app has already calculated. The model never does the arithmetic that the
 balance sheet depends on.
 
-## Identity and sessions
+## 6. Identity and sessions
 
 ```mermaid
-flowchart LR
-    A["Browser signs in<br/>with Firebase Auth"] --> B["Google-signed<br/>ID token"]
-    B --> C["/api/auth/firebase<br/>same-site check,<br/>10 tries a minute"]
-    C --> D{"Signature, issuer,<br/>audience and<br/>verified email OK?"}
-    D -- "no" --> X["401"]
-    D -- "yes" --> E["New random session id<br/>hash stored in Firestore"]
-    E --> F["__session cookie<br/>HMAC-signed, httpOnly,<br/>30 days"]
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant A as Firebase Auth
+    participant S as /api/auth/firebase
+    participant K as Google public keys
+    participant F as Firestore
+
+    B->>A: Sign in with Google, or email and password
+    A-->>B: ID token signed by Google
+    B->>S: POST the ID token (same-site only)
+    S->>K: Fetch signing keys (cached)
+    S->>S: Check signature, issuer, audience,<br/>expiry and verified email
+    alt Token is valid
+        S->>F: Create or update users/{id}
+        S->>F: Store sessions/{hash of a new random id}, 30-day expiry
+        S-->>B: Set __session (HMAC-signed, httpOnly)
+    else Token is not valid
+        S-->>B: 401
+    end
 ```
 
 - ID tokens are verified against Google's published keys, the project's
@@ -183,75 +365,220 @@ flowchart LR
 - The browser holds only a random session id signed with `AUTH_SECRET`.
   Firestore holds the session, so signing out or deleting an account ends it
   everywhere at once.
-- Pages are gated by a fast signature check in [proxy.ts](proxy.ts). Every API
-  route checks the session in Firestore before touching data.
 - The cookie is named `__session` because it is the only cookie Firebase
   Hosting forwards to Cloud Run.
+- Firebase Auth stores and checks passwords; Finlio's server never sees one.
 
-## Data architecture
+## 7. Data architecture
 
-Money data is encrypted on the Finlio server before it is written to
-Firestore. Each person's records are sealed with AES-256-GCM under a key
-derived for that person with HKDF-SHA256 from a master key. The master key
-lives in Secret Manager and never in the database. A copy of the database
-alone reveals no amounts, names or notes. The Finlio server can decrypt the
-data, which is how it shows people their own numbers.
+### 7.1 Data model
 
 ```mermaid
-flowchart TB
-    subgraph Browser
-        direction LR
-        App["Finlio app"]
-        Outbox[("Outbox on the device<br/>edits wait here when offline")]
-        App --> Outbox
-    end
+erDiagram
+    USER ||--o{ SESSION : "signs in with"
+    USER ||--o{ VAULT_RECORD : "owns"
 
-    subgraph Server["Finlio server on Cloud Run"]
-        direction LR
-        Session["Session check<br/>signed cookie"]
-        Seal["Seal and open<br/>AES-256-GCM"]
-        Key["Per-person key<br/>HKDF from the master key"]
-        Master[/"VAULT_MASTER_KEY<br/>Secret Manager"/]
-        Session --> Seal
-        Master --> Key --> Seal
-    end
-
-    subgraph Firestore["Cloud Firestore, asia-south1"]
-        direction LR
-        Users[("users/{id}<br/>name, email, picture")]
-        Sessions[("sessions/{hash}<br/>hashed session ids")]
-        Vault[("users/{id}/vault/*<br/>ciphertext and a revision number")]
-    end
-
-    Outbox -- "changed records over HTTPS" --> Session
-    Session -. "who is asking" .-> Sessions
-    Seal -- "ciphertext only" --> Vault
-    Vault -- "records after revision N" --> Seal
+    USER {
+        string id "Google sub or firebase:uid"
+        string name
+        string email
+        string picture
+        int rev "latest change number"
+    }
+    SESSION {
+        string idHash "SHA-256 of the session id"
+        string userId
+        timestamp createdAt
+        timestamp expiresAt "30 days"
+    }
+    VAULT_RECORD {
+        string docId "hash of kind and id"
+        string kind "holding, asset, entry, goal and more"
+        string id
+        string ciphertext "AES-256-GCM, null when deleted"
+        boolean deleted
+        int rev "change number"
+        int keyVersion "which master key sealed it"
+        timestamp clientUpdatedAt "newest edit wins"
+    }
 ```
 
-- **Sync.** Each change raises a revision counter, so a device asks only for
-  what changed since it last synced, and the newest edit wins when two
-  devices disagree.
+| Record kind | What it holds |
+|---|---|
+| `holding` | One stock and its lot-by-lot buy history |
+| `asset` | A bank balance, deposit, EPF, PPF, NPS, gold, property, crypto or a loan |
+| `entry` | One income or expense |
+| `goal` | A money goal and its target |
+| `snapshot` | Net worth at a point in time, for history |
+| `profile` | Name, city and whether the welcome setup is done |
+| `brief` | A saved news brief |
+| `expenses` | Spending imported from a linked account, with when it was synced |
+
+### 7.2 Encryption
+
+```mermaid
+flowchart LR
+    Master[/"VAULT_MASTER_KEY<br/>32 bytes, Secret Manager"/]
+    HKDF["HKDF-SHA256<br/>salt: person's id<br/>info: finlio-vault-v1"]
+    UserKey["Per-person key<br/>32 bytes"]
+    Record["Record JSON"]
+    AAD["Bound to<br/>person, kind and id"]
+    GCM["AES-256-GCM<br/>random 12-byte IV,<br/>16-byte tag"]
+    Cipher[("Ciphertext<br/>in Firestore")]
+
+    Master --> HKDF --> UserKey --> GCM
+    Record --> GCM
+    AAD --> GCM
+    GCM --> Cipher
+```
+
+- Each person's records are sealed under their own key, derived from the
+  master key. The master key lives in Secret Manager and never in the
+  database, so a copy of the database alone reveals no amounts, names or notes.
+- The person, kind and id are bound to each ciphertext as authenticated data,
+  so a record cannot be moved to another person or swapped for another record
+  without failing to decrypt.
+- Records carry a key version (currently 1) so the master key can be rotated.
+- The Finlio server can decrypt the data, which is how it shows people their
+  own numbers on any device.
+
+### 7.3 Sync between devices
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant D as Device
+    participant O as Outbox on the device
+    participant S as /api/vault/sync
+    participant F as Firestore
+
+    D->>O: Edit saved locally at once
+    Note over O: Waits 0.8 s to batch edits,<br/>kept across reloads and offline
+    O->>S: POST up to 200 changes
+    S->>S: Seal each record
+    S->>F: Transaction: raise the person's rev for each change,<br/>skip any change older than what is stored
+    F-->>S: Committed
+    S-->>O: Saved, clear those changes
+    Note over O,S: On failure the outbox keeps them<br/>and retries after 30 s
+    D->>S: GET ?since=last rev
+    S->>F: Records with rev greater than that, 500 at a time
+    F-->>S: Ciphertext
+    S-->>D: Opened records and the new cursor
+```
+
+- **Ordering.** A per-person revision counter, raised inside a Firestore
+  transaction, gives every change a place in order. A device asks only for
+  what changed after the last revision it saw.
+- **Conflicts.** The newest edit by the time it was made wins, so an old
+  offline edit cannot overwrite a newer one.
+- **Limits.** 200 changes per push, about 280 KB per record, 20,000 records
+  per person.
 - **Ownership.** Anyone can export all their data as CSV or JSON, or delete
   their account and its data, from Settings.
-- **No key files.** On Cloud Run the server reaches Firestore as the
-  service's own Google identity. On Vercel it uses Workload Identity
-  Federation.
-- **Passwords.** With email and password, Firebase Auth stores and checks the
-  password; Finlio's server only verifies the signed token Firebase issues.
-  Finlio never reads anyone's mailbox.
 
-## Security controls
+## 8. Market data
+
+```mermaid
+flowchart LR
+    Upstox["Upstox"]
+    List["NSE instrument list<br/>gzip JSON, cached in memory"]
+    Search["/api/instruments<br/>stock search"]
+    Quotes["/api/quotes<br/>up to 50 keys a call"]
+    Provider["Price provider<br/>in the browser, every 60 s"]
+    Views["Holdings, Dashboard<br/>worth now, today's change"]
+
+    Upstox -- "public file" --> List --> Search
+    Upstox -- "analytics token, read-only" --> Quotes
+    Provider --> Quotes
+    Provider --> Views
+```
+
+- Prices come from Upstox's read-only analytics token. Finlio never holds
+  broker credentials and cannot place orders.
+- Without the token, holdings still show what was paid, and the price card
+  says live prices are not available rather than guessing.
+- Broker exports from Zerodha, Groww, Upstox and Angel One are parsed in
+  [lib/broker-csv.ts](lib/broker-csv.ts) and matched to NSE instruments.
+
+## 9. Security architecture
+
+### 9.1 Trust boundaries
+
+```mermaid
+flowchart LR
+    subgraph Untrusted["Untrusted"]
+        Browser["Browser<br/>anything it sends is checked"]
+        Model["Model output<br/>checked before it is shown"]
+    end
+
+    subgraph Finlio["Trusted: Finlio server on Cloud Run"]
+        Checks["Session, rate limit,<br/>Zod schemas, advice filter"]
+        Keys["Signing and vault keys<br/>in memory only"]
+    end
+
+    subgraph Google["Trusted provider: Google Cloud"]
+        Secrets[/"Secret Manager"/]
+        DB[("Firestore<br/>ciphertext")]
+    end
+
+    Browser -- "HTTPS, signed cookie" --> Checks
+    Checks -- "totals only" --> Model
+    Model -- "streamed text" --> Checks
+    Secrets -- "at start" --> Keys
+    Checks -- "ciphertext" --> DB
+```
+
+### 9.2 Controls
 
 | Area | Control |
 |---|---|
-| Transport | HTTPS only, HSTS for two years including subdomains |
-| Browser | Content Security Policy, `X-Frame-Options: DENY`, strict referrer policy, camera, microphone, location and payment turned off |
-| Requests | Every API body is validated with Zod; sign-in accepts same-site posts only |
-| Abuse | Per-person and per-address request limits on every route |
-| Secrets | Secret Manager, read by the Cloud Run service account only |
-| Outbound | Company logos are fetched by the server from an allow-list, so the browser never calls a third party and the route is not an open proxy |
-| Market data | A read-only Upstox analytics token; Finlio never holds broker credentials and cannot place orders |
+| Transport | HTTPS only; HSTS for two years including subdomains |
+| Browser | Content Security Policy, `X-Frame-Options: DENY`, strict referrer policy; camera, microphone, location and payment turned off |
+| Authentication | Google-signed ID tokens verified on the server; verified email required; sessions stored server-side and revocable |
+| Authorisation | Every API route resolves the person from the session and reads or writes only their documents |
+| Input | Every request body is validated with Zod, with size limits on every field |
+| Abuse | Per-person and per-address request limits on every route; sign-in accepts same-site posts only |
+| Data at rest | AES-256-GCM per person, keys derived with HKDF, master key in Secret Manager |
+| Secrets | Secret Manager, read only by the Cloud Run service account; no key files in the image or repository |
+| AI | Totals only to the model; data marked as data; every sentence filtered for advice |
+| Outbound | Company logos fetched by the server from an allow-list, so the route is not an open proxy |
+| Market data | Read-only token; no broker credentials; no order placement |
+
+## 10. Delivery pipeline
+
+```mermaid
+flowchart LR
+    PR["Pull request"]
+    CI["GitHub Actions<br/>lint, typecheck,<br/>105 tests, build"]
+    Main["main"]
+    CB["Cloud Build<br/>cloudbuild.yaml"]
+    AR[("Artifact Registry<br/>finlio/web")]
+    CR["Cloud Run<br/>new revision"]
+    FH["Firebase Hosting<br/>new release,<br/>edge cache cleared"]
+    Live(["finlio.app"])
+
+    PR --> CI -- "passes" --> Main
+    Main --> CB --> AR --> CR --> FH --> Live
+    CR -. "rollback: move traffic<br/>to an earlier revision" .-> CR
+```
+
+CI runs on every pull request and every push to `main`. A release builds the
+image with the four public Firebase values baked into the browser code,
+deploys it as a new Cloud Run revision, and publishes a Hosting release so the
+edge stops serving pages from the previous build.
+
+## 11. Quality attributes
+
+| Attribute | How the design delivers it |
+|---|---|
+| **Privacy** | Totals only to the model; per-person encryption at rest; no passwords on Finlio's server; data export and deletion in Settings |
+| **Safety of advice** | Two independent layers (prompt and sentence filter), tested in six languages |
+| **Latency** | Region in Mumbai; streamed answers; a small model with minimal thinking |
+| **Cost** | Scale to zero; small model with an 800-token cap; rate limits on every AI route |
+| **Availability** | Gemini key failover; offline edits kept in the outbox and retried; instant rollback to a previous revision |
+| **Consistency** | Transactional revision counter; newest edit wins; paged pulls |
+| **Portability** | One container; runs on Cloud Run or Vercel with the same code; Firestore emulator for local work |
+| **Known limits** | Rate limits are counted per instance, not globally; the server can decrypt data by design; prices depend on Upstox being available |
 
 ## Built for how money is held in India
 
@@ -348,11 +675,11 @@ setup (Firebase Auth, send-only email) and hosting on Vercel instead.
 - **Logs.** Cloud Run sends server logs to Cloud Logging. AI routes log a
   warning each time the advice filter stops a reply.
 - **Releases.** Each deploy is a new Cloud Run revision, followed by a Hosting
-  release that clears the edge cache. Rolling back is
-  moving traffic to the previous revision.
+  release that clears the edge cache. Rolling back is moving traffic to the
+  previous revision.
 - **Scaling.** The service scales to zero when idle and up to five instances.
-  Request limits are counted in each instance's memory, which stops one
-  client flooding an instance but is not a global quota.
+  Request limits are counted in each instance's memory, which stops one client
+  flooding an instance but is not a global quota.
 - **Rotating a secret.** Add a new version in Secret Manager and redeploy;
   the service reads `latest` when a revision starts.
 
@@ -360,15 +687,17 @@ setup (Firebase Auth, send-only email) and hosting on Vercel instead.
 
 | Path | What lives there |
 |---|---|
-| [app/](app) | Pages (marketing, app screens) and API routes under `app/api` |
+| [app/](app) | Pages (marketing and app screens) and API routes under `app/api` |
 | [components/](components) | Interface, including the chat in `components/chat` |
 | [lib/chat-prompt.ts](lib/chat-prompt.ts), [lib/ai-guard.ts](lib/ai-guard.ts), [lib/gemini.ts](lib/gemini.ts) | The AI layer: instructions, advice filter, model client |
 | [lib/auth/](lib/auth) | Firebase token verification, sessions, cookies |
 | [lib/vault/](lib/vault) | Encryption, record storage and device sync |
 | [lib/gcp/](lib/gcp) | Firestore client and keyless Vercel access |
-| [lib/upstox.ts](lib/upstox.ts), [lib/instruments.ts](lib/instruments.ts) | Market data |
+| [lib/upstox.ts](lib/upstox.ts), [lib/instruments.ts](lib/instruments.ts), [lib/broker-csv.ts](lib/broker-csv.ts) | Market data and broker imports |
+| [lib/i18n/](lib/i18n) | Interface text in six languages |
+| [proxy.ts](proxy.ts) | Page gating for signed-in screens |
 | [tests/](tests) | Vitest suites |
-| [Dockerfile](Dockerfile), [cloudbuild.yaml](cloudbuild.yaml), [firebase.json](firebase.json) | Build and hosting |
+| [Dockerfile](Dockerfile), [cloudbuild.yaml](cloudbuild.yaml), [firebase.json](firebase.json), [scripts/release-hosting.sh](scripts/release-hosting.sh) | Build, hosting and release |
 
 ## Development
 
